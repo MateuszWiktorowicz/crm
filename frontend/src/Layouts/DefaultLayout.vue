@@ -1,13 +1,15 @@
 <script setup>
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import axiosClient from '../axios.js';
+import router from '../router.js';
+import { computed } from 'vue';
+import useUserStore from '../store/user.js';
 
-const user = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
-  imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-}
+const userStore = useUserStore();
+
+const user = computed(() => userStore.user)
+
 const navigation = [
   { name: 'Dashboard', to: {name: 'Dashboard'}},
   { name: 'Klienci', to: {name: 'Customers'}},
@@ -17,8 +19,14 @@ const navigation = [
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Sign out', onClick: logout },
 ]
+
+function logout() {
+  axiosClient.post('/logout').then(response => {
+    router.push({ name: 'Login' });
+  });
+}
 </script>
 
 
@@ -49,13 +57,13 @@ const userNavigation = [
                   <MenuButton class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
                     <span class="absolute -inset-1.5" />
                     <span class="sr-only">Open user menu</span>
-                    <img class="size-8 rounded-full" :src="user.imageUrl" alt="" />
+                    <p>image</p>
                   </MenuButton>
                 </div>
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                   <MenuItems class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 focus:outline-hidden">
-                    <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                      <a :href="item.href" :class="[active ? 'bg-gray-100 outline-hidden' : '', 'block px-4 py-2 text-sm text-gray-700']">{{ item.name }}</a>
+                    <MenuItem v-slot="{ active }">
+                      <button @click="logout" :class="['block px-4 py-2 text-sm text-gray-700']">Wyloguj</button>
                     </MenuItem>
                   </MenuItems>
                 </transition>
@@ -84,7 +92,7 @@ const userNavigation = [
         <div class="border-t border-gray-700 pt-4 pb-3">
           <div class="flex items-center px-5">
             <div class="shrink-0">
-              <img class="size-10 rounded-full" :src="user.imageUrl" alt="" />
+              <p>image</p>
             </div>
             <div class="ml-3">
               <div class="text-base/5 font-medium text-white">{{ user.name }}</div>
@@ -92,7 +100,9 @@ const userNavigation = [
             </div>
           </div>
           <div class="mt-3 space-y-1 px-2">
-            <DisclosureButton v-for="item in userNavigation" :key="item.name" as="a" :href="item.href" class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">{{ item.name }}</DisclosureButton>
+            <DisclosureButton class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+              <button @click="logout">Wyloguj</button>
+            </DisclosureButton>
           </div>
         </div>
       </DisclosurePanel>
