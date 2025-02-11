@@ -28,7 +28,7 @@ function submit() {
 
 <template>
 <GuestLayout>
-      <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
+      <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Zaloguj się</h2>
       <div v-if="errorMessage" class="px-2 py-2 text-white bg-red-400 rounded">{{ errorMessage }}</div>
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form @submit.prevent="submit" class="space-y-6">

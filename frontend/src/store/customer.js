@@ -14,6 +14,7 @@ const useCustomerStore = defineStore('customer', {
             saler_marker: '',
             description: '',
         },
+        selectedCustomersFile: null,
         isModalOpen: false,
         errors: {}
     }),
@@ -40,13 +41,25 @@ const useCustomerStore = defineStore('customer', {
                 this.errors = error.response?.data?.errors ?? {};
             }
         },
+        async importCustomers(formData) {
+            await axiosClient.post('/api/klienci/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            this.fetchCustomers();
+        },
         openModal(customer = null) {
             this.customer = customer || { code: "", name: "", nip: "", zip_code: "", city: "", address: "", saler_marker: "", description: "" };
             this.isModalOpen = true;
         },
         closeModal() {
             this.isModalOpen = false;
-        }
+        },
+        setSelectedFile(file) {
+            this.selectedFile = file;
+        },
+        clearSelectedFile() {
+            this.selectedFile = null;
+        },
     }
 });
 

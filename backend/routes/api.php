@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{CustomerController, UserController};
-
+use App\Http\Controllers\Import\CustomerImportController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
@@ -20,4 +20,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/pracownicy/{user}', [UserController::class, 'delete']);
 
     Route::put('/klienci/{customer}', [CustomerController::class, 'edit']);
+
+    Route::post('/klienci/import', [CustomerImportController::class, 'import']);
 });

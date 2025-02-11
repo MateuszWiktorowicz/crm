@@ -1,14 +1,39 @@
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import useCustomerStore from '../../store/customer';
 import CustomerModal from './CustomerModal.vue';
 
 const customerStore = useCustomerStore();
+const fileInput = ref(null);
 
 onMounted(() => {
     customerStore.fetchCustomers();
 })
 
+const selectFile = () => {
+    // Jeśli masz input w szablonie, po prostu kliknij go.
+    const fileInput = document.querySelector('#fileInput');
+    if (fileInput) fileInput.click();
+};
+
+const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    customerStore.setSelectedFile(file); // Ustawienie pliku w Pinia
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        await customerStore.importCustomers(formData); // Wywołanie importu
+        alert('Import zakończony sukcesem!');
+        customerStore.clearSelectedFile(); // Czyszczenie stanu pliku
+    } catch (error) {
+        console.error('Błąd importu:', error);
+        alert('Wystąpił błąd podczas importu.');
+    }
+};
 </script>
 
 <template>
@@ -17,10 +42,25 @@ onMounted(() => {
 
     <button
       @click="customerStore.openModal()"
-      class="mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition"
+      class="mx-2 mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition"
     >
       + Dodaj Klienta
     </button>
+
+    <button
+      @click="selectFile"
+      class="mx-2 mb-4 px-5 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+    >
+      📂 Importuj Klientów
+    </button>
+
+    <!-- Ukryty input, aby nie wyświetlał się na stronie -->
+    <input
+      type="file"
+      id="fileInput"
+      @change="handleFileUpload"
+      class="hidden"
+    />
 
     <div class="overflow-x-auto bg-white shadow-lg rounded-lg border border-gray-300">
       <table class="w-full border-separate border-spacing-0">
