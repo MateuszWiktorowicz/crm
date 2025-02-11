@@ -13,15 +13,24 @@ const useUserStore = defineStore('user', {
             roles: [],
         },
         isModalOpen: false,
+        navigation: [],
         errors: {},
     }),
     actions: {
         async fetchUser() {
             try {
-                const response = await axiosClient.get('/api/pracownicy');
+                const response = await axiosClient.get('/api/user');
                 this.user = response.data;
             } catch (error) {
                 console.error("Błąd pobierania użytkownika", error);
+            }
+        },
+        async fetchDictionaries() {
+            try {
+                const response = await axiosClient.get('/api/dictionaries');
+                this.navigation = response.data.navigation;
+            } catch (error) {
+                console.log(error);
             }
         },
         async fetchUsers() {

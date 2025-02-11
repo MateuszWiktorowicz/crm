@@ -3,24 +3,19 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import axiosClient from '../axios.js';
 import router from '../router.js';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import useUserStore from '../store/user.js';
+import ApplicationLogo from '../components/ApplicationLogo.vue';
 
 const userStore = useUserStore();
 
-const user = computed(() => userStore.user)
+const user = computed(() => userStore.user);
+const navigation = computed(() => userStore.navigation);
 
-const navigation = [
-  { name: 'Dashboard', to: {name: 'Dashboard'}},
-  { name: 'Klienci', to: {name: 'Customers'}},
-  { name: 'Oferty', to: {name: 'Offers'}},
-  { name: 'Pracownicy', to: {name: 'Employees'}},
-]
-const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', onClick: logout },
-]
+onMounted(() => {
+  console.log(user.value);
+  userStore.fetchDictionaries();
+});
 
 function logout() {
   axiosClient.post('/logout').then(response => {
@@ -36,15 +31,17 @@ function logout() {
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center">
-            <div class="shrink-0">
-              <img class="size-8" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
-            </div>
+            <ApplicationLogo />
             <div class="hidden md:block">
               <div class="ml-10 flex items-baseline space-x-4">
-                <RouterLink v-for="item in navigation" 
-                :key="item.name" 
-                :to="item.to" 
-                :class="[$route.name === item.to.name ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'rounded-md px-3 py-2 text-sm font-medium']" :aria-current="$route.name === item.to.name  ? 'page' : undefined">{{ item.name }}</RouterLink>
+                <RouterLink 
+                  v-for="item in navigation" 
+                  :key="item.name" 
+                  :to="item.to" 
+                  :class="[$route.name === item.to.name ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'rounded-md px-3 py-2 text-sm font-medium']" 
+                  :aria-current="$route.name === item.to.name ? 'page' : undefined">
+                  {{ item.name }}
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -56,8 +53,8 @@ function logout() {
                 <div>
                   <MenuButton class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
                     <span class="absolute -inset-1.5" />
-                    <span class="sr-only">Open user menu</span>
-                    <p>image</p>
+                    <span class="sr-only">Otwórz menu</span>
+                    <p class="text-white">{{ user.email }}</p>
                   </MenuButton>
                 </div>
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
@@ -74,7 +71,7 @@ function logout() {
             <!-- Mobile menu button -->
             <DisclosureButton class="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
               <span class="absolute -inset-0.5" />
-              <span class="sr-only">Open main menu</span>
+              <span class="sr-only">Otwórz menu</span>
               <Bars3Icon v-if="!open" class="block size-6" aria-hidden="true" />
               <XMarkIcon v-else class="block size-6" aria-hidden="true" />
             </DisclosureButton>
@@ -90,15 +87,6 @@ function logout() {
           :class="[$route.name === item.to.name ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block rounded-md px-3 py-2 text-base font-medium']" :aria-current="$route.name === item.to.name ? 'page' : undefined">{{ item.name }}</RouterLink>
         </div>
         <div class="border-t border-gray-700 pt-4 pb-3">
-          <div class="flex items-center px-5">
-            <div class="shrink-0">
-              <p>image</p>
-            </div>
-            <div class="ml-3">
-              <div class="text-base/5 font-medium text-white">{{ user.name }}</div>
-              <div class="text-sm font-medium text-gray-400">{{ user.email }}</div>
-            </div>
-          </div>
           <div class="mt-3 space-y-1 px-2">
             <DisclosureButton class="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
               <button @click="logout">Wyloguj</button>

@@ -48,4 +48,9 @@ class User extends Authenticatable
             'roles' => 'array',
         ];
     }
+
+    public function hasRole($role)
+    {
+        return in_array($role, $this->roles);
+    }
 }

@@ -33,4 +33,24 @@ class UserController extends Controller
         $user->delete();
         return response()->json(['message' => 'Pracownik usunięty', 200]);
     }
+
+    public function getUserDictionaries(Request $request)
+    {
+        $user = $request->user();
+
+        $navigation = [
+            ['name' => 'Dashboard', 'to' => '/'],
+            ['name' => 'Klienci', 'to' => 'klienci'],
+            ['name' => 'Oferty', 'to' => 'oferty'],
+            
+        ];
+
+        if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
+            $navigation[] = ['name' => 'Pracownicy', 'to' => 'pracownicy'];
+        }
+
+        return response()->json([
+            'navigation' => $navigation,
+        ]);
+    }
 }
