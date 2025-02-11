@@ -13,7 +13,7 @@ const saveUser = async () => {
 <template>
     <TransitionRoot appear :show="userStore.isModalOpen" as="template">
       <Dialog as="div" class="relative z-10" @close="userStore.closeModal">
-        <div class="fixed inset-0 bg-black bg-opacity-30"></div>
+        <div class="fixed inset-0 bg-black/50"></div>
   
         <div class="fixed inset-0 flex items-center justify-center">
           <DialogPanel class="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
@@ -25,16 +25,19 @@ const saveUser = async () => {
               <div class="mb-4">
                 <label class="block text-sm font-medium">Imię</label>
                 <input v-model="userStore.user.name" class="w-full p-2 border rounded" />
+                <InputError :message="userStore.errors.name" />
               </div>
   
               <div class="mb-4">
                 <label class="block text-sm font-medium">E-mail</label>
                 <input type="email" v-model="userStore.user.email" class="w-full p-2 border rounded" />
+                <InputError :message="userStore.errors.email" />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium">Hasło</label>
                 <input type="password" v-model="userStore.user.password" class="w-full p-2 border rounded" />
+                <InputError :message="userStore.errors.password" />
               </div>
 
               <div class="mb-4">
@@ -45,11 +48,13 @@ const saveUser = async () => {
               <div class="mb-4">
                 <label class="block text-sm font-medium">Znacznik</label>
                 <input type="text" v-model="userStore.user.marker" class="w-full p-2 border rounded" />
+                <InputError :message="userStore.errors.marker" />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium">Uprawnienia</label>
                 <input type="text" v-model="userStore.user.roles" class="w-full p-2 border rounded" />
+                <InputError :message="userStore.errors.roles" />
               </div>
 
               <div class="flex justify-end space-x-2">
