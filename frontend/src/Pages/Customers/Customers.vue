@@ -101,7 +101,7 @@ const handleFileUpload = async (event) => {
                 Edytuj
               </button>
               <button
-
+              @click="customerStore.deleteCustomer(customer.id)"
                 class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
               >
                 Usuń

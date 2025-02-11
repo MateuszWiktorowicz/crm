@@ -41,8 +41,18 @@ const useCustomerStore = defineStore('customer', {
                 this.errors = error.response?.data?.errors ?? {};
             }
         },
-        async importCustomers(formData) {
-            await axiosClient.post('/api/klienci/import', formData, {
+        async deleteCustomer(customerId) {
+            try {
+                if (confirm("Czy na pewno chcesz usunąć tego klienta?")) {
+                    await axiosClient.delete(`/api/klienci/${customerId}`);
+                    await this.fetchCustomers();
+                }
+            } catch (error) {
+                console.error("Błąd podczas usuwania klienta:", error);
+            }
+        },
+        async importCustomers(fileData) {
+            await axiosClient.post('/api/klienci/import', fileData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             this.fetchCustomers();

@@ -11,7 +11,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     
     Route::apiResource('/klienci', CustomerController::class)
-    ->only(['index', 'store', 'destroy']);
+    ->only(['index', 'store']);
 
     Route::apiResource('/pracownicy', UserController::class)
     ->only(['index', 'store']);
@@ -22,4 +22,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/klienci/{customer}', [CustomerController::class, 'edit']);
 
     Route::post('/klienci/import', [CustomerImportController::class, 'import']);
+    Route::delete('/klienci/{customer}', [CustomerController::class, 'destroy']);
 });
