@@ -23,4 +23,14 @@ class CustomerController extends Controller
 
         return response(null, 204);
     }
+
+    public function edit(CustomerRequest $request, Customer $customer)
+    {
+        $customer->update($request->validated());
+
+        return response()->json([
+            'message' => 'Customer został pomyślnie zaktualizowany.',
+            'customer' => $customer
+        ], 200);
+    }
 }

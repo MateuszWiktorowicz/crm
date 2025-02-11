@@ -18,4 +18,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('/pracownicy/{user}', [UserController::class, 'edit']);
     Route::delete('/pracownicy/{user}', [UserController::class, 'delete']);
+
+    Route::put('/klienci/{customer}', [CustomerController::class, 'edit']);
 });
