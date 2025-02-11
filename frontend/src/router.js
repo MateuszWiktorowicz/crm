@@ -3,10 +3,9 @@ import { createWebHistory } from 'vue-router';
 import DefaultLayout from './Layouts/DefaultLayout.vue';
 import MyImages from './Pages/MyImages.vue';
 import Login from './Pages/Login.vue';
-import Signup from './Pages/Employees/CreateForm.vue';
 import NotFound from './Pages/NotFound.vue';
 import Dashboard from './Pages/Dashboard.vue';
-import Customers from './Pages/Customers.vue';
+import Customers from './Pages/Customers/Customers.vue';
 import Offers from './Pages/Offers.vue';
 import Employees from './Pages/Employees/Employees.vue';
 import useUserStore from './store/user';
@@ -38,11 +37,6 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: Login,
-    },
-    {
-        path: '/signup',
-        name: 'Signup',
-        component: Signup,
     },
     {
         path: '/:pathMatch(.*)*',
