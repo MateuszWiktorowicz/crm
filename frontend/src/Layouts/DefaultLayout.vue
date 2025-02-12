@@ -28,8 +28,8 @@ function logout() {
 <template>
   <div class="min-h-full">
     <Disclosure as="nav" class="bg-gray-800" v-slot="{ open }">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
+      <div class="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-24 items-center justify-between">
           <div class="flex items-center">
             <ApplicationLogo />
             <div class="hidden md:block">

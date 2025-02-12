@@ -14,6 +14,14 @@ const useUserStore = defineStore('user', {
         },
         isModalOpen: false,
         navigation: [],
+        rolesToAssign: [],
+        filteredUsers: [],
+        filters: {
+            name: '',
+            email: '',
+            roles: '',
+            marker: '',
+          },
         errors: {},
     }),
     actions: {
@@ -29,6 +37,8 @@ const useUserStore = defineStore('user', {
             try {
                 const response = await axiosClient.get('/api/dictionaries');
                 this.navigation = response.data.navigation;
+                this.rolesToAssign = response.data.rolesToAssign;
+                console.log(this.rolesToAssign);
             } catch (error) {
                 console.log(error);
             }
@@ -37,6 +47,7 @@ const useUserStore = defineStore('user', {
             try {
                 const response = await axiosClient.get('api/pracownicy');
                 this.users = response.data;
+                this.filteredUsers = this.users;
             } catch (error) {
                 console.log(error);
             }
@@ -71,7 +82,25 @@ const useUserStore = defineStore('user', {
         },
         closeModal() {
             this.isModalOpen = false;
-        }
+        },
+        isCreator() {
+            if (!this.user) return false;
+            return this.user.roles && (this.user.roles.includes('admin') || this.user.roles.includes('regeneration'));
+        },
+        setFilter(column, value) {
+
+            this.filters[column] = value;
+            this.filterUsers();
+          },
+          filterUsers() {
+            if (!Array.isArray(this.users)) return;
+            
+            this.filteredUsers = this.users.filter(user =>
+                Object.entries(this.filters).every(([key, value]) => 
+                    !value || (user[key] || '').toLowerCase().includes(value.toLowerCase())
+                )
+            );
+        }        
     },
 });
 

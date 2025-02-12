@@ -17,10 +17,22 @@ const routes = [
         component: DefaultLayout,
         children: [
             {path: '/', name: 'Dashboard', component: Dashboard},
-            {path: '/images', name: 'MyImages', component: MyImages},
             {path: '/klienci', name: 'Customers', component: Customers},
             {path: '/oferty', name: 'Offers', component: Offers},
-            {path: '/pracownicy', name: 'Employees', component: Employees},
+            {
+                path: '/pracownicy', 
+                name: 'Employees', 
+                component: Employees,
+                beforeEnter: (to, from, next) => {
+                    const userStore = useUserStore();
+                    const user = userStore.user;
+                    if (user && (user.roles.includes('admin') || user.roles.includes('regeneration'))) {
+                        next(); 
+                    } else {
+                        next('/');
+                    }
+                }
+            }
         ],
         beforeEnter: async (to, from, next) => {
             try {

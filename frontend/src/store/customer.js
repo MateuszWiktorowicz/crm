@@ -16,6 +16,16 @@ const useCustomerStore = defineStore('customer', {
         },
         selectedCustomersFile: null,
         isModalOpen: false,
+        filteredCustomers: [],
+        filters: {
+            code: '',
+            name: '',
+            nip: '',
+            city: '',
+            address: '',
+            saler_marker: '',
+            description: '',
+          },
         errors: {}
     }),
     actions: {
@@ -23,6 +33,7 @@ const useCustomerStore = defineStore('customer', {
             try {
                 const response = await axiosClient.get('/api/klienci');
                 this.customers = response.data
+                this.filteredCustomers = this.customers;
             } catch {
                 console.error("Błąd pobierania klientów", error);
             }
@@ -70,6 +81,20 @@ const useCustomerStore = defineStore('customer', {
         clearSelectedFile() {
             this.selectedFile = null;
         },
+        setFilter(column, value) {
+
+            this.filters[column] = value;
+            this.filterCustomers();
+          },
+          filterCustomers() {
+            if (!Array.isArray(this.customers)) return;
+            
+            this.filteredCustomers = this.customers.filter(customer =>
+                Object.entries(this.filters).every(([key, value]) => 
+                    !value || (customer[key] || '').toLowerCase().includes(value.toLowerCase())
+                )
+            );
+        }        
     }
 });
 

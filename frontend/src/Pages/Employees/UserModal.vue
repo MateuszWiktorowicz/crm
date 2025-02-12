@@ -53,7 +53,15 @@ const saveUser = async () => {
 
               <div class="mb-4">
                 <label class="block text-sm font-medium">Uprawnienia</label>
-                <input type="text" v-model="userStore.user.roles" class="w-full p-2 border rounded" />
+                <span class="mx-2" v-for="(label, role) in userStore.rolesToAssign" :key="role">
+                <input 
+                  type="checkbox" 
+                  :id="role" 
+                  :value="role" 
+                  v-model="userStore.user.roles"
+                />
+                <label :for="role">{{ label }}</label>
+                </span>
                 <InputError :message="userStore.errors.roles" />
               </div>
 

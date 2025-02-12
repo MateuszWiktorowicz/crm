@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Customer::all();
+        $user = $request->user();
+
+        if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
+            return Customer::all();
+        } else if ($user->hasRole('saler')) {
+            return Customer::where('saler_marker', $user->marker)->get();
+        }
     }
 
     public function store(CustomerRequest $request)

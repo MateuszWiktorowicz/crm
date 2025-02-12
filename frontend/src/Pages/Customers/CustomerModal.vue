@@ -2,8 +2,10 @@
 import useCustomerStore from "../../store/customer";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vue";
 import InputError from "../../components/InputError.vue";
+import useUserStore from "../../store/user";
 
 const customerStore = useCustomerStore();
+const userStore = useUserStore();
 
 const saveCustomer = async () => {
   await customerStore.saveCustomer(customerStore.customer);

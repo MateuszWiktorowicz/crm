@@ -38,6 +38,15 @@ class UserController extends Controller
     {
         $user = $request->user();
 
+        $rolesToAssign = [
+            'regeneration' => 'regeneracja',
+            'saler' => 'handlowiec'
+        ];
+
+        if ($user->hasRole('admin')) {
+            $rolesToAssign['admin'] = 'admin';
+        };
+
         $navigation = [
             ['name' => 'Dashboard', 'to' => '/'],
             ['name' => 'Klienci', 'to' => 'klienci'],
@@ -51,6 +60,7 @@ class UserController extends Controller
 
         return response()->json([
             'navigation' => $navigation,
+            'rolesToAssign' => $rolesToAssign
         ]);
     }
 }
