@@ -51,6 +51,7 @@ class UserController extends Controller
             ['name' => 'Dashboard', 'to' => '/'],
             ['name' => 'Klienci', 'to' => 'klienci'],
             ['name' => 'Oferty', 'to' => 'oferty'],
+            ['name' => 'Narzędzia', 'to' => 'narzedzia'],
             
         ];
 
