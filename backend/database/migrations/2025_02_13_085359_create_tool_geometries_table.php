@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('flutes_number');
             $table->integer('diameter');
             $table->integer('face_grinding_time');
-            $table->integer('periphery_grinding_times_2d_tool')->nullable();
+            $table->integer('periphery_grinding_time_2d_tool')->nullable();
             $table->unsignedBigInteger('id_tool_type');
             
             $table->foreign('id_tool_type')->references('id')->on('tool_types')->onDelete('restrict');

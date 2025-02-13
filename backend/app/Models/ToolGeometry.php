@@ -11,7 +11,7 @@ class ToolGeometry extends Model
         'flutes_number',
         'diameter',
         'face_grinding_time',
-        'periphery_grinding_times_2d_tool',
+        'periphery_grinding_time_2d_tool',
         'id_tool_type'
     ];
 
