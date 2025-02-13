@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->json('roles')->nullable();
-            $table->string('marker', 10)->unique();
+            if (!Schema::hasColumn('users', 'roles')) {
+                $table->json('roles')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'marker')) {
+                $table->string('marker')->nullable();
+            }
         });
     }
 
