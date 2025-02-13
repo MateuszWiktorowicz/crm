@@ -1,7 +1,7 @@
 import { createRouter } from 'vue-router';
 import { createWebHistory } from 'vue-router';
 import DefaultLayout from './Layouts/DefaultLayout.vue';
-import MyImages from './Pages/MyImages.vue';
+import Tools from './Pages/Tools/Tools.vue';
 import Login from './Pages/Login.vue';
 import NotFound from './Pages/NotFound.vue';
 import Dashboard from './Pages/Dashboard.vue';
@@ -19,6 +19,7 @@ const routes = [
             {path: '/', name: 'Dashboard', component: Dashboard},
             {path: '/klienci', name: 'Customers', component: Customers},
             {path: '/oferty', name: 'Offers', component: Offers},
+            {path: '/narzedzia', name: 'Tools', component: Tools},
             {
                 path: '/pracownicy', 
                 name: 'Employees', 
