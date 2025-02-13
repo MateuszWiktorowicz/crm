@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{CustomerController, UserController};
+use App\Http\Controllers\{CustomerController, UserController, ToolController};
 use App\Http\Controllers\Import\CustomerImportController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -24,4 +24,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/klienci/import', [CustomerImportController::class, 'import']);
     Route::delete('/klienci/{customer}', [CustomerController::class, 'destroy']);
     Route::get('/dictionaries', [UserController::class, 'getUserDictionaries']);
+
+    Route::get('/tools', [ToolController::class, 'index']);
+
+
 });
