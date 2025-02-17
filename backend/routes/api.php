@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{CustomerController, UserController, ToolController};
+use App\Http\Controllers\{CoatingController, CustomerController, UserController, ToolController};
 use App\Http\Controllers\Import\CustomerImportController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -26,6 +26,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/dictionaries', [UserController::class, 'getUserDictionaries']);
 
     Route::get('/tools', [ToolController::class, 'index']);
+    Route::get('/coatings', [CoatingController::class, 'index']);
 
 
 });

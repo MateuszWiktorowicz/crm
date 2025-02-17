@@ -8,6 +8,7 @@ import Dashboard from './Pages/Dashboard.vue';
 import Customers from './Pages/Customers/Customers.vue';
 import Offers from './Pages/Offers.vue';
 import Employees from './Pages/Employees/Employees.vue';
+import Coatings from './Pages/Coatings/Coatings.vue';
 import useUserStore from './store/user';
 
 
@@ -20,6 +21,7 @@ const routes = [
             {path: '/klienci', name: 'Customers', component: Customers},
             {path: '/oferty', name: 'Offers', component: Offers},
             {path: '/narzedzia', name: 'Tools', component: Tools},
+            {path: '/pokrycia', name: 'Coatings', component: Coatings },
             {
                 path: '/pracownicy', 
                 name: 'Employees', 
