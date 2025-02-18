@@ -2,7 +2,7 @@
 import { onMounted } from 'vue';
 import Header from '../../components/Header.vue';
 import useCoatingStore from '../../store/coating';
-import CoatingFilterInput from '../../components/ToolFilterInput.vue';
+import CoatingFilterInput from '../../components/CoatingFilterInput.vue';
 
 const coatingStore = useCoatingStore();
 

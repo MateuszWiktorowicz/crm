@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\CoatingType;
-use App\Models\CoatingPrice;
 
 class CoatingController extends Controller
 {
@@ -15,7 +14,7 @@ class CoatingController extends Controller
         $coatings = DB::table('coating_types')
             ->join('coating_prices', 'coating_prices.id_coating', '=', 'coating_types.id')
             ->select(
-                'coating_types.id',
+                'coating_prices.id',
                 'coating_types.mastermet_name',
                 'coating_types.mastermet_code',
                 'coating_prices.price',

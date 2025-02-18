@@ -54,8 +54,6 @@ const useToolsStore = defineStore('tools', {
               })
             );
           }
-        
-        
     }
 });
 

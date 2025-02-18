@@ -20,12 +20,12 @@ const useCoatingStore = defineStore('coating', {
                 this.coatings = response.data.coatings;
                 this.coatingTypes = response.data.coatingTypes;
                 this.filteredCoatings = this.coatings;
+                console.log(this.coatings);
             } catch (error) {
                 console.log('Error: ', error);
             }
         },
         setFilter(column, value) {
-
             this.filters[column] = value;
             this.filterCoatings();
           },
