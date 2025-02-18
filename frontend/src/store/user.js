@@ -31,6 +31,7 @@ const useUserStore = defineStore('user', {
                 this.user = response.data;
             } catch (error) {
                 console.error("Błąd pobierania użytkownika", error);
+                throw error;
             }
         },
         async fetchDictionaries() {
