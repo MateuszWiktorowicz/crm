@@ -6,7 +6,7 @@ import Login from './Pages/Login.vue';
 import NotFound from './Pages/NotFound.vue';
 import Dashboard from './Pages/Dashboard.vue';
 import Customers from './Pages/Customers/Customers.vue';
-import Offers from './Pages/Offers.vue';
+import Offers from './Pages/Offers/Offers.vue';
 import Employees from './Pages/Employees/Employees.vue';
 import Coatings from './Pages/Coatings/Coatings.vue';
 import useUserStore from './store/user';
