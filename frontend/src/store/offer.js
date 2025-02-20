@@ -4,8 +4,30 @@ import axiosClient from '../axios';
 const useOfferStore = defineStore('offer', {
     state: () => ({
         offers: [],
+        offer: {
+            customer_id: '',
+            status_id: '',
+            total_price: 0,
+            changed_by: '',
+            created_at: '',
+            updated_at: '',
+        },
         offerDetails: [
-            { toolType: '', flutesNumber: '', diameter: '' }
+            { 
+                toolType: '', 
+                flutesNumber: '', 
+                diameter: '', 
+                tool_quantity: 0, 
+                tool_discount: 0, 
+                tool_net_price: 0, 
+                tool_gross_price: 0,
+                tool_geometry_id: null,
+                coating_price_id: null,
+                coating_quantity: 0,
+                coating_discount: 0,
+                coating_net_price: 0,
+                coating_gross_price: 0
+            }
         ],
         isModalOpen: false,
         
@@ -19,6 +41,22 @@ const useOfferStore = defineStore('offer', {
                 console.log(error);
             }
         },
+        async createOffer() {
+            try {
+                const payload = {
+                    customer_id: this.offer.customer_id,
+                    status_id: 1, // np. domyślny status "nowa oferta"
+                    total_price: this.offerDetails.reduce((sum, detail) => sum + detail.tool_gross_price, 0),
+                    offer_details: this.offerDetails
+                };
+
+                await axiosClient.post('/api/offers', payload);
+                this.closeModal();
+                this.fetchOffers();
+            } catch (error) {
+                console.log(error);
+            }
+        },
         openModal() {
             this.isModalOpen = true;
         },
@@ -26,11 +64,32 @@ const useOfferStore = defineStore('offer', {
             this.isModalOpen = false;
         },
         addToolRow() {
-            this.offerDetails.push({ toolType: '', flutesNumber: '', diameter: '' });
+            this.offerDetails.push({ 
+                toolType: '', 
+                flutesNumber: '', 
+                diameter: '', 
+                tool_quantity: 0, 
+                tool_discount: 0, 
+                tool_net_price: 0, 
+                tool_gross_price: 0,
+                tool_geometry_id: null,
+                coating_price_id: null,
+                coating_quantity: 0,
+                coating_discount: 0,
+                coating_net_price: 0,
+                coating_gross_price: 0
+            });
         },
         removeToolRow(index) {
             this.offerDetails.splice(index, 1);
         },
+        updateToolDetail(index, selectedTool) {
+            if (selectedTool) {
+                this.offerDetails[index].tool_geometry_id = selectedTool.id;
+                this.offerDetails[index].tool_net_price = selectedTool.face_grinding_price || 0;
+                this.offerDetails[index].tool_gross_price = selectedTool.face_grinding_price * 1.23; // VAT 23%
+            }
+        }
     }
 });
 

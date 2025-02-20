@@ -3,7 +3,7 @@ import useOfferStore from "../../store/offer";
 import useCustomerStore from "../../store/customer";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vue";
 import InputError from "../../components/InputError.vue";
-import { onMounted, computed } from "vue";
+import { onMounted, watch } from "vue";
 import useToolsStore from "../../store/tools";
 
 const offerStore = useOfferStore();
@@ -14,6 +14,20 @@ onMounted(() => {
   customerStore.fetchCustomers();
   toolStore.fetchTools();
 });
+
+watch(
+  () => offerStore.offerDetails,
+  (newDetails) => {
+    newDetails.forEach((detail, index) => {
+      const selectedTool = getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
+      if (selectedTool) {
+        detail.tool_net_price = (selectedTool.face_grinding_price || 0) * (detail.tool_quantity || 0);
+        detail.tool_gross_price = detail.tool_net_price * 1.23; // VAT 23%
+      }
+    });
+  },
+  { deep: true }
+);
 
 // Metoda zwracająca unikatowe liczby ostrzy dla danego typu narzędzia
 function getUniqueFlutesNumbers(toolType) {
@@ -40,6 +54,8 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
     tool.diameter === diameter
   ) || null;
 }
+
+
 </script>
 
 <template>
@@ -49,10 +65,10 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
       <div class="fixed inset-0 flex items-center justify-center">
         <DialogPanel class="w-full max-w-7xl bg-[#D3D3D3] p-6 rounded-lg shadow-lg">
           <DialogTitle class="text-lg font-semibold">Oferta</DialogTitle>
-          <form>
+          <form @submit.prevent="offerStore.createOffer">
             <div class="mb-4 max-w-3xl">
               <label class="block text-sm font-medium">Kontrahent</label>
-              <select class="w-full p-2 border rounded">
+              <select v-model="offerStore.offer.customer_id" class="w-full p-2 border rounded">
                 <option disabled value="">Wybierz kontrahenta</option>
                 <option
                   v-for="customer in customerStore.customers"
@@ -71,7 +87,10 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                     <th class="border border-gray-300 p-3 text-left">Typ narzędzia</th>
                     <th class="border border-gray-300 p-3 text-left">Ilość ostrzy</th>
                     <th class="border border-gray-300 p-3 text-left">Średnica</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena</th>
+                    <th class="border border-gray-300 p-3 text-left">Ilość</th>
+                    <th class="border border-gray-300 p-3 text-left">Rabat</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena netto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena brutto</th>
                     <th class="border border-gray-300 p-3 text-left">Akcja</th>
                   </tr>
                 </thead>
@@ -102,7 +121,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       </select>
                     </td>
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.diameter" class="w-full p-2 border rounded">
+                      <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="offerStore.updateToolDetail(index, getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter))">
                         <option disabled value="">Średnica</option>
                         <option 
                           v-for="diameter in getUniqueDiameters(detail.toolType, detail.flutesNumber)" 
@@ -114,8 +133,16 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       </select>
                     </td>
                     <td class="border border-gray-300 p-3">
-                      <!-- Wyświetlamy cenę, jeżeli narzędzie zostało znalezione -->
-                      {{ getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter)?.face_grinding_price || '-' }}
+                      <input type="number" v-model="detail.tool_quantity" class="w-full p-2 border rounded" placeholder="Ilość" />
+                    </td>
+                    <td class="border border-gray-300 p-3">
+                      <input type="number" v-model="detail.tool_discount" class="w-full p-2 border rounded" placeholder="Rabat (%)" />
+                    </td>
+                    <td class="border border-gray-300 p-3">
+                      {{ detail.tool_net_price || '-' }}
+                    </td>
+                    <td class="border border-gray-300 p-3">
+                      {{ detail.tool_gross_price || '-' }}
                     </td>
                     <td class="border border-gray-300 p-3">
                       <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 text-white rounded">
@@ -126,7 +153,6 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                 </tbody>
               </table>
             </div>
-
             <div class="mt-4">
               <button type="button" @click="offerStore.addToolRow" class="px-4 py-2 bg-green-600 text-white rounded">
                 Dodaj narzędzie
