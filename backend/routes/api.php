@@ -35,4 +35,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/coatings', [CoatingController::class, 'index']);
 
     Route::get('/offers', [OfferController::class, 'index']);
+    Route::post('/offers', [OfferController::class, 'store']);
+    Route::delete('/offers/{offer}', [OfferController::class, 'destroy']);
 });

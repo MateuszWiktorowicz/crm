@@ -37,6 +37,7 @@ const useOfferStore = defineStore('offer', {
             try {
                 const response  = await axiosClient.get('/api/offers');
                 this.offers = response.data.offers;
+                console.log(this.offers);
             } catch (error) {
                 console.log(error);
             }
@@ -88,6 +89,20 @@ const useOfferStore = defineStore('offer', {
                 this.offerDetails[index].tool_geometry_id = selectedTool.id;
                 this.offerDetails[index].tool_net_price = selectedTool.face_grinding_price || 0;
                 this.offerDetails[index].tool_gross_price = selectedTool.face_grinding_price * 1.23; // VAT 23%
+            }
+        },
+        async destroyOffer(id) {
+            try {
+                // Send DELETE request to your backend to delete the offer
+                const response = await axiosClient.delete(`/api/offers/${id}`);
+    
+                // After successful deletion, remove the offer from the local state
+                this.offers = this.offers.filter(offer => offer.id !== id);
+    
+                return response.data;
+            } catch (error) {
+                console.log(error);
+                throw new Error('Failed to delete offer');
             }
         }
     }

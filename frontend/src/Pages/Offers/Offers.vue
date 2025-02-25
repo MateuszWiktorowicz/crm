@@ -46,6 +46,10 @@ onMounted(() => {
               Data stworzenia
 
             </th>
+            <th class="border border-gray-300 p-3 text-left">
+              Actions
+
+            </th>
           </tr>
         </thead>
         <tbody v-if="offerStore.offers.length > 0" class="text-gray-600 text-sm">
@@ -55,11 +59,19 @@ onMounted(() => {
             class="border-b border-gray-300 hover:bg-gray-50 transition"
           >
             <!-- <td class="border border-gray-300 p-3">{{ user.id }}</td> -->
-            <td class="border border-gray-300 p-3">{{ offer.customer_id }}</td>
-            <td class="border border-gray-300 p-3">{{ offer.created_by }}</td>
-            <td class="border border-gray-300 p-3">{{ offer.status_id }}</td>
+            <td class="border border-gray-300 p-3">{{ offer.customer_name }}</td>
+            <td class="border border-gray-300 p-3">{{ offer.employee_name }}</td>
+            <td class="border border-gray-300 p-3">{{ offer.status_name }}</td>
             <td class="border border-gray-300 p-3">{{ offer.total_price }} PLN</td>
             <td class="border border-gray-300 p-3">{{ offer.created_at }}</td>
+            <td class="border border-gray-300 p-3">
+              <button
+                  @click="offerStore.destroyOffer(offer.id)"
+                  class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
+                >
+                  Usuń
+                </button>
+              </td>
           </tr>
         </tbody>
         <tbody v-else>
