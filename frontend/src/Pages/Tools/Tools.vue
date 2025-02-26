@@ -66,7 +66,7 @@ onMounted(() => {
             <td class="border border-gray-300 p-3">
             {{ tool.periphery_grinding_price !== null ? tool.periphery_grinding_price + ' PLN' : 'Nie ostrzymy obwodu' }}
             </td>
-            <td class="border border-gray-300 p-3">{{ tool.periphery_grinding_price + tool.face_grinding_price }} PLN</td>
+            <td class="border border-gray-300 p-3">{{ (tool.periphery_grinding_price ? parseFloat(tool.periphery_grinding_price) : 0) + parseFloat(tool.face_grinding_price) }} PLN</td>
           </tr>
         </tbody>
         <tbody v-else>

@@ -39,7 +39,7 @@ onMounted(() => {
 
             </th>
             <th class="border border-gray-300 p-3 text-left">
-              Cena całkowita
+              Cena całkowita brutto
 
             </th>
             <th class="border border-gray-300 p-3 text-left">

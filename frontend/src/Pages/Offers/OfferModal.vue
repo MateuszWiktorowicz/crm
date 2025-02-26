@@ -89,15 +89,16 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                     <th class="border border-gray-300 p-3 text-left">Średnica</th>
                     <th class="border border-gray-300 p-3 text-left">Ilość</th>
                     <th class="border border-gray-300 p-3 text-left">Rabat</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena netto</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena brutto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa netto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
                     <th class="border border-gray-300 p-3 text-left">Akcja</th>
                   </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm">
                   <tr v-for="(detail, index) in offerStore.offerDetails" :key="index">
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.toolType" class="w-full p-2 border rounded">
+                      <select v-model="detail.toolType" class="w-full p-2 border rounded" @change="offerStore.resetDetail(index)">
                         <option disabled value="">Wybierz typ narzędzia</option>
                         <option 
                           v-for="toolType in toolStore.toolTypes" 
@@ -109,7 +110,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       </select>
                     </td>
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.flutesNumber" class="w-full p-2 border rounded">
+                      <select v-model="detail.flutesNumber" class="w-full p-2 border rounded" @change="offerStore.resetDetail(index)">
                         <option disabled value="">Ilość ostrzy</option>
                         <option 
                           v-for="flute in getUniqueFlutesNumbers(detail.toolType)" 
@@ -121,7 +122,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       </select>
                     </td>
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="offerStore.updateToolDetail(index, getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter))">
+                      <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="offerStore.setToolGeometry(index)">
                         <option disabled value="">Średnica</option>
                         <option 
                           v-for="diameter in getUniqueDiameters(detail.toolType, detail.flutesNumber)" 
@@ -139,13 +140,16 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       <input type="number" v-model="detail.tool_discount" class="w-full p-2 border rounded" placeholder="Rabat (%)" />
                     </td>
                     <td class="border border-gray-300 p-3">
-                      {{ detail.tool_net_price || '-' }}
+                      {{offerStore.calculateDetailToolNetPrice(index)}}
                     </td>
                     <td class="border border-gray-300 p-3">
-                      {{ detail.tool_gross_price || '-' }}
+                      {{ offerStore.calculateTotalToolNetPrice(index)}}
                     </td>
                     <td class="border border-gray-300 p-3">
-                      <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 text-white rounded">
+                      {{ offerStore.calculateTotalToolGrossPrice(index)}}
+                    </td>
+                    <td class="border border-gray-300 p-3">
+                      <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 texst-white rounded">
                         Usuń
                       </button>
                     </td>
