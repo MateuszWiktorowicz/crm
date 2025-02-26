@@ -11,13 +11,17 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-
+    
         if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
-            return Customer::all();
+            return Customer::orderBy('name', 'asc')->get(); // Poprawne sortowanie
         } else if ($user->hasRole('saler')) {
-            return Customer::where('saler_marker', $user->marker)->get();
+            return Customer::where('saler_marker', $user->marker)
+                ->orderBy('name', 'asc') // Sortowanie rosnące
+                ->get();
         }
     }
+    
+    
 
     public function store(CustomerRequest $request)
     {
