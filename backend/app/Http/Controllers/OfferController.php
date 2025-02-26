@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 class OfferController extends Controller
 {
     public function index(Request $request) {
-        // $offers = Offer::all();
 
         $offers = DB::table('offers')
             ->join('users', 'users.id', '=', 'offers.created_by')
@@ -20,8 +19,9 @@ class OfferController extends Controller
                 DB::raw('customers.name AS customer_name'),
                 DB::raw('users.name AS employee_name'),
                 DB::raw('statuses.name AS status_name'),
-                'offers.total_price',
-                'offers.created_at'
+                DB::raw("FORMAT(offers.total_price, 2, 'pl_PL') AS total_price"),
+                DB::raw("DATE_FORMAT(offers.created_at, '%d-%m-%Y') AS created_at")
+
             ])
             ->get();
 
@@ -40,8 +40,8 @@ class OfferController extends Controller
             'offer_details.*.tool_geometry_id' => 'required|exists:tool_geometries,id',
             'offer_details.*.tool_quantity' => 'required|integer|min:1',
             'offer_details.*.tool_discount' => 'nullable|numeric|min:0|max:100',
-            'offer_details.*.tool_net_price' => 'required|numeric|min:0',
-            'offer_details.*.tool_gross_price' => 'required|numeric|min:0',
+            'offer_details.*.tool_total_net_price' => 'required|numeric|min:0',
+            'offer_details.*.tool_total_gross_price' => 'required|numeric|min:0',
             'offer_details.*.coating_price_id' => 'nullable|exists:coating_prices,id',
             'offer_details.*.coating_quantity' => 'nullable|integer|min:0',
             'offer_details.*.coating_discount' => 'nullable|numeric|min:0|max:100',

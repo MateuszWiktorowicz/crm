@@ -19,8 +19,8 @@ class ToolController extends Controller
                 'tool_geometries.flutes_number',
                 'tool_geometries.diameter', 
                 'tool_types.tool_type_name',
-                DB::raw('tool_geometries.face_grinding_time * 5 as face_grinding_price'),
-                DB::raw('tool_geometries.periphery_grinding_time_2d_tool * 5 as periphery_grinding_price')
+                DB::raw("FORMAT(tool_geometries.face_grinding_time * 5, 2, 'pl_PL') AS face_grinding_price"),
+                DB::raw("FORMAT(tool_geometries.periphery_grinding_time_2d_tool * 5, 2, 'pl_PL') AS periphery_grinding_price"),
                 )
             ->get();
 
