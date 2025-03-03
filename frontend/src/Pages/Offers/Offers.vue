@@ -65,6 +65,12 @@ onMounted(() => {
             <td class="border border-gray-300 p-3">{{ offer.total_price }} PLN</td>
             <td class="border border-gray-300 p-3">{{ offer.created_at }}</td>
             <td class="border border-gray-300 p-3">
+              <button 
+                @click="offerStore.editOffer(offer)" 
+                class="px-2 py-1 bg-yellow-500 text-white rounded"
+              >
+                Edytuj
+              </button>
               <button
                   @click="offerStore.destroyOffer(offer.id)"
                   class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"

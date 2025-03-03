@@ -65,7 +65,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
       <div class="fixed inset-0 flex items-center justify-center">
         <DialogPanel class="w-full max-w-7xl bg-[#D3D3D3] p-6 rounded-lg shadow-lg">
           <DialogTitle class="text-lg font-semibold">Oferta</DialogTitle>
-          <form @submit.prevent="offerStore.createOffer">
+          <form @submit.prevent="offerStore.saveOffer">
             <div class="mb-4 max-w-3xl">
               <label class="block text-sm font-medium">Kontrahent</label>
               <select v-model="offerStore.offer.customer_id" class="w-full p-2 border rounded">

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
+use Illuminate\Http\Response;
+
 
 class CustomerController extends Controller
 {

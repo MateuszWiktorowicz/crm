@@ -43,22 +43,29 @@ const useOfferStore = defineStore('offer', {
                 console.log(error);
             }
         },
-        async createOffer() {
+        async saveOffer() {
             try {
-                const payload = {
-                    customer_id: this.offer.customer_id,
-                    status_id: 1, // np. domyślny status "nowa oferta"
-                    total_price: this.calculateOfferTotalNetGrossPrice,
-                    offer_details: this.offerDetails
-                };
-
+              const payload = {
+                customer_id: this.offer.customer_id,
+                status_id: this.offer.status_id || 1,
+                total_price: this.calculateOfferTotalNetGrossPrice,
+                offer_details: this.offerDetails
+              };
+          
+              if (this.offer.id) {
+                // Edycja oferty
+                await axiosClient.put(`/api/offers/${this.offer.id}`, payload);
+              } else {
+                // Nowa oferta
                 await axiosClient.post('/api/offers', payload);
-                this.closeModal();
-                this.fetchOffers();
+              }
+          
+              this.closeModal();
+              this.fetchOffers();
             } catch (error) {
-                console.log(error);
+              console.log(error);
             }
-        },
+          },
         openModal() {
             this.isModalOpen = true;
         },
@@ -120,6 +127,14 @@ const useOfferStore = defineStore('offer', {
             detail.coating_discount = 0;
             detail.coating_total_net_price = 0;
             detail.coating_total_gross_price = 0;
+        },
+        editOffer(offer) {
+            console.log(offer);
+            this.offer = { ...offer };
+            this.offerDetails = offer.offer_details ? [...offer.offer_details] : [];
+            this.offer.customer_id = offer.customer_id;
+            this.isModalOpen = true;
+
         }
     },
     getters: {
@@ -155,7 +170,6 @@ const useOfferStore = defineStore('offer', {
 
             const discount = ((100 - parseFloat(detail.tool_discount)) / 100);
             
-            // Sprawdzenie, co wychodzi z parseFloat
             console.log("Parsed rabat:", discount);
 
             return (parseFloat(tool.face_grinding_price) * discount).toFixed(2);

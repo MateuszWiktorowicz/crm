@@ -8,27 +8,43 @@ use Illuminate\Support\Facades\DB;
 
 class OfferController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+{
+    $offers = Offer::with(['offerDetails.toolGeometry', 'offerDetails.coatingPrice', 'createdBy', 'customer', 'status'])
+        ->get()
+        ->map(function ($offer) {
+            return [
+                'id' => $offer->id,
+                'customer_name' => $offer->customer->name,
+                'customer_id' => $offer->customer->id,
+                'employee_name' => $offer->createdBy->name,
+                'status_name' => $offer->status->name,
+                'total_price' => number_format($offer->total_price, 2, ',', ' '),
+                'created_at' => $offer->created_at->format('d-m-Y'),
+                'offer_details' => $offer->offerDetails->map(function ($detail) {
+                    return [
+                        'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, // Dodanie pola toolType
+                        'flutesNumber' => $detail->toolGeometry->flutes_number ?? null, // Dodanie liczby rowków
+                        'diameter' => $detail->toolGeometry->diameter ?? null, // Dodanie średnicy
+                        'tool_geometry_id' => $detail->tool_geometry_id,
+                        'tool_quantity' => $detail->tool_quantity,
+                        'tool_discount' => $detail->tool_discount,
+                        'tool_total_net_price' => $detail->tool_total_net_price,
+                        'tool_total_gross_price' => $detail->tool_total_gross_price,
+                        'coating_price_id' => $detail->coating_price_id,
+                        'coating_quantity' => $detail->coating_quantity,
+                        'coating_discount' => $detail->coating_discount,
+                        'coating_total_net_price' => $detail->coating_net_price,
+                        'coating_total_gross_price' => $detail->coating_gross_price,
+                    ];
+                }),
+            ];
+        });
 
-        $offers = DB::table('offers')
-            ->join('users', 'users.id', '=', 'offers.created_by')
-            ->join('customers', 'customers.id', '=', 'offers.customer_id')
-            ->join('statuses', 'statuses.id', '=', 'offers.status_id')
-            ->select([
-                'offers.id',
-                DB::raw('customers.name AS customer_name'),
-                DB::raw('users.name AS employee_name'),
-                DB::raw('statuses.name AS status_name'),
-                DB::raw("FORMAT(offers.total_price, 2, 'pl_PL') AS total_price"),
-                DB::raw("DATE_FORMAT(offers.created_at, '%d-%m-%Y') AS created_at")
-
-            ])
-            ->get();
-
-        return response()->json([
-            'offers' => $offers,
-        ]);
-    }
+    return response()->json([
+        'offers' => $offers,
+    ]);
+}
 
     public function store(Request $request)
     {
