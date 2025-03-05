@@ -13,7 +13,6 @@ const user = computed(() => userStore.user);
 const navigation = computed(() => userStore.navigation);
 
 onMounted(() => {
-  console.log(user.value);
   userStore.fetchDictionaries();
 });
 

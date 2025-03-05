@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OfferRequest;
 use Illuminate\Http\Request;
 use App\Models\Offer;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
 
 class OfferController extends Controller
 {
@@ -19,13 +21,13 @@ class OfferController extends Controller
                 'customer_id' => $offer->customer->id,
                 'employee_name' => $offer->createdBy->name,
                 'status_name' => $offer->status->name,
-                'total_price' => number_format($offer->total_price, 2, ',', ' '),
+                'total_net_price' => number_format($offer->total_price, 2, ',', ' '),
                 'created_at' => $offer->created_at->format('d-m-Y'),
                 'offer_details' => $offer->offerDetails->map(function ($detail) {
                     return [
-                        'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, // Dodanie pola toolType
-                        'flutesNumber' => $detail->toolGeometry->flutes_number ?? null, // Dodanie liczby rowków
-                        'diameter' => $detail->toolGeometry->diameter ?? null, // Dodanie średnicy
+                        'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, 
+                        'flutesNumber' => $detail->toolGeometry->flutes_number ?? null,
+                        'diameter' => $detail->toolGeometry->diameter ?? null,
                         'tool_geometry_id' => $detail->tool_geometry_id,
                         'tool_quantity' => $detail->tool_quantity,
                         'tool_discount' => $detail->tool_discount,
@@ -46,25 +48,9 @@ class OfferController extends Controller
     ]);
 }
 
-    public function store(Request $request)
+    public function store(OfferRequest $request)
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'status_id' => 'required|exists:statuses,id',
-            'total_price' => 'required|numeric',
-            'offer_details' => 'required|array',
-            'offer_details.*.tool_geometry_id' => 'required|exists:tool_geometries,id',
-            'offer_details.*.tool_quantity' => 'required|integer|min:1',
-            'offer_details.*.tool_discount' => 'nullable|numeric|min:0|max:100',
-            'offer_details.*.tool_total_net_price' => 'required|numeric|min:0',
-            'offer_details.*.tool_total_gross_price' => 'required|numeric|min:0',
-            'offer_details.*.coating_price_id' => 'nullable|exists:coating_prices,id',
-            'offer_details.*.coating_quantity' => 'nullable|integer|min:0',
-            'offer_details.*.coating_discount' => 'nullable|numeric|min:0|max:100',
-            'offer_details.*.coating_net_price' => 'nullable|numeric|min:0',
-            'offer_details.*.coating_gross_price' => 'nullable|numeric|min:0',
-        ]);
-    
+        $validated = $request->validated();
         $validated['created_by'] = $request->user()->id;
     
         DB::beginTransaction();
@@ -73,7 +59,7 @@ class OfferController extends Controller
             $offer = Offer::create([
                 'customer_id' => $validated['customer_id'],
                 'status_id' => $validated['status_id'],
-                'total_price' => $validated['total_price'],
+                'total_price' => $validated['total_net_price'],
                 'created_by' => $validated['created_by'],
                 'changed_by' => $validated['created_by'],
             ]);
@@ -96,6 +82,44 @@ class OfferController extends Controller
             return response()->json(['error' => 'Wystąpił błąd podczas zapisu oferty', 'message' => $e->getMessage()], 500);
         }
     }  
+
+    public function edit(OfferRequest $request, Offer $offer)
+    {
+        $validated = $request->validated();
+
+        $validated['changed_by'] = $request->user()->id;
+
+        DB::beginTransaction();
+
+        try {
+            $offer->update([
+                'customer_id' => $validated['customer_id'],
+                'status_id' => $validated['status_id'],
+                'total_price' => $validated['total_net_price'],
+                'changed_by' => $validated['changed_by'],
+            ]);
+
+            $offer->offerDetails()->delete();
+            foreach ($validated['offer_details'] as &$detail) {
+                if (!isset($detail['coating_price_id'])) {
+                    $detail = array_merge($detail, [
+                        'coating_quantity' => 0,
+                        'coating_discount' => 0,
+                        'coating_net_price' => 0,
+                        'coating_gross_price' => 0,
+                    ]);
+                }
+                $offer->offerDetails()->create($detail);
+            }
+            DB::commit();
+
+            return response()->json(['message' => 'Oferta zaktualizowana pomyślnie', 'offer' => $offer], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Wystąpił błąd podczas aktualizacji oferty', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 
     public function destroy($id)
     {

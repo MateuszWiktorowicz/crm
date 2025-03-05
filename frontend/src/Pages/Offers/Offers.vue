@@ -39,6 +39,10 @@ onMounted(() => {
 
             </th>
             <th class="border border-gray-300 p-3 text-left">
+              Cena całkowita netto
+
+            </th>
+            <th class="border border-gray-300 p-3 text-left">
               Cena całkowita brutto
 
             </th>
@@ -62,7 +66,8 @@ onMounted(() => {
             <td class="border border-gray-300 p-3">{{ offer.customer_name }}</td>
             <td class="border border-gray-300 p-3">{{ offer.employee_name }}</td>
             <td class="border border-gray-300 p-3">{{ offer.status_name }}</td>
-            <td class="border border-gray-300 p-3">{{ offer.total_price }} PLN</td>
+            <td class="border border-gray-300 p-3">{{ offer.total_net_price }}</td>
+            <td class="border border-gray-300 p-3">{{ (parseFloat(offer.total_net_price) * 1.23).toLocaleString('pl-PL')}} PLN</td>
             <td class="border border-gray-300 p-3">{{ offer.created_at }}</td>
             <td class="border border-gray-300 p-3">
               <button 

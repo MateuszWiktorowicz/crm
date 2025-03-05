@@ -39,9 +39,7 @@ const useUserStore = defineStore('user', {
                 const response = await axiosClient.get('/api/dictionaries');
                 this.navigation = response.data.navigation;
                 this.rolesToAssign = response.data.rolesToAssign;
-                console.log(this.rolesToAssign);
             } catch (error) {
-                console.log(error);
             }
         },
         async fetchUsers() {
@@ -50,7 +48,6 @@ const useUserStore = defineStore('user', {
                 this.users = response.data;
                 this.filteredUsers = this.users;
             } catch (error) {
-                console.log(error);
             }
         },   
         async saveUser() {

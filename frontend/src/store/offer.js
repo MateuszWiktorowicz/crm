@@ -8,7 +8,7 @@ const useOfferStore = defineStore('offer', {
         offer: {
             customer_id: '',
             status_id: '',
-            total_price: 0,
+            total_net_price: 0,
             changed_by: '',
             created_at: '',
             updated_at: '',
@@ -38,19 +38,19 @@ const useOfferStore = defineStore('offer', {
             try {
                 const response  = await axiosClient.get('/api/offers');
                 this.offers = response.data.offers;
-                console.log(this.offers);
             } catch (error) {
-                console.log(error);
             }
         },
         async saveOffer() {
-            try {
-              const payload = {
+                        const payload = {
                 customer_id: this.offer.customer_id,
                 status_id: this.offer.status_id || 1,
-                total_price: this.calculateOfferTotalNetGrossPrice,
+                total_net_price: this.calculateOfferTotalNetGrossPrice,
                 offer_details: this.offerDetails
               };
+            try {
+
+
           
               if (this.offer.id) {
                 // Edycja oferty
@@ -63,7 +63,6 @@ const useOfferStore = defineStore('offer', {
               this.closeModal();
               this.fetchOffers();
             } catch (error) {
-              console.log(error);
             }
           },
         openModal() {
@@ -100,7 +99,6 @@ const useOfferStore = defineStore('offer', {
 
                 return response.data;
             } catch (error) {
-                console.log(error);
                 throw new Error('Failed to delete offer');
             }
         },
@@ -108,7 +106,6 @@ const useOfferStore = defineStore('offer', {
             const detail = this.offerDetails[index];
             detail.tool_geometry_id = this.getToolId(index);
 
-            console.log(detail.tool_geometry_id)
         },
         resetDetail(index) {
             const detail = this.offerDetails[index];
@@ -129,7 +126,6 @@ const useOfferStore = defineStore('offer', {
             detail.coating_total_gross_price = 0;
         },
         editOffer(offer) {
-            console.log(offer);
             this.offer = { ...offer };
             this.offerDetails = offer.offer_details ? [...offer.offer_details] : [];
             this.offer.customer_id = offer.customer_id;
@@ -166,11 +162,9 @@ const useOfferStore = defineStore('offer', {
             const tool = state.getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
     
             if (!tool) return 0;
-               console.log("Rabaty przed parsowaniem:", detail.tool_discount);
 
             const discount = ((100 - parseFloat(detail.tool_discount)) / 100);
             
-            console.log("Parsed rabat:", discount);
 
             return (parseFloat(tool.face_grinding_price) * discount).toFixed(2);
         },
@@ -187,12 +181,14 @@ const useOfferStore = defineStore('offer', {
             return (parseFloat(netPrice) * 1.23).toFixed(2);
         },
         calculateOfferTotalNetGrossPrice: (state) => {
-            let totalNet = 0;
-            state.offerDetails.forEach(detail => {
-                totalNet += parseFloat(detail.tool_total_net_price);
-            });
-
-            return totalNet.toFixed(2);
+            return state.offerDetails.reduce((total, detail, index) => {
+                
+                const toolNetPrice = parseFloat(state.calculateTotalToolNetPrice(index));
+        
+                detail.tool_total_net_price = toolNetPrice;
+        
+                return total + toolNetPrice;
+            }, 0).toFixed(2);
         }
     } 
 });

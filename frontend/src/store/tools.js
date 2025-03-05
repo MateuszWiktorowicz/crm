@@ -21,7 +21,6 @@ const useToolsStore = defineStore('tools', {
                 this.toolTypes = response.data.toolTypes;
                 this.filteredTools = this.tools;
             } catch (error) {
-                console.log('Error: ', error);
             }
         },
         setFilter(column, value) {
