@@ -5,55 +5,18 @@ import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vu
 import InputError from "../../components/InputError.vue";
 import { onMounted, watch } from "vue";
 import useToolsStore from "../../store/tools";
+import useCoatingStore from "../../store/coating";
 
 const offerStore = useOfferStore();
 const customerStore = useCustomerStore();
 const toolStore = useToolsStore();
+const coatingStore = useCoatingStore();
 
 onMounted(() => {
   customerStore.fetchCustomers();
   toolStore.fetchTools();
+  coatingStore.fetchCoatings();
 });
-
-watch(
-  () => offerStore.offerDetails,
-  (newDetails) => {
-    newDetails.forEach((detail, index) => {
-      const selectedTool = getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
-      if (selectedTool) {
-        detail.tool_net_price = (selectedTool.face_grinding_price || 0) * (detail.tool_quantity || 0);
-        detail.tool_gross_price = detail.tool_net_price * 1.23; // VAT 23%
-      }
-    });
-  },
-  { deep: true }
-);
-
-// Metoda zwracająca unikatowe liczby ostrzy dla danego typu narzędzia
-function getUniqueFlutesNumbers(toolType) {
-  if (!toolType || !toolStore.tools) return [];
-  const filtered = toolStore.tools.filter(tool => tool.tool_type_name === toolType);
-  return [...new Set(filtered.map(tool => tool.flutes_number))];
-}
-
-// Metoda zwracająca unikatowe średnice dla danego typu i liczby ostrzy
-function getUniqueDiameters(toolType, flutesNumber) {
-  if (!toolType || !flutesNumber || !toolStore.tools) return [];
-  const filtered = toolStore.tools.filter(tool =>
-    tool.tool_type_name === toolType && tool.flutes_number === flutesNumber
-  );
-  return [...new Set(filtered.map(tool => tool.diameter))];
-}
-
-// Metoda zwracająca wybrane narzędzie na podstawie danych z wiersza
-function getSelectedTool(toolType, flutesNumber, diameter) {
-  if (!toolType || !flutesNumber || !diameter || !toolStore.tools) return null;
-  return toolStore.tools.find(tool =>
-    tool.tool_type_name === toolType &&
-    tool.flutes_number === flutesNumber &&
-    tool.diameter === diameter
-  ) || null;
-}
 
 
 </script>
@@ -80,16 +43,18 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
               </select>
             </div>
 
-            <div class="bg-white rounded min-h-50">
-              <table class="w-full border-separate border-spacing-0">
+            <div class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300">
+              <table class="w-full border-separate border-spacing-0 ">
                 <thead class="bg-gray-100 sticky top-0 z-10">
                   <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
                     <th class="border border-gray-300 p-3 text-left">Typ narzędzia</th>
                     <th class="border border-gray-300 p-3 text-left">Ilość ostrzy</th>
                     <th class="border border-gray-300 p-3 text-left">Średnica</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa ostrzenia netto</th>
+                    <th class="border border-gray-300 p-3 text-left">Pokrycie</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa pokrycia netto</th>
                     <th class="border border-gray-300 p-3 text-left">Ilość</th>
                     <th class="border border-gray-300 p-3 text-left">Rabat</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa netto</th>
                     <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
                     <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
                     <th class="border border-gray-300 p-3 text-left">Akcja</th>
@@ -113,7 +78,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       <select v-model="detail.flutesNumber" class="w-full p-2 border rounded" @change="offerStore.resetDetail(index)">
                         <option disabled value="">Ilość ostrzy</option>
                         <option 
-                          v-for="flute in getUniqueFlutesNumbers(detail.toolType)" 
+                          v-for="flute in toolStore.getUniqueFlutesNumbers(detail.toolType)" 
                           :key="flute" 
                           :value="flute"
                         >
@@ -125,7 +90,7 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="offerStore.setToolGeometry(index)">
                         <option disabled value="">Średnica</option>
                         <option 
-                          v-for="diameter in getUniqueDiameters(detail.toolType, detail.flutesNumber)" 
+                          v-for="diameter in toolStore.getUniqueDiameters(detail.toolType, detail.flutesNumber)" 
                           :key="diameter" 
                           :value="diameter"
                         >
@@ -134,19 +99,35 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                       </select>
                     </td>
                     <td class="border border-gray-300 p-3">
+                      {{ detail.tool_net_price }}
+                    </td>
+
+                    <td class="border border-gray-300 p-3">
+                      <select v-model="detail.coatingCode" class="w-full p-2 border rounded">
+                        <option value="none" selected>Brak pokrycia</option>
+                        <option 
+                          v-for="coatingType in coatingStore.coatingTypes"
+                          :key="coatingType.mastermet_code" 
+                          :value="coatingType.mastermet_code"
+                        >
+                          {{ coatingType.mastermet_code }}
+                        </option>
+                      </select>
+                    </td>
+                    <td class="border border-gray-300 p-3">
+                      coating price
+                    </td>
+                    <td class="border border-gray-300 p-3">
                       <input type="number" v-model="detail.tool_quantity" class="w-full p-2 border rounded" placeholder="Ilość" />
                     </td>
                     <td class="border border-gray-300 p-3">
                       <input type="number" v-model="detail.tool_discount" class="w-full p-2 border rounded" placeholder="Rabat (%)" />
                     </td>
                     <td class="border border-gray-300 p-3">
-                      {{offerStore.calculateDetailToolNetPrice(index)}}
+                       price net
                     </td>
                     <td class="border border-gray-300 p-3">
-                      {{ offerStore.calculateTotalToolNetPrice(index)}}
-                    </td>
-                    <td class="border border-gray-300 p-3">
-                      {{ offerStore.calculateTotalToolGrossPrice(index)}}
+                       price gross
                     </td>
                     <td class="border border-gray-300 p-3">
                       <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 texst-white rounded">
@@ -162,7 +143,6 @@ function getSelectedTool(toolType, flutesNumber, diameter) {
                 Dodaj narzędzie
               </button>
             </div>
-
             <div class="flex justify-end space-x-2 mt-4">
               <button type="button" @click="offerStore.closeModal" class="px-4 py-2 bg-gray-300 rounded">
                 Anuluj
