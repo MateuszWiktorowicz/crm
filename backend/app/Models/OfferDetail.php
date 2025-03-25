@@ -11,15 +11,20 @@ class OfferDetail extends Model
     protected $fillable = [
         'offer_id',
         'tool_geometry_id',
-        'tool_quantity',
-        'tool_discount',
-        'tool_total_net_price',
-        'tool_total_gross_price',
+        'quantity',
+        'discount',
+        'tool_net_price',
         'coating_price_id',
-        'coating_quantity',
-        'coating_discount',
         'coating_net_price',
-        'coating_gross_price',
+        'radius',
+        "regrinding_option"
+    ];
+
+    protected $casts = [
+        'tool_net_price' => 'float',
+        'coating_net_price' => 'float',
+        'discount' => 'float',
+        'quantity' => 'integer'
     ];
 
     public function offer(): BelongsTo

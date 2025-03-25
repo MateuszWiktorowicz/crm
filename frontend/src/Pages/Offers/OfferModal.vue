@@ -2,10 +2,10 @@
 import useOfferStore from "../../store/offer";
 import useCustomerStore from "../../store/customer";
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from "@headlessui/vue";
-import InputError from "../../components/InputError.vue";
-import { onMounted, watch } from "vue";
+import { onMounted } from "vue";
 import useToolsStore from "../../store/tools";
 import useCoatingStore from "../../store/coating";
+
 
 const offerStore = useOfferStore();
 const customerStore = useCustomerStore();
@@ -17,6 +17,46 @@ onMounted(() => {
   toolStore.fetchTools();
   coatingStore.fetchCoatings();
 });
+const handleToolTypeChange = (index) => {
+  offerStore.updateToolNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleFlutesNumberChange = (index) => {
+  offerStore.updateToolNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleDiameterChange = (index) => {
+  offerStore.updateToolNetPrice(index);
+  offerStore.updateCoatingNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleCoatingCodeChange = (index) => {
+  offerStore.updateCoatingNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleRegrindingOptionChange = (index) => {
+  offerStore.updateToolNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleRadiusChange = (index) => {
+  offerStore.updateToolNetPrice(index);
+  offerStore.calculateOfferTotalNetPrice();
+  offerStore.calculateOfferTotalNetPrice();
+}
+
+const handleQuantityChange = () => {
+offerStore.calculateOfferTotalNetPrice();
+}
 
 
 </script>
@@ -29,32 +69,37 @@ onMounted(() => {
         <DialogPanel class="w-full max-w-7xl bg-[#D3D3D3] p-6 rounded-lg shadow-lg">
           <DialogTitle class="text-lg font-semibold">Oferta</DialogTitle>
           <form @submit.prevent="offerStore.saveOffer">
-            <div class="mb-4 max-w-3xl">
-              <label class="block text-sm font-medium">Kontrahent</label>
-              <select v-model="offerStore.offer.customer_id" class="w-full p-2 border rounded">
-                <option disabled value="">Wybierz kontrahenta</option>
-                <option
-                  v-for="customer in customerStore.customers"
-                  :key="customer.id"
-                  :value="customer.id"
-                >
-                  {{ customer.name }}
-                </option>
-              </select>
-            </div>
-
+            <div class="flex items-center gap-5 justify-between p-4 bg-gray-100 rounded-lg shadow-md">
+    <div class="mb-4 max-w-3xl">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Kontrahent</label>
+        <select v-model="offerStore.offer.customer_id" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option disabled value="">Wybierz kontrahenta</option>
+            <option v-for="customer in customerStore.customers" :key="customer.id" :value="customer.id">
+                {{ customer.name }}
+            </option>
+        </select>
+    </div>
+    <div class="flex flex-col items-end">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Kwota netto oferty</label>
+        <span class="text-lg font-semibold text-gray-800 bg-gray-200 px-3 py-1 rounded-lg shadow-sm">
+            {{ offerStore.offer.total_net_price }} PLN
+        </span>
+    </div>
+</div>
             <div class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300">
               <table class="w-full border-separate border-spacing-0 ">
                 <thead class="bg-gray-100 sticky top-0 z-10">
                   <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
-                    <th class="border border-gray-300 p-3 text-left">Typ narzędzia</th>
-                    <th class="border border-gray-300 p-3 text-left">Ilość ostrzy</th>
-                    <th class="border border-gray-300 p-3 text-left">Średnica</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[250px]">Typ narzędzia</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[150px]">Ilość ostrzy</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[120px]">Średnica</th>
+                    <th class="border border-gray-300 p-3 text-left">Promień</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[120px]">Wariant ostrzenia</th>
                     <th class="border border-gray-300 p-3 text-left">Cena jednostkowa ostrzenia netto</th>
                     <th class="border border-gray-300 p-3 text-left">Pokrycie</th>
                     <th class="border border-gray-300 p-3 text-left">Cena jednostkowa pokrycia netto</th>
-                    <th class="border border-gray-300 p-3 text-left">Ilość</th>
-                    <th class="border border-gray-300 p-3 text-left">Rabat</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[80px]">Ilość</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[80px]">Rabat</th>
                     <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
                     <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
                     <th class="border border-gray-300 p-3 text-left">Akcja</th>
@@ -62,8 +107,9 @@ onMounted(() => {
                 </thead>
                 <tbody class="text-gray-600 text-sm">
                   <tr v-for="(detail, index) in offerStore.offerDetails" :key="index">
+                    <!-- Typ narzędzia -->
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.toolType" class="w-full p-2 border rounded" @change="offerStore.resetDetail(index)">
+                      <select v-model="detail.toolType" class="w-full p-2 border rounded" @change="handleToolTypeChange(index)">
                         <option disabled value="">Wybierz typ narzędzia</option>
                         <option 
                           v-for="toolType in toolStore.toolTypes" 
@@ -74,8 +120,9 @@ onMounted(() => {
                         </option>
                       </select>
                     </td>
+                    <!-- Ilość ostrzy -->
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.flutesNumber" class="w-full p-2 border rounded" @change="offerStore.resetDetail(index)">
+                      <select v-model="detail.flutesNumber" class="w-full p-2 border rounded" @change="handleFlutesNumberChange(index)">
                         <option disabled value="">Ilość ostrzy</option>
                         <option 
                           v-for="flute in toolStore.getUniqueFlutesNumbers(detail.toolType)" 
@@ -86,8 +133,9 @@ onMounted(() => {
                         </option>
                       </select>
                     </td>
+                    <!-- Średnica -->
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="offerStore.setToolGeometry(index)">
+                      <select v-model="detail.diameter" class="w-full p-2 border rounded" @change="handleDiameterChange(index)">
                         <option disabled value="">Średnica</option>
                         <option 
                           v-for="diameter in toolStore.getUniqueDiameters(detail.toolType, detail.flutesNumber)" 
@@ -98,12 +146,29 @@ onMounted(() => {
                         </option>
                       </select>
                     </td>
+                    <!-- Promień -->
                     <td class="border border-gray-300 p-3">
-                      {{ detail.tool_net_price }}
+                      <input :disabled="!offerStore.isRadiusEndMill(detail)" min="0" type="number" v-model="detail.radius" class="w-full p-2 border rounded" placeholder="Promień" @change="handleRadiusChange(index)"/>
                     </td>
-
+                    <!-- Wariant ostrzenia -->
                     <td class="border border-gray-300 p-3">
-                      <select v-model="detail.coatingCode" class="w-full p-2 border rounded">
+                      <select v-model="detail.regrinding_option" class="w-full p-2 border rounded" @change="handleRegrindingOptionChange(index)">
+                        <option 
+                          v-for="{key, label} in offerStore.getRegrindingOptions(detail)"
+                          :key="key" 
+                          :value="key"
+                        >
+                          {{ label }}
+                        </option>
+                      </select>
+                    </td>
+                    <!-- Cena jednostkowa ostrzenia netto -->
+                    <td class="border border-gray-300 p-3">
+                      {{ detail.tool_net_price }} PLN
+                    </td>
+                    <!-- Pokrycie -->
+                    <td class="border border-gray-300 p-3">
+                      <select v-model="detail.coatingCode" class="w-full p-2 border rounded" @change="handleCoatingCodeChange(index)">
                         <option value="none" selected>Brak pokrycia</option>
                         <option 
                           v-for="coatingType in coatingStore.coatingTypes"
@@ -114,23 +179,29 @@ onMounted(() => {
                         </option>
                       </select>
                     </td>
+                    <!-- Cena jednostkowa pokrycia netto -->
                     <td class="border border-gray-300 p-3">
-                      coating price
+                      {{ (Number(detail.coating_net_price)).toFixed(2) }}
                     </td>
+                    <!-- Ilość -->
                     <td class="border border-gray-300 p-3">
-                      <input type="number" v-model="detail.tool_quantity" class="w-full p-2 border rounded" placeholder="Ilość" />
+                      <input type="number" v-model="detail.quantity" class="w-full p-2 border rounded" placeholder="Ilość" min="1" step="1" @change="handleQuantityChange()"/>
                     </td>
+                    <!-- Rabat -->
                     <td class="border border-gray-300 p-3">
-                      <input type="number" v-model="detail.tool_discount" class="w-full p-2 border rounded" placeholder="Rabat (%)" />
+                      <input type="number" v-model="detail.discount" class="w-full p-2 border rounded" placeholder="Rabat (%)" />
                     </td>
+                    <!-- Cena całkowita netto -->
                     <td class="border border-gray-300 p-3">
-                       price net
+                      {{ offerStore.getTotalNetDetailPrice(detail) }} PLN
                     </td>
+                    <!-- Cena całkowita brutto -->
                     <td class="border border-gray-300 p-3">
-                       price gross
+                      {{ (offerStore.getTotalNetDetailPrice(detail) * 1.23).toFixed(2) }} PLN
                     </td>
+                    <!-- Akcja -->
                     <td class="border border-gray-300 p-3">
-                      <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 texst-white rounded">
+                      <button type="button" @click="offerStore.removeToolRow(index)" class="px-2 py-1 bg-red-500 text-white rounded">
                         Usuń
                       </button>
                     </td>
@@ -138,11 +209,13 @@ onMounted(() => {
                 </tbody>
               </table>
             </div>
+            <!-- Przycisk dodawania nowego narzędzia -->
             <div class="mt-4">
               <button type="button" @click="offerStore.addToolRow" class="px-4 py-2 bg-green-600 text-white rounded">
                 Dodaj narzędzie
               </button>
             </div>
+            <!-- Przycisk zapisu oferty -->
             <div class="flex justify-end space-x-2 mt-4">
               <button type="button" @click="offerStore.closeModal" class="px-4 py-2 bg-gray-300 rounded">
                 Anuluj
@@ -157,6 +230,4 @@ onMounted(() => {
     </Dialog>
   </TransitionRoot>
 </template>
-  
-
   

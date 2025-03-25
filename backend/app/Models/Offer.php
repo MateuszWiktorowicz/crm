@@ -16,6 +16,10 @@ class Offer extends Model
         'changed_by',
     ];
 
+    protected $casts = [
+        'tool_price' => 'float',
+    ];
+
     public function customer(): BelongsTo 
     {
         return $this->belongsTo(Customer::class);

@@ -50,7 +50,7 @@ onMounted(() => {
               Data stworzenia
 
             </th>
-            <th class="border border-gray-300 p-3 text-left">
+            <th class="border border-gray-300 p-3 text-left min-w-[150px]">
               Actions
 
             </th>
