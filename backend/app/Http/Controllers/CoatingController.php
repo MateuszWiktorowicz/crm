@@ -17,8 +17,8 @@ class CoatingController extends Controller
                 'coating_prices.id',
                 'coating_types.mastermet_name',
                 'coating_types.mastermet_code',
-                'coating_prices.price',
-                'coating_prices.diameter', 
+                DB::raw('ROUND(coating_prices.price / 0.6, 2) as price'),
+                'coating_prices.diameter',
                 )
             ->get();
 

@@ -18,12 +18,14 @@ onMounted(() => {
   coatingStore.fetchCoatings();
 });
 const handleToolTypeChange = (index) => {
+  offerStore.resetDetail(index);
   offerStore.updateToolNetPrice(index);
   offerStore.calculateOfferTotalNetPrice();
   offerStore.calculateOfferTotalNetPrice();
 };
 
 const handleFlutesNumberChange = (index) => {
+  offerStore.resetDetail(index);
   offerStore.updateToolNetPrice(index);
   offerStore.calculateOfferTotalNetPrice();
   offerStore.calculateOfferTotalNetPrice();
@@ -58,6 +60,14 @@ const handleQuantityChange = () => {
 offerStore.calculateOfferTotalNetPrice();
 }
 
+const handleManualToolPriceChange = (index) => {
+  offerStore.calculateOfferTotalNetPrice();
+};
+
+const handleManualCoatingPriceChange = (index) => {
+  offerStore.calculateOfferTotalNetPrice();
+};
+
 
 </script>
 
@@ -80,6 +90,18 @@ offerStore.calculateOfferTotalNetPrice();
         </select>
     </div>
     <div class="flex flex-col items-end">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status oferty</label>
+        <select v-model="offerStore.offer.status_id" class="w-full p-2 border rounded">
+                        <option 
+                          v-for="status in offerStore.statuses" 
+                          :key="status.id" 
+                          :value="status.id"
+                        >
+                          {{ status.name }}
+                        </option>
+                      </select>
+    </div>
+    <div class="flex flex-col items-end">
         <label class="block text-sm font-medium text-gray-700 mb-1">Kwota netto oferty</label>
         <span class="text-lg font-semibold text-gray-800 bg-gray-200 px-3 py-1 rounded-lg shadow-sm">
             {{ offerStore.offer.total_net_price }} PLN
@@ -94,14 +116,15 @@ offerStore.calculateOfferTotalNetPrice();
                     <th class="border border-gray-300 p-3 text-left min-w-[150px]">Ilość ostrzy</th>
                     <th class="border border-gray-300 p-3 text-left min-w-[120px]">Średnica</th>
                     <th class="border border-gray-300 p-3 text-left">Promień</th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[120px]">Wariant ostrzenia</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa ostrzenia netto</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[180px]">Wariant ostrzenia</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa ostrzenia netto [PLN]</th>
                     <th class="border border-gray-300 p-3 text-left">Pokrycie</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa pokrycia netto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena jednostkowa pokrycia netto [PLN]</th>
                     <th class="border border-gray-300 p-3 text-left min-w-[80px]">Ilość</th>
                     <th class="border border-gray-300 p-3 text-left min-w-[80px]">Rabat</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena całkowita netto [PLN]</th>
+                    <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto [PLN]</th>
+                    <th class="border border-gray-300 p-3 text-left min-w-[200px]">Opis</th>
                     <th class="border border-gray-300 p-3 text-left">Akcja</th>
                   </tr>
                 </thead>
@@ -164,8 +187,10 @@ offerStore.calculateOfferTotalNetPrice();
                     </td>
                     <!-- Cena jednostkowa ostrzenia netto -->
                     <td class="border border-gray-300 p-3">
-                      {{ detail.tool_net_price }} PLN
-                    </td>
+                    <input type="number" step="0.01" v-model="detail.tool_net_price" 
+                          class="w-full p-2 border rounded text-right" 
+                          @input="handleManualToolPriceChange(index)" />
+                  </td>
                     <!-- Pokrycie -->
                     <td class="border border-gray-300 p-3">
                       <select v-model="detail.coatingCode" class="w-full p-2 border rounded" @change="handleCoatingCodeChange(index)">
@@ -181,7 +206,9 @@ offerStore.calculateOfferTotalNetPrice();
                     </td>
                     <!-- Cena jednostkowa pokrycia netto -->
                     <td class="border border-gray-300 p-3">
-                      {{ (Number(detail.coating_net_price)).toFixed(2) }}
+                      <input type="number" step="0.01" v-model="detail.coating_net_price" 
+                            class="w-full p-2 border rounded text-right" 
+                            @input="handleManualCoatingPriceChange(index)" />
                     </td>
                     <!-- Ilość -->
                     <td class="border border-gray-300 p-3">
@@ -198,6 +225,16 @@ offerStore.calculateOfferTotalNetPrice();
                     <!-- Cena całkowita brutto -->
                     <td class="border border-gray-300 p-3">
                       {{ (offerStore.getTotalNetDetailPrice(detail) * 1.23).toFixed(2) }} PLN
+                    </td>
+                    <!-- Opis -->
+                    <td class="border border-gray-300 p-3">
+                      <textarea 
+                      v-model="detail.description"
+                      class="w-full p-2 border rounded text-right resize-none"
+                      rows="2"
+                      >
+                      Opis pozycji
+                      </textarea>
                     </td>
                     <!-- Akcja -->
                     <td class="border border-gray-300 p-3">
@@ -223,8 +260,19 @@ offerStore.calculateOfferTotalNetPrice();
               <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
                 Zapisz
               </button>
+              <button type="button" @click="offerStore.generatePdf()" class="px-4 py-2 bg-blue-600 text-white rounded">
+                Generuj PDF
+              </button>
             </div>
           </form>
+          <div v-if="Object.keys(offerStore.errors).length" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+  <p class="font-semibold">Wystąpiły błędy:</p>
+  <ul class="list-disc list-inside">
+    <li v-for="(errorMessages, field) in offerStore.errors" :key="field">
+      <span v-for="(message, index) in errorMessages" :key="index">{{ message }}</span>
+    </li>
+  </ul>
+</div>
         </DialogPanel>
       </div>
     </Dialog>

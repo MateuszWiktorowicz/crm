@@ -17,7 +17,8 @@ class OfferDetail extends Model
         'coating_price_id',
         'coating_net_price',
         'radius',
-        "regrinding_option"
+        "regrinding_option",
+        "description"
     ];
 
     protected $casts = [

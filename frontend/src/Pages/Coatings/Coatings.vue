@@ -50,7 +50,7 @@ onMounted(() => {
             <td class="border border-gray-300 p-3">{{ coating.mastermet_name }}</td>
             <td class="border border-gray-300 p-3">{{ coating.mastermet_code }}</td>
             <td class="border border-gray-300 p-3">{{ coating.diameter }} </td>
-            <td class="border border-gray-300 p-3">{{ coating.price }} PLN</td>
+            <td class="border border-gray-300 p-3">{{ (Number(coating.price))}} PLN</td>
           </tr>
         </tbody>
         <tbody v-else>

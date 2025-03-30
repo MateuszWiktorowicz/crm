@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OfferRequest;
 use Illuminate\Http\Request;
-use App\Models\Offer;
+use App\Models\{Offer, Status, Settings};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OfferController extends Controller
 {
@@ -23,28 +24,32 @@ class OfferController extends Controller
                 'status_name' => $offer->status->name,
                 'total_net_price' => number_format($offer->total_price, 2, ',', ' '),
                 'created_at' => $offer->created_at->format('d-m-Y'),
+                'offer_number' => $offer->offer_number,
                 'offer_details' => $offer->offerDetails->map(function ($detail) {
                     return [
                         'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, 
                         'flutesNumber' => $detail->toolGeometry->flutes_number ?? null,
                         'diameter' => $detail->toolGeometry->diameter ?? null,
                         'tool_geometry_id' => $detail->tool_geometry_id,
-                        'tool_quantity' => $detail->tool_quantity,
-                        'tool_discount' => $detail->tool_discount,
-                        'tool_total_net_price' => $detail->tool_total_net_price,
-                        'tool_total_gross_price' => $detail->tool_total_gross_price,
+                        'quantity' => $detail->quantity,
+                        'discount' => $detail->discount,
+                        'tool_net_price' => $detail->tool_net_price,
                         'coating_price_id' => $detail->coating_price_id,
-                        'coating_quantity' => $detail->coating_quantity,
-                        'coating_discount' => $detail->coating_discount,
-                        'coating_total_net_price' => $detail->coating_net_price,
-                        'coating_total_gross_price' => $detail->coating_gross_price,
+                        'coatingCode' => $detail->coatingPrice->coatingType->mastermet_code ?? null,
+                        'coating_net_price' => $detail->coating_net_price,
+                        'radius' => $detail->radius,
+                        'regrinding_option' => $detail->regrinding_option,
+                        'description' => $detail->description
                     ];
                 }),
             ];
         });
 
+        $statuses = Status::all();
+
     return response()->json([
         'offers' => $offers,
+        'statuses' => $statuses
     ]);
 }
 
@@ -66,10 +71,7 @@ class OfferController extends Controller
     
             foreach ($validated['offer_details'] as $detail) {
                 if (empty($detail['coating_price_id'])) {
-                    $detail['coating_quantity'] = 0;
-                    $detail['coating_discount'] = 0;
                     $detail['coating_net_price'] = 0;
-                    $detail['coating_gross_price'] = 0;
                 }
                 $offer->offerDetails()->create($detail);
             }
@@ -103,10 +105,7 @@ class OfferController extends Controller
             foreach ($validated['offer_details'] as &$detail) {
                 if (!isset($detail['coating_price_id'])) {
                     $detail = array_merge($detail, [
-                        'coating_quantity' => 0,
-                        'coating_discount' => 0,
                         'coating_net_price' => 0,
-                        'coating_gross_price' => 0,
                     ]);
                 }
                 $offer->offerDetails()->create($detail);
@@ -144,4 +143,71 @@ class OfferController extends Controller
             return response()->json(['error' => 'Wystąpił błąd podczas usuwania oferty', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function generateOfferPdf($offerId)
+    {
+        $setting = Settings::first();
+        $offer = Offer::findOrFail($offerId);  // Załaduj ofertę na podstawie ID
+        
+        // Sprawdzenie, czy oferta istnieje i ma szczegóły
+        if (!$offer) {
+            // Możesz zwrócić jakąś informację o błędzie lub wyjątek
+            return response()->json(['error' => 'Oferta nie istnieje'], 404);
+        }
+    
+        $offerDetails = $offer->offerDetails; // Szczegóły oferty
+        
+        // Sprawdzenie, czy szczegóły oferty są dostępne
+        if (!$offerDetails || $offerDetails->isEmpty()) {
+            // Możesz zwrócić jakąś informację o braku szczegółów oferty
+            return response()->json(['error' => 'Brak szczegółów oferty'], 404);
+        }
+    
+        // Generowanie PDF
+        $pdf = Pdf::loadView('offer.pdf', compact('offer', 'offerDetails'))
+        ->setPaper('A4', 'portrait')
+        ->setOption('isHtml5ParserEnabled', true)
+        ->setOption('isPhpEnabled', true)
+        ->setOption('encoding', 'UTF-8'); // Ustawienie kodowania UTF-8
+
+        if (!$offer->offer_number) {
+            // Jeśli numer oferty nie jest przypisany, zaktualizuj numer oferty
+            $offerNumber = $setting->offer_number + 1;
+    
+            // Zaktualizuj numer oferty w tabeli settings
+            $setting->update([
+                'offer_number' => $offerNumber
+            ]);
+    
+            // Formatowanie numeru oferty jako numer/dzień/miesiąc/rok
+            $formattedOfferNumber = $offerNumber . '/' . now()->format('d/m/Y');
+            
+            // Zaktualizuj numer oferty w tabeli offers
+            $offer->update([
+                'offer_number' => $formattedOfferNumber
+            ]);
+        }
+    
+        // Dodaj nagłówki CORS dla odpowiedzi na PDF
+        return $pdf->download('offer_' . $offerId . '.pdf')
+                    ->header('Access-Control-Allow-Origin', '*')
+                    ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                    ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Requested-With');
+    }
+
+    public function updateOfferNumber(Request $request, $id)
+{
+    $validated = $request->validate([
+        'offer_number' => 'required|string|max:255',  // Walidacja numeru oferty
+    ]);
+
+    $offer = Offer::findOrFail($id);
+    $offer->offer_number = $validated['offer_number'];
+    $offer->save();
+
+    return response()->json([
+        'message' => 'Offer number updated successfully',
+        'offer' => $offer,
+    ]);
+}
 }

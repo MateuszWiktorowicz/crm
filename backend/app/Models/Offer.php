@@ -14,6 +14,7 @@ class Offer extends Model
         'total_price',
         'created_by',
         'changed_by',
+        'offer_number'
     ];
 
     protected $casts = [

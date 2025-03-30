@@ -1,15 +1,18 @@
 <script setup>
 import GuestLayout from '../Layouts/GuestLayout.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import axiosClient from '../axios.js';
 import router from '../router.js';
 import InputError from '../components/InputError.vue';
 import ApplicationLogo from '../components/ApplicationLogo.vue';
 
+
 const data = ref({
   email: '',
   password: '',
 });
+
+
 
 const errors = ref('');
 
@@ -24,6 +27,7 @@ function submit() {
     });
   });
 }
+
 
 </script>
 

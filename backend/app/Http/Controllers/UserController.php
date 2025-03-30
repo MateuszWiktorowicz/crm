@@ -58,6 +58,7 @@ class UserController extends Controller
 
         if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
             $navigation[] = ['name' => 'Pracownicy', 'to' => 'pracownicy'];
+            $navigation[] = ['name' => 'Ustawienia', 'to' => 'ustawienia'];
         }
 
         return response()->json([

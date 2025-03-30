@@ -17,10 +17,6 @@ onMounted(() => {
 <Header title='Baza narzędzi' />
 
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div v-for="toolType in toolsStore.toolTypes" :key="toolType.id">
-            {{ toolType.tool_type_name }}
-        </div>
-
     <div class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300">
       <table class="w-full border-separate border-spacing-0">
         <thead class="bg-gray-100 sticky top-0 z-10">

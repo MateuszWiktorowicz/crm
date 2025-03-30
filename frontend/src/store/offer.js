@@ -2,17 +2,21 @@ import { defineStore } from 'pinia';
 import useToolsStore from './tools';
 import axiosClient from '../axios';
 import useCoatingStore from './coating';
+import useSettingsStore from './settings'; 
 
 const useOfferStore = defineStore('offer', {
   state: () => ({
     offers: [],
     offer: {
+      offer_number: '',
+      id: null,
       customer_id: '',
-      status_id: '',
+      status_id: 1,
       total_net_price: 0,
       changed_by: '',
       created_at: '',
       updated_at: '',
+      status_name: 'Robocza',
     },
     offerDetails: [
       {
@@ -28,26 +32,32 @@ const useOfferStore = defineStore('offer', {
         coatingCode: 'none',
         coating_price_id: null,
         coating_net_price: 0,
+        description: ''
       },
     ],
+    $statuses: [],
     isModalOpen: false,
+    errors: {},
   }),
   actions: {
     async fetchOffers() {
       try {
         const response = await axiosClient.get('/api/offers');
         this.offers = response.data.offers;
-        console.log(this.offers)
+        this.statuses = response.data.statuses;
+        console.log(this.offers);
       } catch (error) {}
     },
     async saveOffer() {
       const payload = {
         customer_id: this.offer.customer_id,
         status_id: this.offer.status_id || 1,
-        total_net_price: this.offer.total_net_price,
+        total_net_price: Number(this.offer.total_net_price),
         offer_details: this.offerDetails,
       };
       try {
+        this.errors = {};
+
         if (this.offer.id) {
           await axiosClient.put(`/api/offers/${this.offer.id}`, payload);
         } else {
@@ -56,7 +66,38 @@ const useOfferStore = defineStore('offer', {
 
         this.closeModal();
         this.fetchOffers();
-      } catch (error) {}
+      } catch (error) {
+        if (error.response && error?.response?.data.errors) {
+          this.errors = error.response.data.errors;
+        } else {
+          console.error("Nieznany błąd:", error);
+        }
+      }
+    },
+    async generatePdf() {
+      try {
+        const settingsStore = useSettingsStore();
+        await settingsStore.fetchSettings(); 
+
+
+
+        const response = await axiosClient.get(`/api/offers/${this.offer.id}/generate-pdf`, {
+          responseType: 'blob', 
+        });
+
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `offer_${this.offer.id}.pdf`);  
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+      } catch (error) {
+        console.error("Failed to generate PDF:", error);
+        alert('Wystąpił błąd przy generowaniu PDF.');
+      }
     },
     openModal() {
       this.isModalOpen = true;
@@ -64,7 +105,7 @@ const useOfferStore = defineStore('offer', {
     closeModal() {
       this.isModalOpen = false;
       this.resetOffer();
-      // window.location.reload(); 
+      window.location.reload(); 
     },
     addToolRow() {
       this.offerDetails.push({
@@ -80,6 +121,7 @@ const useOfferStore = defineStore('offer', {
         coatingCode: 'none',
         coating_price_id: null,
         coating_net_price: 0,
+        description: '',
       });
     },
     removeToolRow(index) {
@@ -88,12 +130,16 @@ const useOfferStore = defineStore('offer', {
     async destroyOffer(id) {
       try {
         if (confirm('Czy na pewno chcesz usunąć tę ofertę?')) {
-        const response = await axiosClient.delete(`/api/offers/${id}`);
-        this.offers = this.offers.filter((offer) => offer.id !== id);
-        return response.data;
+          const response = await axiosClient.delete(`/api/offers/${id}`);
+          this.offers = this.offers.filter((offer) => offer.id !== id);
+          return response.data;
         }
       } catch (error) {
-        throw new Error('Failed to delete offer');
+        if (error.response && error.response.data.error) {
+          this.errors = [error.response.data.error];
+        } else {
+          this.errors = ['Wystąpił nieznany błąd.'];
+        }
       }
     },
     resetDetail(index) {
@@ -114,13 +160,37 @@ const useOfferStore = defineStore('offer', {
       detail.regrinding_option = 'face_regrinding';
     },
     editOffer(offer) {
-      console.log("🟢 Dane w editOffer:", JSON.parse(JSON.stringify(offer)));
-      this.offer = { ...offer };
+      console.log(offer);
+    
+      // Usuwamy spacje i zamieniamy przecinek na kropkę w 'total_net_price'
+      let totalNetPrice = offer.total_net_price.replace(/\s+/g, '').replace(',', '.');
+      
+      // Konwertujemy na liczbę
+      let parsedPrice = parseFloat(totalNetPrice);
+    
+      // Sprawdzamy, czy przekształcony wynik to prawidłowa liczba
+      if (!isNaN(parsedPrice)) {
+        this.offer = { ...offer, total_net_price: parsedPrice }; // Przypisujemy liczbę
+      } else {
+        console.error('Błąd konwersji total_net_price', offer.total_net_price);
+      }
+    
       this.offerDetails = offer.offer_details;
       this.offer.customer_id = offer.customer_id;
+    
+      // Dopasowanie statusu
+      const matchedStatus = this.statuses.find(status => status.name === offer.status_name);
+      this.offer.status_id = matchedStatus ? matchedStatus.id : 1;
+    
       this.isModalOpen = true;
-      console.log("🟢 Dane na koniec:", JSON.parse(JSON.stringify(this.offerDetails)));
-
+      console.log(this.offer);
+    },
+    formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+    
+      return `${day}/${month}/${year}`;
     },
     resetOffer() {
       this.offer.customer_id = '';
@@ -148,10 +218,8 @@ const useOfferStore = defineStore('offer', {
 
         if (parseFloat(detail.radius) < 1) {
           price -= 5;
-          console.log("mniejszy: od 1", detail.radius);
         } else if(parseFloat(detail.radius) >= 2.5) {
           price += 5;
-          console.log("wiekszy od 2,5: ", detail.radius);
         }
 
         detail.tool_net_price = price.toFixed(2);
@@ -197,8 +265,6 @@ const useOfferStore = defineStore('offer', {
       const tool = toolStore.getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
     
       if (tool) {
-        console.log(tool)
-        console.log(tool.regrinding_options )
         detail.tool_geometry_id = tool.id;
         return tool.regrinding_options || [];
       }

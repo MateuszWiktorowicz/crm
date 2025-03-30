@@ -1,5 +1,14 @@
 <script setup>
+import { onMounted, ref } from 'vue';
 import Header from '../components/Header.vue';
+import useSettingsStore from '../store/settings.js';
+
+const settingsStore = useSettingsStore();
+
+onMounted(async () => {
+  await settingsStore.fetchSettings();
+});
+
 </script>
 
 <template>
