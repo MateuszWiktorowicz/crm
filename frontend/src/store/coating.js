@@ -52,13 +52,13 @@ const useCoatingStore = defineStore('coating', {
         if (diameter === '' || code === 'none') {
           return null;
         }
-        const foundCoating = state.coatings.find(coating => 
-          coating.diameter === parseInt(diameter) && coating.mastermet_code === code
+        const foundCoating = state.coatings.find(
+          (coating) => coating.diameter === parseInt(diameter) && coating.mastermet_code === code
         );
         return foundCoating;
       };
-    }
-  }
+    },
+  },
 });
 
 export default useCoatingStore;

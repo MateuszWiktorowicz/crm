@@ -1,24 +1,23 @@
 <script setup>
-import { onMounted } from 'vue';
-import Header from '../../components/Header.vue';
-import useCoatingStore from '../../store/coating';
-import CoatingFilterInput from '../../components/CoatingFilterInput.vue';
+  import { onMounted } from 'vue';
+  import Header from '../../components/Header.vue';
+  import useCoatingStore from '../../store/coating';
+  import CoatingFilterInput from '../../components/CoatingFilterInput.vue';
 
-const coatingStore = useCoatingStore();
+  const coatingStore = useCoatingStore();
 
-onMounted(() => {
+  onMounted(() => {
     coatingStore.fetchCoatings();
-});
-
+  });
 </script>
 
 <template>
+  <Header title="Baza pokryć" />
 
-<Header title='Baza pokryć' />
-
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-    <div class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300">
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div
+      class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
+    >
       <table class="w-full border-separate border-spacing-0">
         <thead class="bg-gray-100 sticky top-0 z-10">
           <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
@@ -35,9 +34,7 @@ onMounted(() => {
               Średnica
               <CoatingFilterInput :column="'diameter'" />
             </th>
-            <th class="border border-gray-300 p-3 text-left">
-              Cena pokrywania
-            </th>
+            <th class="border border-gray-300 p-3 text-left">Cena pokrywania</th>
           </tr>
         </thead>
         <tbody v-if="coatingStore.filteredCoatings.length > 0" class="text-gray-600 text-sm">
@@ -49,8 +46,8 @@ onMounted(() => {
             <!-- <td class="border border-gray-300 p-3">{{ user.id }}</td> -->
             <td class="border border-gray-300 p-3">{{ coating.mastermet_name }}</td>
             <td class="border border-gray-300 p-3">{{ coating.mastermet_code }}</td>
-            <td class="border border-gray-300 p-3">{{ coating.diameter }} </td>
-            <td class="border border-gray-300 p-3">{{ (Number(coating.price))}} PLN</td>
+            <td class="border border-gray-300 p-3">{{ coating.diameter }}</td>
+            <td class="border border-gray-300 p-3">{{ Number(coating.price) }} PLN</td>
           </tr>
         </tbody>
         <tbody v-else>
@@ -60,10 +57,7 @@ onMounted(() => {
         </tbody>
       </table>
     </div>
-</div>
-
+  </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

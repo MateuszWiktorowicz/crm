@@ -7,6 +7,7 @@ use App\Models\ToolType;
 
 class ToolGeometry extends Model
 {
+    public $timestamps = false;
     protected $fillable = [
         'flutes_number',
         'diameter',

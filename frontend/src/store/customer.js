@@ -101,8 +101,7 @@ const useCustomerStore = defineStore('customer', {
       this.filteredCustomers = this.customers.filter((customer) =>
         Object.entries(this.filters).every(
           ([key, value]) =>
-            !value ||
-            (customer[key] || '').toLowerCase().includes(value.toLowerCase())
+            !value || (customer[key] || '').toLowerCase().includes(value.toLowerCase())
         )
       );
     },

@@ -51,33 +51,32 @@ const useToolsStore = defineStore('tools', {
   getters: {
     getUniqueFlutesNumbers: (state) => (toolType) => {
       if (!toolType || !state.tools) return [];
-      
-      const filtered = state.tools.filter(tool => tool.tool_type_name === toolType);
-      
-      return [...new Set(filtered.map(tool => tool.flutes_number))];
+
+      const filtered = state.tools.filter((tool) => tool.tool_type_name === toolType);
+
+      return [...new Set(filtered.map((tool) => tool.flutes_number))];
     },
     getUniqueDiameters: (state) => (toolType, flutesNumber) => {
       if (!toolType || !flutesNumber || !state.tools) return [];
-      const filtered = state.tools.filter(tool =>
-        tool.tool_type_name === toolType && tool.flutes_number === flutesNumber
+      const filtered = state.tools.filter(
+        (tool) => tool.tool_type_name === toolType && tool.flutes_number === flutesNumber
       );
-      return [...new Set(filtered.map(tool => tool.diameter))];
+      return [...new Set(filtered.map((tool) => tool.diameter))];
     },
     getRegrindingOptions: (state) => (toolType, flutesNumber, diameter) => {
       if (!toolType || !flutesNumber || !diameter || !state.tools) return [];
-    
+
       const selectedTool = state.tools.find(
         (tool) =>
           tool.tool_type_name === toolType &&
           tool.flutes_number === flutesNumber &&
           tool.diameter === diameter
       );
-    
+
       return selectedTool ? selectedTool.regrinding_options : [];
     },
     getSelectedTool: (state) => (toolType, flutesNumber, diameter) => {
-      if (!toolType || !flutesNumber || !diameter || !state.tools)
-        return null;
+      if (!toolType || !flutesNumber || !diameter || !state.tools) return null;
 
       return (
         state.tools.find(
@@ -88,7 +87,7 @@ const useToolsStore = defineStore('tools', {
         ) || null
       );
     },
-  }
+  },
 });
 
 export default useToolsStore;

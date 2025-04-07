@@ -1,13 +1,7 @@
 <script setup>
-import GuestLayout from '../Layouts/GuestLayout.vue'
+  import GuestLayout from '../Layouts/GuestLayout.vue';
 </script>
 
-<template>
+<template>Home</template>
 
-    Home
-
-</template>
-
-<style scoped>
-
-</style>
+<style scoped></style>

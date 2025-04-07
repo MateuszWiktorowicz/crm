@@ -13,7 +13,7 @@ const useSettingsStore = defineStore('settings', {
       try {
         const response = await axiosClient.get('/api/settings');
         this.setting = response.data;
-        console.log(this.setting)
+        console.log(this.setting);
       } catch (error) {
         console.error('Błąd pobierania ustawień:', error);
         throw error;

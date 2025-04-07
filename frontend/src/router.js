@@ -29,11 +29,7 @@ const routes = [
         beforeEnter: (to, from, next) => {
           const userStore = useUserStore();
           const user = userStore.user;
-          if (
-            user &&
-            (user.roles.includes('admin') ||
-              user.roles.includes('regeneration'))
-          ) {
+          if (user && (user.roles.includes('admin') || user.roles.includes('regeneration'))) {
             next();
           } else {
             next('/');
@@ -47,11 +43,7 @@ const routes = [
         beforeEnter: (to, from, next) => {
           const userStore = useUserStore();
           const user = userStore.user;
-          if (
-            user &&
-            (user.roles.includes('admin') ||
-              user.roles.includes('regeneration'))
-          ) {
+          if (user && (user.roles.includes('admin') || user.roles.includes('regeneration'))) {
             next();
           } else {
             next('/');

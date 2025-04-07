@@ -55,7 +55,7 @@
         }
         
         .customer {
-            font-size: 13px;
+            font-size: 12px;
         }
 
     </style>
@@ -73,15 +73,17 @@
             <img src="{{ storage_path('app/public/images/mastermet-logo.png') }}" alt="Logo Mastermet">
         </td>
         <td class="header-info" style="width: 50%; vertical-align: top; text-align: left;">
-            <span class="info">NIP: 8971745244<<br>
-            REGON: 020817441<br>
-            KRS 0000312613 SR Wrocław-Farbryczna</span><br><br>
-            OFERTA NR: {{ $offer->id }}/{{ \Carbon\Carbon::now()->format('d/m/Y') }}<br>
-            Data: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</span><br>
-            Firma: {{ $offer->customer->name }}<br>
-            NIP: {{ $offer->customer->nip }}<br>
-            Adres: {{ $offer->customer->city }}, {{ $offer->customer->address }}</span>
-        </td>
+    <div class="info">
+        NIP: 8971745244<br>
+        REGON: 020817441<br>
+        KRS 0000312613 SR Wrocław-Fabryczna<br><br>
+        OFERTA NR: {{ $offer->id }}/{{ \Carbon\Carbon::now()->format('d/m/Y') }}<br>
+        Data: {{ \Carbon\Carbon::now()->format('d/m/Y') }}<br>
+        Firma: {{ $offer->customer->name }}<br>
+        NIP: {{ $offer->customer->nip }}<br>
+        Adres: {{ $offer->customer->city }}, {{ $offer->customer->address }}
+    </div>
+</td>
     </tr>
 </table>
    
@@ -99,15 +101,22 @@
             @foreach($offerDetails as $detail)
                 <tr>
                 <td>
-                    {{ $detail->toolGeometry->toolType->tool_type_name }} 
-                    D{{ $detail->toolGeometry->diameter }}  
-                    Z-{{ $detail->toolGeometry->flutes_number }}
-                    
-                    @if($detail->radius != 0)
-                        R{{ $detail->radius }}
-                    @endif
-                </td>
-                <td>{{ $detail->description }}</td>
+    @if($detail->tool_geometry_id == 157)
+        {{ Str::of($detail->description)->match('/\[(.*?)\]/') ?: 'Niestandardowe narzędzie' }}
+    @else
+        {{ $detail->toolGeometry->toolType->tool_type_name }} 
+        D{{ $detail->toolGeometry->diameter }}  
+        Z-{{ $detail->toolGeometry->flutes_number }}
+
+        @if($detail->radius != 0)
+            R{{ $detail->radius }}
+        @endif
+    @endif
+</td>
+@php
+    $cleanDescription = preg_replace('/\[.*?\]/', '', $detail->description);
+@endphp
+<td>{{ trim($cleanDescription) }}</td>
                     <td>{{ $detail->tool_net_price +  $detail->coating_net_price}} PLN</td>
                     <td>{{ $detail->quantity }}</td>
                     <td>{{ ($detail->tool_net_price + $detail->coating_net_price) *  $detail->quantity}} PLN</td>

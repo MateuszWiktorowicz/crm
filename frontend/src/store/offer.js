@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import useToolsStore from './tools';
 import axiosClient from '../axios';
 import useCoatingStore from './coating';
-import useSettingsStore from './settings'; 
+import useSettingsStore from './settings';
 
 const useOfferStore = defineStore('offer', {
   state: () => ({
@@ -32,7 +32,7 @@ const useOfferStore = defineStore('offer', {
         coatingCode: 'none',
         coating_price_id: null,
         coating_net_price: 0,
-        description: ''
+        description: '',
       },
     ],
     $statuses: [],
@@ -70,33 +70,40 @@ const useOfferStore = defineStore('offer', {
         if (error.response && error?.response?.data.errors) {
           this.errors = error.response.data.errors;
         } else {
-          console.error("Nieznany błąd:", error);
+          console.error('Nieznany błąd:', error);
         }
       }
     },
     async generatePdf() {
       try {
         const settingsStore = useSettingsStore();
-        await settingsStore.fetchSettings(); 
-
-
+        await settingsStore.fetchSettings();
 
         const response = await axiosClient.get(`/api/offers/${this.offer.id}/generate-pdf`, {
-          responseType: 'blob', 
+          responseType: 'blob',
         });
 
-        
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `offer_${this.offer.id}.pdf`);  
+        link.setAttribute('download', `offer_${this.offer.id}.pdf`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
       } catch (error) {
-        console.error("Failed to generate PDF:", error);
+        console.error('Failed to generate PDF:', error);
         alert('Wystąpił błąd przy generowaniu PDF.');
+      }
+    },
+    setToolGeometryIdIfCustom(index) {
+      const detail = this.offerDetails[index];
+      console.log(detail.toolType);
+
+      // Sprawdzamy, czy toolType to "Niestandardowe"
+      if (detail.toolType === 'Niestandardowe') {
+        // Ustawiamy tool_geometry_id na 157
+        detail.tool_geometry_id = 157;
+        console.log("Tool Geometry ID zaktualizowane na: ", detail.tool_geometry_id);
       }
     },
     openModal() {
@@ -105,7 +112,10 @@ const useOfferStore = defineStore('offer', {
     closeModal() {
       this.isModalOpen = false;
       this.resetOffer();
-      window.location.reload(); 
+      // window.location.reload();
+    },
+    isCustom(detail) {
+      return detail.toolType === 'Niestandardowe';
     },
     addToolRow() {
       this.offerDetails.push({
@@ -161,27 +171,27 @@ const useOfferStore = defineStore('offer', {
     },
     editOffer(offer) {
       console.log(offer);
-    
+
       // Usuwamy spacje i zamieniamy przecinek na kropkę w 'total_net_price'
       let totalNetPrice = offer.total_net_price.replace(/\s+/g, '').replace(',', '.');
-      
+
       // Konwertujemy na liczbę
       let parsedPrice = parseFloat(totalNetPrice);
-    
+
       // Sprawdzamy, czy przekształcony wynik to prawidłowa liczba
       if (!isNaN(parsedPrice)) {
         this.offer = { ...offer, total_net_price: parsedPrice }; // Przypisujemy liczbę
       } else {
         console.error('Błąd konwersji total_net_price', offer.total_net_price);
       }
-    
+
       this.offerDetails = offer.offer_details;
       this.offer.customer_id = offer.customer_id;
-    
+
       // Dopasowanie statusu
-      const matchedStatus = this.statuses.find(status => status.name === offer.status_name);
+      const matchedStatus = this.statuses.find((status) => status.name === offer.status_name);
       this.offer.status_id = matchedStatus ? matchedStatus.id : 1;
-    
+
       this.isModalOpen = true;
       console.log(this.offer);
     },
@@ -189,7 +199,7 @@ const useOfferStore = defineStore('offer', {
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
-    
+
       return `${day}/${month}/${year}`;
     },
     resetOffer() {
@@ -199,26 +209,34 @@ const useOfferStore = defineStore('offer', {
       this.offer.changed_by = '';
       this.offer.created_at = '';
       this.offer.updated_at = '';
-        this.offerDetails.forEach((detail, index) => {
-          detail.flutesNumber = '';
-          detail.toolType = '';
-          this.resetDetail(index);
-        });
+      this.offerDetails.forEach((detail, index) => {
+        detail.flutesNumber = '';
+        detail.toolType = '';
+        this.resetDetail(index);
+      });
     },
     updateToolNetPrice(index) {
+      if (this.offerDetails[index].toolType === 'Niestandardowe') return 0;
+
       const toolStore = useToolsStore();
       const detail = this.offerDetails[index];
 
       let price = 0;
-                 
-      if (detail.toolType && detail.flutesNumber && detail.diameter && detail.regrinding_option) {
 
-        const tool = toolStore.getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
-        detail.regrinding_option === "face_regrinding" ? price = parseFloat(tool.face_grinding_price) : price = (parseFloat(tool.face_grinding_price) + parseFloat(tool.periphery_grinding_price));
+      if ((detail.toolType && detail.flutesNumber && detail.diameter && detail.regrinding_option) || detail.toolType === 'Niestandardowe') {
+        const tool = toolStore.getSelectedTool(
+          detail.toolType,
+          detail.flutesNumber,
+          detail.diameter
+        );
+        detail.regrinding_option === 'face_regrinding'
+          ? (price = parseFloat(tool.face_grinding_price))
+          : (price =
+              parseFloat(tool.face_grinding_price) + parseFloat(tool.periphery_grinding_price));
 
         if (parseFloat(detail.radius) < 1) {
           price -= 5;
-        } else if(parseFloat(detail.radius) >= 2.5) {
+        } else if (parseFloat(detail.radius) >= 2.5) {
           price += 5;
         }
 
@@ -229,33 +247,35 @@ const useOfferStore = defineStore('offer', {
 
       this.calculateOfferTotalNetPrice();
     },
-      updateCoatingNetPrice(index) {
-        const coatingStore = useCoatingStore();
-        const detail = this.offerDetails[index];
+    updateCoatingNetPrice(index) {
+      const coatingStore = useCoatingStore();
+      const detail = this.offerDetails[index];
 
-        if (detail.diameter && detail.coatingCode && detail.coatingCode !== "none") {
+      if ((detail.diameter && detail.coatingCode && detail.coatingCode !== 'none') || detail.toolType === 'Niestandardowe') {
+        const coating = coatingStore.findCoatingByDiameterAndCode(
+          detail.diameter,
+          detail.coatingCode
+        );
+        detail.coating_price_id = coating.id;
+        detail.coating_net_price = coating.price;
+      } else {
+        detail.coating_net_price = 0;
+      }
 
-          const coating = coatingStore.findCoatingByDiameterAndCode(detail.diameter, detail.coatingCode);
-          detail.coating_price_id = coating.id;
-          detail.coating_net_price = coating.price;
-        } else {
-          detail.coating_net_price = 0;
-        }
-
-        this.calculateOfferTotalNetPrice();
-      },
-      isRadiusEndMill(detail) {
-        return detail.toolType === "Frez Promieniowy";
-      },
+      this.calculateOfferTotalNetPrice();
+    },
+    isRadiusEndMill(detail) {
+      return detail.toolType === 'Frez Promieniowy';
+    },
 
     calculateOfferTotalNetPrice() {
       let totalNetPrice = 0;
-  
-      this.offerDetails.forEach(detail => {
+
+      this.offerDetails.forEach((detail) => {
         const detailPrice = this.getTotalNetDetailPrice(detail);
         totalNetPrice += parseFloat(detailPrice);
       });
-  
+
       this.offer.total_net_price = totalNetPrice.toFixed(2);
     },
   },
@@ -263,18 +283,18 @@ const useOfferStore = defineStore('offer', {
     getRegrindingOptions: (state) => (detail) => {
       const toolStore = useToolsStore();
       const tool = toolStore.getSelectedTool(detail.toolType, detail.flutesNumber, detail.diameter);
-    
+
       if (tool) {
         detail.tool_geometry_id = tool.id;
         return tool.regrinding_options || [];
       }
-    
+
       return [];
     },
     getTotalNetDetailPrice: (state) => (detail) => {
-      if (!detail.tool_net_price || !detail.quantity) return 0;
-    
-      const priceWithoutDiscount = (parseFloat(detail.tool_net_price) + parseFloat(detail.coating_net_price)) * parseFloat(detail.quantity);
+      const priceWithoutDiscount =
+        (parseFloat(detail.tool_net_price) + parseFloat(detail.coating_net_price)) *
+        parseFloat(detail.quantity);
 
       const discountAmount = (parseFloat(detail.discount ?? 0) / 100) * priceWithoutDiscount;
 

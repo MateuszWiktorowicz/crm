@@ -70,9 +70,9 @@ class OfferController extends Controller
             ]);
     
             foreach ($validated['offer_details'] as $detail) {
-                if (empty($detail['coating_price_id'])) {
-                    $detail['coating_net_price'] = 0;
-                }
+                // if (empty($detail['coating_price_id'])) {
+                //     $detail['coating_net_price'] = 0;
+                // }
                 $offer->offerDetails()->create($detail);
             }
     
@@ -104,9 +104,9 @@ class OfferController extends Controller
             $offer->offerDetails()->delete();
             foreach ($validated['offer_details'] as &$detail) {
                 if (!isset($detail['coating_price_id'])) {
-                    $detail = array_merge($detail, [
-                        'coating_net_price' => 0,
-                    ]);
+                    // $detail = array_merge($detail, [
+                    //     'coating_net_price' => 0,
+                    // ]);
                 }
                 $offer->offerDetails()->create($detail);
             }

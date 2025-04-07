@@ -1,14 +1,14 @@
 <script setup>
-import Header from '../../components/Header.vue';
-import { ref, onMounted } from 'vue';
-import useSettingsStore from '../../store/settings'; // Importujemy store Pinia
+  import Header from '../../components/Header.vue';
+  import { ref, onMounted } from 'vue';
+  import useSettingsStore from '../../store/settings'; // Importujemy store Pinia
 
-const settingsStore = useSettingsStore(); // Inicjalizujemy store
+  const settingsStore = useSettingsStore(); // Inicjalizujemy store
 
-// Pobieramy dane ustawienia po załadowaniu komponentu
-onMounted(async () => {
-  await settingsStore.fetchSettings();
-});
+  // Pobieramy dane ustawienia po załadowaniu komponentu
+  onMounted(async () => {
+    await settingsStore.fetchSettings();
+  });
 </script>
 
 <template>
@@ -22,13 +22,19 @@ onMounted(async () => {
       <p><strong>Numer oferty:</strong> {{ settingsStore.setting.offer_number }}</p>
 
       <!-- Edytowanie numeru oferty -->
-      <input v-model="settingsStore.setting.offer_number" type="number" placeholder="Wpisz nowy numer oferty" class="p-2 border rounded">
+      <input
+        v-model="settingsStore.setting.offer_number"
+        type="number"
+        placeholder="Wpisz nowy numer oferty"
+        class="p-2 border rounded"
+      />
 
       <!-- Przycisk do zapisania ustawienia -->
-      <button @click="settingsStore.saveSetting" class="mt-4 p-2 bg-blue-500 text-white rounded">Zapisz</button>
+      <button @click="settingsStore.saveSetting" class="mt-4 p-2 bg-blue-500 text-white rounded">
+        Zapisz
+      </button>
     </div>
   </main>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

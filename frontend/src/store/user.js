@@ -90,8 +90,7 @@ const useUserStore = defineStore('user', {
       if (!this.user) return false;
       return (
         this.user.roles &&
-        (this.user.roles.includes('admin') ||
-          this.user.roles.includes('regeneration'))
+        (this.user.roles.includes('admin') || this.user.roles.includes('regeneration'))
       );
     },
     setFilter(column, value) {
@@ -103,9 +102,7 @@ const useUserStore = defineStore('user', {
 
       this.filteredUsers = this.users.filter((user) =>
         Object.entries(this.filters).every(
-          ([key, value]) =>
-            !value ||
-            (user[key] || '').toLowerCase().includes(value.toLowerCase())
+          ([key, value]) => !value || (user[key] || '').toLowerCase().includes(value.toLowerCase())
         )
       );
     },
