@@ -30,7 +30,7 @@ class CustomerRequest extends FormRequest
             'city' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'saler_marker' => 'nullable|string|max:10',
-            'description' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ];
     }
 }
