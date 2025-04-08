@@ -112,7 +112,7 @@ const useOfferStore = defineStore('offer', {
     closeModal() {
       this.isModalOpen = false;
       this.resetOffer();
-      // window.location.reload();
+      window.location.reload();
     },
     isCustom(detail) {
       return detail.toolType === 'Niestandardowe';
@@ -234,11 +234,15 @@ const useOfferStore = defineStore('offer', {
           : (price =
               parseFloat(tool.face_grinding_price) + parseFloat(tool.periphery_grinding_price));
 
+        if (detail.toolType === 'Frez Promieniowy') {
+
+
         if (parseFloat(detail.radius) < 1) {
           price -= 5;
         } else if (parseFloat(detail.radius) >= 2.5) {
           price += 5;
         }
+      }
 
         detail.tool_net_price = price.toFixed(2);
       } else {

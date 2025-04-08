@@ -76,10 +76,10 @@
 
 <template>
   <TransitionRoot appear :show="offerStore.isModalOpen" as="template">
-    <Dialog as="div" class="relative z-10" @close="offerStore.closeModal">
+    <Dialog as="div" class="relative z-10" @close="offerStore.closeModal" :static="true">
       <div class="fixed inset-0 bg-black/50"></div>
       <div class="fixed inset-0 flex items-center justify-center">
-        <DialogPanel class="w-full max-w-8xl bg-[#D3D3D3] p-8 rounded-lg shadow-lg">
+        <DialogPanel class="w-full min-h-screen max-w-8xl bg-[#D3D3D3] p-8 rounded-lg shadow-lg">
           <DialogTitle class="text-lg font-semibold">Oferta</DialogTitle>
           <form @submit.prevent="offerStore.saveOffer">
             <div
@@ -369,13 +369,18 @@
                 Anuluj
               </button>
               <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Zapisz</button>
-              <button
-                type="button"
-                @click="offerStore.generatePdf()"
-                class="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Generuj PDF
-              </button>
+
+  <button
+    type="button"
+    @click="offerStore.generatePdf()"
+    class="px-4 py-2 bg-blue-600 text-white rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+    :disabled="offerStore.offer.id === null"
+  >
+    Generuj PDF
+  </button>
+
+
+
             </div>
           </form>
           <div
