@@ -5,6 +5,29 @@
   import { onMounted } from 'vue';
   import useToolsStore from '../../store/tools';
   import useCoatingStore from '../../store/coating';
+  import { ref, computed } from 'vue';
+
+const isCustomerModalOpen = ref(false);
+const searchQuery = ref('');
+
+
+
+// Filtrowanie kontrahentów na podstawie wpisanego tekstu w polu wyszukiwania
+const filteredCustomers = computed(() => {
+  if (!searchQuery.value) {
+    return customerStore.customers;
+  }
+  return customerStore.customers.filter((customer) =>
+    customer.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+// Funkcja do wyboru kontrahenta i zamknięcia modala wyboru kontrahenta
+const selectCustomer = (customerId) => {
+  offerStore.offer.customer_id = customerId;
+  isCustomerModalOpen.value = false;
+};
+
 
   const offerStore = useOfferStore();
   const customerStore = useCustomerStore();
@@ -71,12 +94,17 @@
 
   const handleDiscountChange = () => {
     offerStore.calculateOfferTotalNetPrice();
+    offerStore.offer.globalDiscount = 0;
   };
+  const handleGlobalDiscountChange = () => {
+  offerStore.applyGlobalDiscount();
+};
 </script>
 
 <template>
+  <div>
   <TransitionRoot appear :show="offerStore.isModalOpen" as="template">
-    <Dialog as="div" class="relative z-10" @close="offerStore.closeModal" :static="true">
+    <Dialog as="div" class="relative z-10">
       <div class="fixed inset-0 bg-black/50"></div>
       <div class="fixed inset-0 flex items-center justify-center">
         <DialogPanel class="w-full min-h-screen max-w-8xl bg-[#D3D3D3] p-8 rounded-lg shadow-lg">
@@ -85,22 +113,21 @@
             <div
               class="flex items-center gap-5 justify-between p-4 bg-gray-100 rounded-lg shadow-md"
             >
-              <div class="mb-4 max-w-3xl">
+            <div class="mb-4 max-w-3xl">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Kontrahent</label>
-                <select
-                  v-model="offerStore.offer.customer_id"
-                  class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                <button
+                  type="button"
+                  @click="isCustomerModalOpen = true"
+                  class="w-full p-2 border border-gray-300 rounded-lg bg-white text-left"
                 >
-                  <option disabled value="">Wybierz kontrahenta</option>
-                  <option
-                    v-for="customer in customerStore.customers"
-                    :key="customer.id"
-                    :value="customer.id"
-                  >
-                    {{ customer.name }}
-                  </option>
-                </select>
+                  {{
+                    customerStore.customers.find((c) => c.id === offerStore.offer.customer_id)?.name
+                      || 'Wybierz kontrahenta'
+
+                  }}
+                </button>
               </div>
+
               <div class="flex flex-col items-end">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status oferty</label>
                 <select v-model="offerStore.offer.status_id" class="w-full p-2 border rounded">
@@ -119,6 +146,20 @@
                   {{ offerStore.offer.total_net_price }} PLN
                 </span>
               </div>
+              <div class="flex flex-col items-end">
+  <label class="block text-sm font-medium text-gray-700 mb-1">Rabat całej oferty (%)</label>
+  <input
+    type="number"
+    v-model="offerStore.offer.globalDiscount"
+    class="w-full p-2 border rounded"
+    placeholder="Rabat całej oferty"
+    min="0"
+    step="0.1"
+    @input="handleGlobalDiscountChange"
+  />
+
+</div>
+
             </div>
             <div
               class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
@@ -176,13 +217,13 @@
                       <select
                         v-model="detail.flutesNumber"
                         :class="[
-      'w-full p-2 border rounded',
-      offerStore.isCustom(detail)
-        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-        : 'bg-white text-black cursor-pointer'
-    ]"
+                          'w-full p-2 border rounded',
+                          offerStore.isCustom(detail)
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-white text-black cursor-pointer',
+                        ]"
                         @change="handleFlutesNumberChange(index)"
-                        :disabled=offerStore.isCustom(detail)
+                        :disabled="offerStore.isCustom(detail)"
                       >
                         <option disabled value="">Ilość ostrzy</option>
                         <option
@@ -199,13 +240,13 @@
                       <select
                         v-model="detail.diameter"
                         :class="[
-      'w-full p-2 border rounded',
-      offerStore.isCustom(detail)
-        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-        : 'bg-white text-black cursor-pointer'
-    ]"
+                          'w-full p-2 border rounded',
+                          offerStore.isCustom(detail)
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-white text-black cursor-pointer',
+                        ]"
                         @change="handleDiameterChange(index)"
-                        :disabled=offerStore.isCustom(detail)
+                        :disabled="offerStore.isCustom(detail)"
                       >
                         <option disabled value="">Średnica</option>
                         <option
@@ -228,11 +269,11 @@
                         type="number"
                         v-model="detail.radius"
                         :class="[
-      'w-full p-2 border rounded',
-      offerStore.isCustom(detail)
-        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-        : 'bg-white text-black cursor-pointer'
-    ]"
+                          'w-full p-2 border rounded',
+                          offerStore.isCustom(detail)
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-white text-black cursor-pointer',
+                        ]"
                         placeholder="Promień"
                         @change="handleRadiusChange(index)"
                       />
@@ -242,11 +283,11 @@
                       <select
                         v-model="detail.regrinding_option"
                         :class="[
-      'w-full p-2 border rounded',
-      offerStore.isCustom(detail)
-        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-        : 'bg-white text-black cursor-pointer'
-    ]"
+                          'w-full p-2 border rounded',
+                          offerStore.isCustom(detail)
+                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                            : 'bg-white text-black cursor-pointer',
+                        ]"
                         @change="handleRegrindingOptionChange(index)"
                       >
                         <option
@@ -315,6 +356,7 @@
                         class="w-full p-2 border rounded"
                         placeholder="Rabat (%)"
                         @change="handleDiscountChange()"
+                        :disabled="offerStore.offer.globalDiscount !== 0"
                       />
                     </td>
                     <!-- Cena całkowita netto -->
@@ -370,17 +412,14 @@
               </button>
               <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Zapisz</button>
 
-  <button
-    type="button"
-    @click="offerStore.generatePdf()"
-    class="px-4 py-2 bg-blue-600 text-white rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-    :disabled="offerStore.offer.id === null"
-  >
-    Generuj PDF
-  </button>
-
-
-
+              <button
+                type="button"
+                @click="offerStore.generatePdf()"
+                class="px-4 py-2 bg-blue-600 text-white rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                :disabled="offerStore.offer.id === null"
+              >
+                Generuj PDF
+              </button>
             </div>
           </form>
           <div
@@ -394,8 +433,55 @@
               </li>
             </ul>
           </div>
+          <p v-if="offerStore.offer.globalDiscount !== 0" class="text-sm text-red-500 mt-1">
+    Uwaga: Rabat całej oferty jest ustawiony! Jeśli chcesz zmienić rabat pojedyńczego narzędzia ustaw rabat globalny na 0.
+  </p>
         </DialogPanel>
       </div>
     </Dialog>
   </TransitionRoot>
+
+  <TransitionRoot appear :show="isCustomerModalOpen" as="template">
+      <Dialog as="div" class="relative z-20">
+        <div class="fixed inset-0 bg-black/50"></div>
+        <div class="fixed inset-0 flex items-center justify-center">
+          <DialogPanel class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg overflow-y-auto max-h-[80vh] flex flex-col">
+            <DialogTitle class="text-lg font-semibold mb-4">Wybierz kontrahenta</DialogTitle>
+
+            <!-- Pole wyszukiwania -->
+            <div class="mb-4">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Wyszukaj kontrahenta..."
+                class="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <!-- Lista kontrahentów -->
+            <ul class="divide-y divide-gray-200 flex-1 overflow-y-auto">
+              <li
+                v-for="customer in filteredCustomers"
+                :key="customer.id"
+                class="p-2 hover:bg-gray-100 cursor-pointer"
+                @click="selectCustomer(customer.id)"
+              >
+                <div class="font-medium">{{ customer.name }}</div>
+              </li>
+            </ul>
+
+            <!-- Przycisk anulowania na stałe na dole -->
+            <div class="mt-4">
+              <button
+                @click="isCustomerModalOpen = false"
+                class="w-full px-4 py-2 bg-gray-300 rounded"
+              >
+                Anuluj
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+</div>
 </template>

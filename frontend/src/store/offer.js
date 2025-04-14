@@ -17,6 +17,7 @@ const useOfferStore = defineStore('offer', {
       created_at: '',
       updated_at: '',
       status_name: 'Robocza',
+      globalDiscount: 0,
     },
     offerDetails: [
       {
@@ -35,6 +36,14 @@ const useOfferStore = defineStore('offer', {
         description: '',
       },
     ],
+    filteredOffers: [],
+    filters: {
+      offer_number: '',
+      customer_name: '',
+      employee_name: '',
+      status_name: '',
+      created_at: '',
+    },
     $statuses: [],
     isModalOpen: false,
     errors: {},
@@ -45,6 +54,7 @@ const useOfferStore = defineStore('offer', {
         const response = await axiosClient.get('/api/offers');
         this.offers = response.data.offers;
         this.statuses = response.data.statuses;
+        this.filteredOffers = this.offers;
         console.log(this.offers);
       } catch (error) {}
     },
@@ -103,7 +113,7 @@ const useOfferStore = defineStore('offer', {
       if (detail.toolType === 'Niestandardowe') {
         // Ustawiamy tool_geometry_id na 157
         detail.tool_geometry_id = 157;
-        console.log("Tool Geometry ID zaktualizowane na: ", detail.tool_geometry_id);
+        console.log('Tool Geometry ID zaktualizowane na: ', detail.tool_geometry_id);
       }
     },
     openModal() {
@@ -112,10 +122,19 @@ const useOfferStore = defineStore('offer', {
     closeModal() {
       this.isModalOpen = false;
       this.resetOffer();
-      window.location.reload();
+      // window.location.reload();
     },
     isCustom(detail) {
       return detail.toolType === 'Niestandardowe';
+    },
+    applyGlobalDiscount() {
+      
+      this.offerDetails.forEach((detail) => {
+ 
+        detail.discount = this.offer.globalDiscount; 
+        console.log(this.globalDiscount)
+      });
+      this.calculateOfferTotalNetPrice(); 
     },
     addToolRow() {
       this.offerDetails.push({
@@ -160,11 +179,9 @@ const useOfferStore = defineStore('offer', {
       }
       detail.radius = 0;
       detail.quantity = 1;
-      detail.discount = 0;
       detail.tool_net_price = 0;
       detail.tool_geometry_id = null;
       detail.coating_price_id = null;
-      detail.coating_net_price = 0;
       detail.coatingCode = 'none';
       detail.diameter = 0;
       detail.regrinding_option = 'face_regrinding';
@@ -223,7 +240,10 @@ const useOfferStore = defineStore('offer', {
 
       let price = 0;
 
-      if ((detail.toolType && detail.flutesNumber && detail.diameter && detail.regrinding_option) || detail.toolType === 'Niestandardowe') {
+      if (
+        (detail.toolType && detail.flutesNumber && detail.diameter && detail.regrinding_option) ||
+        detail.toolType === 'Niestandardowe'
+      ) {
         const tool = toolStore.getSelectedTool(
           detail.toolType,
           detail.flutesNumber,
@@ -235,14 +255,12 @@ const useOfferStore = defineStore('offer', {
               parseFloat(tool.face_grinding_price) + parseFloat(tool.periphery_grinding_price));
 
         if (detail.toolType === 'Frez Promieniowy') {
-
-
-        if (parseFloat(detail.radius) < 1) {
-          price -= 5;
-        } else if (parseFloat(detail.radius) >= 2.5) {
-          price += 5;
+          if (parseFloat(detail.radius) < 1) {
+            price -= 5;
+          } else if (parseFloat(detail.radius) >= 2.5) {
+            price += 5;
+          }
         }
-      }
 
         detail.tool_net_price = price.toFixed(2);
       } else {
@@ -255,7 +273,10 @@ const useOfferStore = defineStore('offer', {
       const coatingStore = useCoatingStore();
       const detail = this.offerDetails[index];
 
-      if ((detail.diameter && detail.coatingCode && detail.coatingCode !== 'none') || detail.toolType === 'Niestandardowe') {
+      if (
+        (detail.diameter && detail.coatingCode && detail.coatingCode !== 'none') ||
+        detail.toolType === 'Niestandardowe'
+      ) {
         const coating = coatingStore.findCoatingByDiameterAndCode(
           detail.diameter,
           detail.coatingCode
@@ -281,6 +302,20 @@ const useOfferStore = defineStore('offer', {
       });
 
       this.offer.total_net_price = totalNetPrice.toFixed(2);
+    },
+    setFilter(column, value) {
+      this.filters[column] = value;
+      this.filterOffers();
+    },
+    filterOffers() {
+      if (!Array.isArray(this.offers)) return;
+
+      this.filteredOffers = this.offers.filter((offer) =>
+        Object.entries(this.filters).every(
+          ([key, value]) =>
+            !value || (offer[key] || '').toLowerCase().includes(value.toLowerCase())
+        )
+      );
     },
   },
   getters: {

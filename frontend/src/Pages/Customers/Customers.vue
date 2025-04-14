@@ -39,6 +39,7 @@
 </script>
 
 <template>
+  <div>
   <div class="container mx-auto p-2">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Lista klientów</h1>
 
@@ -142,8 +143,10 @@
         </tbody>
       </table>
     </div>
+
   </div>
   <CustomerModal />
+</div>
 </template>
 
 <style scoped></style>

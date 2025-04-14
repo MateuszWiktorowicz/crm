@@ -5381,12 +5381,7 @@
     "FontHeightOffset": "0",
     "Ascender": "928",
     "Descender": "-236",
-    "FontBBox": [
-        "-1069",
-        "-415",
-        "1975",
-        "1174"
-    ],
+    "FontBBox": ["-1069", "-415", "1975", "1174"],
     "StartCharMetrics": "6196",
     "C": {
         "32": 348,
