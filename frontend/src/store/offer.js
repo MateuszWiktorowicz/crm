@@ -154,7 +154,7 @@ const useOfferStore = defineStore('offer', {
     closeModal() {
       this.isModalOpen = false;
       this.resetOffer();
-      // window.location.reload();
+      window.location.reload();
     },
     isCustom(detail) {
       return detail.toolType === 'Niestandardowe' || detail.toolType === "Kartoteka";
