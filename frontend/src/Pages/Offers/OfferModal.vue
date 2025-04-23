@@ -5,10 +5,23 @@
   import { onMounted } from 'vue';
   import useToolsStore from '../../store/tools';
   import useCoatingStore from '../../store/coating';
-  import { ref, computed } from 'vue';
+  import { ref, computed, nextTick } from 'vue';
 
 const isCustomerModalOpen = ref(false);
+const isFilesModalOpen = ref(false);
+const selectedFileModalIndex = ref(null);
 const searchQuery = ref('');
+
+const toolRows = ref([]);
+
+const scrollToNewTool = async () => {
+  offerStore.addToolRow();
+  await nextTick();
+  const lastRow = toolRows.value.at(-1);
+  if (lastRow) {
+    lastRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 
 
 
@@ -26,6 +39,34 @@ const filteredCustomers = computed(() => {
 const selectCustomer = (customerId) => {
   offerStore.offer.customer_id = customerId;
   isCustomerModalOpen.value = false;
+};
+
+const filteredFiles = computed(() => {
+  if (!searchQuery.value) {
+    return toolStore.files;
+  }
+  return toolStore.files.filter((file) =>
+    file.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+// Funkcja do wyboru kontrahenta i zamknięcia modala wyboru kontrahenta
+const selectFile = (fileId) => {
+  if (selectedFileModalIndex.value !== null) {
+    offerStore.offerDetails[selectedFileModalIndex.value].fileId = fileId;
+    offerStore.applyFileDataToDetail(selectedFileModalIndex.value);
+  }
+  isFilesModalOpen.value = false;
+  selectedFileModalIndex.value = null;
+};
+
+const handleFilesModalClose = () => {
+  if (  offerStore.offerDetails[selectedFileModalIndex.value].fileId === null) {
+    offerStore.resetDetail(selectedFileModalIndex.value);
+    offerStore.offerDetails[selectedFileModalIndex.value].toolType = null;
+  }
+  isFilesModalOpen.value = false;
+  selectedFileModalIndex.value = null;
 };
 
 
@@ -46,6 +87,13 @@ const selectCustomer = (customerId) => {
     offerStore.calculateOfferTotalNetPrice();
     offerStore.calculateOfferTotalNetPrice();
     offerStore.setToolGeometryIdIfCustom(index);
+
+    console.log(offerStore.offerDetails[index]);
+
+    if (offerStore.offerDetails[index].toolType === "Kartoteka") {
+      selectedFileModalIndex.value = index;
+      isFilesModalOpen.value = true;
+    };
   };
 
   const handleFlutesNumberChange = (index) => {
@@ -107,7 +155,7 @@ const selectCustomer = (customerId) => {
     <Dialog as="div" class="relative z-10">
       <div class="fixed inset-0 bg-black/50"></div>
       <div class="fixed inset-0 flex items-center justify-center">
-        <DialogPanel class="w-full min-h-screen max-w-8xl bg-[#D3D3D3] p-8 rounded-lg shadow-lg">
+        <DialogPanel class="w-full min-h-screen max-w-8xl bg-[#D3D3D3] p-8 rounded-lg shadow-lg overflow-y-auto h-full">
           <DialogTitle class="text-lg font-semibold">Oferta</DialogTitle>
           <form @submit.prevent="offerStore.saveOffer">
             <div
@@ -165,36 +213,50 @@ const selectCustomer = (customerId) => {
               class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
             >
               <table class="w-full border-separate border-spacing-0">
-                <thead class="bg-gray-100 sticky top-0 z-10">
+                <thead class="bg-gray-100 font-normal sticky top-0 z-10">
+
                   <tr
-                    class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg"
+                    class="bg-gray-100 font-normal text-gray-700 uppercase text-sm leading-normal rounded-t-lg"
                   >
-                    <th class="border border-gray-300 p-3 text-left min-w-[150px]">
+                  <th
+                    class="bg-gray-100 font-normal text-gray-700 uppercase text-sm leading-normal rounded-t-lg"
+                  >
+                  Lp.
+                  </th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[150px]">
                       Typ narzędzia
                     </th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[140px]">Ilość ostrzy</th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[80px]">Średnica</th>
-                    <th class="border border-gray-300 p-3 text-left">Promień</th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[100px]">
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[150px]">
+                      Symbol
+                    </th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[140px]">Ilość ostrzy</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[80px]">Średnica</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left">Promień</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[100px]">
                       Wariant ostrzenia
                     </th>
-                    <th class="border border-gray-300 p-3 text-left">Cena ostrzenia netto [PLN]</th>
-                    <th class="border border-gray-300 p-3 text-left">Pokrycie</th>
-                    <th class="border border-gray-300 p-3 text-left">
-                      Cena jednostkowa pokrycia netto [PLN]
+                    <th class="border font-normal border-gray-300 p-3 text-left">Cena <span class="font-bold">katalogowa</span> ostrzenia netto [PLN]</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left">Pokrycie</th>
+                    <th class="border font-normal font-normal border-gray-300 p-3 text-left">
+                      Cena <span class="font-extrabold">katalogowa</span> pokrycia netto [PLN]
                     </th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[80px]">Ilość</th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[80px]">Rabat</th>
-                    <th class="border border-gray-300 p-3 text-left">Cena całkowita netto [PLN]</th>
-                    <th class="border border-gray-300 p-3 text-left">
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[80px]">Ilość</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[80px]">Rabat</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left">Cena całkowita netto [PLN]</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left">
                       Cena całkowita brutto [PLN]
                     </th>
-                    <th class="border border-gray-300 p-3 text-left min-w-[200px]">Opis</th>
-                    <th class="border border-gray-300 p-3 text-left">Akcja</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left min-w-[200px]">Opis</th>
+                    <th class="border font-normal border-gray-300 p-3 text-left">Akcja</th>
                   </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm">
-                  <tr v-for="(detail, index) in offerStore.offerDetails" :key="index">
+                  <tr v-for="(detail, index) in offerStore.offerDetails" :key="index" ref="toolRows"
+                    >
+                    <td class="border border-gray-300 p-3">
+                      {{ index + 1 }}
+                    </td>
+                   
                     <!-- Typ narzędzia -->
                     <td class="border border-gray-300 p-3">
                       <select
@@ -212,6 +274,15 @@ const selectCustomer = (customerId) => {
                         </option>
                       </select>
                     </td>
+                    <td class="border border-gray-300 p-3">
+  <input
+    type="text"
+    v-model="detail.symbol"
+    :disabled="!offerStore.isCustom(detail)"
+    class="w-full p-2 border rounded text-right"
+    :value="offerStore.getSymbolForDetail(detail)"
+  />
+</td>
                     <!-- Ilość ostrzy -->
                     <td class="border border-gray-300 p-3">
                       <select
@@ -268,9 +339,10 @@ const selectCustomer = (customerId) => {
                         min="0"
                         type="number"
                         v-model="detail.radius"
+                        :value="offerStore.getRadius(detail)"
                         :class="[
                           'w-full p-2 border rounded',
-                          offerStore.isCustom(detail)
+                          (offerStore.isCustom(detail) || !offerStore.isRadiusEndMill(detail))
                             ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                             : 'bg-white text-black cursor-pointer',
                         ]"
@@ -371,7 +443,7 @@ const selectCustomer = (customerId) => {
                     <td class="border border-gray-300 p-3">
                       <textarea
                         v-model="detail.description"
-                        class="w-full p-2 border rounded text-right resize-none"
+                        class="w-full p-2 border rounded text-left resize-none"
                         rows="2"
                       >
                       Opis pozycji
@@ -395,14 +467,12 @@ const selectCustomer = (customerId) => {
             <div class="mt-4">
               <button
                 type="button"
-                @click="offerStore.addToolRow"
+                @click="scrollToNewTool"
                 class="px-4 py-2 bg-green-600 text-white rounded"
               >
                 Dodaj narzędzie
               </button>
-            </div>
-            <!-- Przycisk zapisu oferty -->
-            <div class="flex justify-end space-x-2 mt-4">
+              <div class="flex justify-end space-x-2 mt-4">
               <button
                 type="button"
                 @click="offerStore.closeModal"
@@ -421,6 +491,9 @@ const selectCustomer = (customerId) => {
                 Generuj PDF
               </button>
             </div>
+            </div>
+            <!-- Przycisk zapisu oferty -->
+            
           </form>
           <div
             v-if="Object.keys(offerStore.errors).length"
@@ -436,6 +509,26 @@ const selectCustomer = (customerId) => {
           <p v-if="offerStore.offer.globalDiscount !== 0" class="text-sm text-red-500 mt-1">
     Uwaga: Rabat całej oferty jest ustawiony! Jeśli chcesz zmienić rabat pojedyńczego narzędzia ustaw rabat globalny na 0.
   </p>
+  <div class="mt-6 flex  gap-3 space-y-3">
+  <div class="flex flex-col">
+    <label class="font-semibold">Termin realizacji:</label>
+    <input v-model="offerStore.offer.pdfInfo.deliveryTime" class="border rounded p-2 bg-gray-100" />
+  </div>
+
+  <div class="flex flex-col">
+    <label class="font-semibold">Ważność oferty:</label>
+    <input v-model="offerStore.offer.pdfInfo.offerValidity" class="border rounded p-2 bg-gray-100" />
+  </div>
+
+  <div class="flex flex-col">
+    <label class="font-semibold">Warunki płatności:</label>
+    <input v-model="offerStore.offer.pdfInfo.paymentTerms" class="border rounded p-2 bg-gray-100" />
+  </div>
+  <div class="flex flex-col">
+    <label class="font-semibold">Pokaż rabat:</label>
+    <input type="checkbox" v-model="offerStore.offer.pdfInfo.displayDiscount" class="border flex mt-4 f-full items-center self-center rounded p-5" />
+  </div>
+</div>
         </DialogPanel>
       </div>
     </Dialog>
@@ -474,6 +567,49 @@ const selectCustomer = (customerId) => {
             <div class="mt-4">
               <button
                 @click="isCustomerModalOpen = false"
+                class="w-full px-4 py-2 bg-gray-300 rounded"
+              >
+                Anuluj
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </TransitionRoot>
+
+    <TransitionRoot appear :show="isFilesModalOpen" as="template">
+      <Dialog as="div" class="relative z-20">
+        <div class="fixed inset-0 bg-black/50"></div>
+        <div class="fixed inset-0 flex items-center justify-center">
+          <DialogPanel class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg overflow-y-auto max-h-[80vh] flex flex-col">
+            <DialogTitle class="text-lg font-semibold mb-4">Wybierz kartotekę</DialogTitle>
+
+            <!-- Pole wyszukiwania -->
+            <div class="mb-4">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Wyszukaj kartotekę..."
+                class="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+
+            <!-- Lista kontrahentów -->
+            <ul class="divide-y divide-gray-200 flex-1 overflow-y-auto">
+              <li
+                v-for="file in filteredFiles"
+                :key="file.id"
+                class="p-2 hover:bg-gray-100 cursor-pointer"
+                @click="selectFile(file.id)"
+              >
+                <div class="font-medium">{{ file.name }}</div>
+              </li>
+            </ul>
+
+            <!-- Przycisk anulowania na stałe na dole -->
+            <div class="mt-4">
+              <button
+                @click="handleFilesModalClose(index)"
                 class="w-full px-4 py-2 bg-gray-300 rounded"
               >
                 Anuluj

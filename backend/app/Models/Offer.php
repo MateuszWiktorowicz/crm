@@ -45,4 +45,9 @@ class Offer extends Model
     {
         return $this->hasMany(OfferDetail::class);
     }
+
+    public function pdfInfo()
+{
+    return $this->hasOne(OfferPdfInfo::class);
+}
 }

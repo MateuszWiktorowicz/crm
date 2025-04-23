@@ -7,6 +7,7 @@ const useToolsStore = defineStore('tools', {
     toolTypes: [],
     selectedTypes: [],
     filteredTools: [],
+    files: [],
     filters: {
       tool_type_name: '',
       flutes_number: '',
@@ -20,6 +21,8 @@ const useToolsStore = defineStore('tools', {
         this.tools = response.data.tools;
         this.toolTypes = response.data.toolTypes;
         this.filteredTools = this.tools;
+        this.files = response.data.files;
+        console.log(this.files);
       } catch (error) {}
     },
     setFilter(column, value) {

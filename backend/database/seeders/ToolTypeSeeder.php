@@ -19,7 +19,8 @@ class ToolTypeSeeder extends Seeder
             'Frez Kulowy',
             'Fazownik',
             'Wiertlo Krete',
-            'Niestandardowe'
+            'Niestandardowe',
+            'Kartoteka'
         ];
 
         foreach ($toolTypes as $toolType) {

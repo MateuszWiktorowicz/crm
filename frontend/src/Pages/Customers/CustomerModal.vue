@@ -19,7 +19,7 @@
       <div class="fixed inset-0 bg-black bg-opacity-30"></div>
 
       <div class="fixed inset-0 flex items-center justify-center">
-        <DialogPanel class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg overflow-hidden">
+        <DialogPanel class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
           <DialogTitle class="text-lg font-semibold">
             {{ customerStore.customer?.id ? 'Edytuj Klienta' : 'Dodaj Klienta' }}
           </DialogTitle>

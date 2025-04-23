@@ -1,149 +1,200 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <title>Oferta</title>
     <style>
-
-           @page {
-        margin: 40px 35px 20px 35px; /* Dostosowanie marginesów */
-    }
-
-    .footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        font-size: 8px;
-        text-align: left;
-    }
+        @page {
+            margin: 40px 35px 60px 35px; /* Margin to give space for footer */
+        }
 
         body {
             font-family: 'DejaVu Sans', sans-serif;
+            font-size: 10px;
             line-height: 1.6;
-            padding: 20px;
+            padding-bottom: 250px; /* Zapewnia wystarczającą przestrzeń dla stopki */
+            margin-top: 0px; /* Zapewnia miejsce na nagłówek */
         }
+
+        /* HEADER */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .header-table img {
+            max-height: 50px;
+        }
+
+        /* TABELA */
         .table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 10px;
+            margin-left: auto;
+            margin-right: auto;
         }
+
         .table th, .table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
+
         .table th {
             background-color: #f2f2f2;
-            font-weight: 700;
+            font-weight: bold;
         }
+
         .table td {
             background-color: #fafafa;
         }
-        .header-table {
-        width: 100%;
-        border-collapse: collapse;
-        }
-        .header-info {
-            text-align: right;
-        }
-        .info {
-            font-size: 12px;
-        }
-        
-        .customer {
-            font-size: 12px;
+
+        /* STOPKA */
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: left;
+            font-size: 9px;
+            padding: 10px 0;
+            border-top: 1px solid black;
         }
 
+        .footer-content {
+            text-align: left;
+            font-size: 9px;
+        }
+
+        .footer-content ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .footer-content p, .footer-content ol {
+            margin: 0;
+            padding: 5px 0;
+        }
+
+        .footer-content .pagenum {
+            text-align: center;
+            font-size: 9px;
+            padding-top: 10px;
+        }
+
+        /* Paginate Footer */
+        .pagenum:before {
+    content: "Strona " counter(page);
+}
     </style>
+
 </head>
 <body>
-<table class="header-table" style="width: 100%; border-collapse: collapse;">
+
+<!-- STOPKA -->
+<footer>
+    <div class="footer-content">
+        <p>Do podanych cen należy doliczyć podatek VAT w wysokości 23%.</p>
+        <p>Przy zamówieniu prosimy o powołanie się na powyższy nr oferty.</p>
+        <ol>
+            <li>Termin realizacji: {{$pdfInfo['deliveryTime']}}</li>
+            <li>Ważność oferty: {{$pdfInfo['offerValidity']}}</li>
+            <li>Warunki płatności: {{$pdfInfo['paymentTerms']}}</li>
+            <li>Transport: 21,90 zł (poniżej wartości zamówienia 1000 zł)</li>
+            <li>Oferty w walucie euro rozliczane wg kursu BNP Paribas Bank z dnia faktury VAT</li>
+        </ol>
+        <p class="pagenum"></p>
+    </div>
+</footer>
+
+<!-- HEADER -->
+<table class="header-table">
     <tr>
-        <td class="info" style="width: 50%; vertical-align: top;">
+        <td style="width: 50%; vertical-align: top;">
+            <img src="{{ storage_path('app/public/images/mastermet-logo.png') }}" style="max-height: 50px;"><br><br>
             <strong>Mastermet Sp. z o.o.</strong><br>
             ul. Międzyrzeck 3/1<br>
-            50-421 Wrocław<br><br>
-            tel. kom. +48 536 980 972<br>
+            50-421 Wrocław<br>
+            NIP: 8971745244<br><br>
             regeneracja@mastermet.eu<br>
-            www.mastermet.eu<br><br><br>
-            <img src="{{ storage_path('app/public/images/mastermet-logo.png') }}" alt="Logo Mastermet">
+            tel. +48 881 707 222<br>
+            tel. +48 533 946 422<br>
+            www.mastermet.eu
         </td>
-        <td class="header-info" style="width: 50%; vertical-align: top; text-align: left;">
-    <div class="info">
-        NIP: 8971745244<br>
-        REGON: 020817441<br>
-        KRS 0000312613 SR Wrocław-Fabryczna<br><br>
-        OFERTA NR: {{ $offer->id }}/{{ \Carbon\Carbon::now()->format('d/m/Y') }}<br>
-        Data: {{ \Carbon\Carbon::now()->format('d/m/Y') }}<br>
-        Firma: {{ $offer->customer->name }}<br>
-        NIP: {{ $offer->customer->nip }}<br>
-        Adres: {{ $offer->customer->city }}, {{ $offer->customer->address }}
-    </div>
-</td>
+        <td style="width: 50%; text-align: center;">
+            <div style="background-color: #f2f2f2; padding: 15px; border-radius: 6px;">
+                <div style="font-size: 20px; font-weight: bold;">OFERTA HANDLOWA</div>
+                <div style="margin-top: 10px;">
+                    Nr oferty: <strong>{{ $offer->id }}/{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong><br>
+                    Data wystawienia: <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong><br>
+                    Dostawa/usługa: <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong>
+                </div>
+            </div>
+            <br>
+            <div style="text-align: left;">
+                <strong>Nabywca:</strong><br>
+                Firma: {{ $offer->customer->name }}<br>
+                NIP: {{ $offer->customer->nip }}<br>
+                Adres: {{ $offer->customer->address }}, {{ $offer->customer->city }}
+            </div>
+        </td>
     </tr>
 </table>
-   
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="min-w-[600px]">Symbol</th>
-                <th>Nazwa usługi</th>
-                <th>Cena jednostkowa netto</th>
-                <th>Ilość</th>
-                <th>Cena całkowita netto</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($offerDetails as $detail)
-                <tr>
-                <td>
-    @if($detail->tool_geometry_id == 157)
-        {{ Str::of($detail->description)->match('/\[(.*?)\]/') ?: 'Niestandardowe narzędzie' }}
-    @else
-        {{ $detail->toolGeometry->toolType->tool_type_name }} 
-        D{{ $detail->toolGeometry->diameter }}  
-        Z-{{ $detail->toolGeometry->flutes_number }}
 
-        @if($detail->radius != 0)
-            R{{ $detail->radius }}
-        @endif
-    @endif
-</td>
-@php
-    $cleanDescription = preg_replace('/\[.*?\]/', '', $detail->description);
-@endphp
-<td>{{ trim($cleanDescription) }}</td>
-                    <td>{{ $detail->tool_net_price +  $detail->coating_net_price}} PLN</td>
-                    <td>{{ $detail->quantity }}</td>
-                    <td>{{ ($detail->tool_net_price + $detail->coating_net_price) *  $detail->quantity}} PLN</td>
-                </tr>
-            @endforeach
-        </tbody>
+<!-- TABELA -->
+<table class="table">
+    <thead>
         <tr>
-            <td style="visibility: hidden"></td>
-            <td style="visibility: hidden"></td>
-            <td style="visibility: hidden"></td>
-            <td style="visibility: hidden"></td>
-            <td> 
-            <strong>Kwota oferty:</strong> {{ $offer->total_price }} PLN
-            </td>
+            <th>Symbol</th>
+            <th>Cena jednostkowa netto</th>
+            @if($pdfInfo['displayDiscount'])
+                <th>Cena po rabacie</th>
+                <th>Rabat</th>
+            @endif
+            <th>Ilość</th>
+            <th>Cena całkowita netto</th>
         </tr>
-    </table>
-<div class="footer">
-    <p>Do podanych cen należy doliczyć podatek VAT w wysokości 23%.</p>
-    <p>Przy zamówieniu prosimy o powołanie się na powyższy nr oferty.</p>
-    <ol>
-        <li>Termin realizacji: 12-15 dni roboczych</li>
-        <li>Ważność oferty: 7 dni</li>
-        <li>W przypadku braku opakowań: 2zł/szt</li>
-        <li>Warunki płatności: przelew 14 dni</li>
-        <li>Transport: 21,90 zł (poniżej wartości zamówienia 1000 zł)</li>
-        <li>Oferty w walucie euro rozliczane wg aktualnego kursu sprzedaży dewiz BNP Paribas Bank z dnia wystawienia faktury VAT</li>
-    </ol>
-</div>
+    </thead>
+    <tbody>
+        @foreach($offerDetails as $detail)
+            @php
+                $cleanDescription = preg_replace('/\[.*?\]/', '', $detail->description);
+                $basePrice = $pdfInfo['displayDiscount'] ? $detail->tool_net_price + $detail->coating_net_price : ($detail->tool_net_price + $detail->coating_net_price) * (1 - $detail->discount / 100);
+                $discount = $detail->discount ?? 0;
+                $discountedPrice = $basePrice * (1 - $discount / 100);
+                $unitPrice = $pdfInfo['displayDiscount'] ? $discountedPrice : $basePrice; 
+                $total = $unitPrice * $detail->quantity;
+            @endphp
+            <tr>
+                <td>
+                    {{ $detail->symbol }}
+                </td>
+                <td>{{ number_format($basePrice, 2) }} PLN</td>
+                @if($pdfInfo['displayDiscount'])
+                    <td>{{ number_format($discountedPrice, 2) }} PLN</td>
+                    <td>{{ $discount }}%</td>
+                @endif
+                <td>{{ $detail->quantity }}</td>
+                <td>{{ number_format($total, 2) }} PLN</td>
+            </tr>
+        @endforeach
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="{{ $pdfInfo['displayDiscount'] ? 5 : 3 }}"></td>
+            <td><strong>Kwota oferty:</strong> {{ number_format($offer->total_price, 2) }} PLN</td>
+        </tr>
+    </tfoot>
+</table>
+
+
+
 </body>
 </html>

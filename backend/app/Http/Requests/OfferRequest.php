@@ -27,7 +27,11 @@ class OfferRequest extends FormRequest
             'status_id' => 'required|exists:statuses,id',
             'total_net_price' => 'required|numeric',
             'offer_details' => 'required|array',
-            'offer_details.*.tool_geometry_id' => 'required|exists:tool_geometries,id',
+            'offer_details.*.tool_geometry_id' => [
+                'required_if:offer_details.*.tool_type,!=,Kartoteka', // Tylko jeśli toolType != "Kartoteka"
+                'nullable',
+                'exists:tool_geometries,id',
+            ],
             'offer_details.*.coating_price_id' => 'nullable|exists:coating_prices,id',
             'offer_details.*.tool_net_price' => 'required|numeric|min:0',
             'offer_details.*.coating_net_price' => 'nullable|numeric|min:0',
@@ -36,6 +40,8 @@ class OfferRequest extends FormRequest
             'offer_details.*.radius' => 'numeric',
             'offer_details.*.regrinding_option' => 'nullable|string',
             'offer_details.*.description' => 'nullable|string',
+            'offer_details.*.fileId' => 'nullable',
+            'offer_details.*.symbol' => 'nullable',
         ];
     }
 

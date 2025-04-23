@@ -17,15 +17,17 @@ class OfferDetail extends Model
         'coating_price_id',
         'coating_net_price',
         'radius',
-        "regrinding_option",
-        "description"
+        'regrinding_option',
+        'description',
+        'symbol',           // Dodaj symbol
+        'file_id',          // Dodaj file_id
     ];
 
     protected $casts = [
         'tool_net_price' => 'float',
         'coating_net_price' => 'float',
         'discount' => 'float',
-        'quantity' => 'integer'
+        'quantity' => 'integer',
     ];
 
     public function offer(): BelongsTo

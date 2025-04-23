@@ -18,9 +18,16 @@ const useOfferStore = defineStore('offer', {
       updated_at: '',
       status_name: 'Robocza',
       globalDiscount: 0,
+      pdfInfo: {
+        deliveryTime: '12–15 dni roboczych',
+        offerValidity: '7 dni',
+        paymentTerms: 'przelew 14 dni',
+        displayDiscount: null
+      },
     },
     offerDetails: [
       {
+        symbol: '',
         radius: 0,
         regrinding_option: 'face_regrinding',
         toolType: '',
@@ -34,6 +41,7 @@ const useOfferStore = defineStore('offer', {
         coating_price_id: null,
         coating_net_price: 0,
         description: '',
+        fileId: null
       },
     ],
     filteredOffers: [],
@@ -52,13 +60,33 @@ const useOfferStore = defineStore('offer', {
     async fetchOffers() {
       try {
         const response = await axiosClient.get('/api/offers');
-        this.offers = response.data.offers;
+        const rawOffers = response.data.offers;
+    
+        // Dodaj toolType="Kartoteka" tam, gdzie jest file_id
+        this.offers = rawOffers.map(offer => {
+          return {
+            ...offer,
+            offer_details: offer.offer_details.map(detail => ({
+              ...detail,
+              toolType: detail.fileId ? 'Kartoteka' : detail.toolType || '',
+            })),
+          };
+        });
+    
         this.statuses = response.data.statuses;
         this.filteredOffers = this.offers;
+    
         console.log(this.offers);
-      } catch (error) {}
+      } catch (error) {
+        console.error('Błąd przy pobieraniu ofert', error);
+      }
     },
     async saveOffer() {
+      this.offerDetails.forEach(detail => {3
+        if (!this.isCustom(detail)) {
+          detail.symbol = this.getSymbolForDetail(detail);
+        }
+      });
       const payload = {
         customer_id: this.offer.customer_id,
         status_id: this.offer.status_id || 1,
@@ -88,11 +116,15 @@ const useOfferStore = defineStore('offer', {
       try {
         const settingsStore = useSettingsStore();
         await settingsStore.fetchSettings();
-
-        const response = await axiosClient.get(`/api/offers/${this.offer.id}/generate-pdf`, {
-          responseType: 'blob',
-        });
-
+    
+        const response = await axiosClient.post(
+          `/api/offers/${this.offer.id}/generate-pdf`,
+          {
+            ...this.offer.pdfInfo,
+          },
+          { responseType: 'blob' }
+        );
+    
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -125,7 +157,7 @@ const useOfferStore = defineStore('offer', {
       // window.location.reload();
     },
     isCustom(detail) {
-      return detail.toolType === 'Niestandardowe';
+      return detail.toolType === 'Niestandardowe' || detail.toolType === "Kartoteka";
     },
     applyGlobalDiscount() {
       
@@ -180,11 +212,14 @@ const useOfferStore = defineStore('offer', {
       detail.radius = 0;
       detail.quantity = 1;
       detail.tool_net_price = 0;
+      detail.coating_net_price = 0;
+      detail.symbol = '';
       detail.tool_geometry_id = null;
       detail.coating_price_id = null;
       detail.coatingCode = 'none';
       detail.diameter = 0;
-      detail.regrinding_option = 'face_regrinding';
+      detail.regrinding_option = '';
+      detail.fileId = 0;
     },
     editOffer(offer) {
       console.log(offer);
@@ -197,12 +232,13 @@ const useOfferStore = defineStore('offer', {
 
       // Sprawdzamy, czy przekształcony wynik to prawidłowa liczba
       if (!isNaN(parsedPrice)) {
-        this.offer = { ...offer, total_net_price: parsedPrice }; // Przypisujemy liczbę
+        this.offer = { ...offer, total_net_price: parsedPrice, globalDiscount: 0 }; // Przypisujemy liczbę
       } else {
         console.error('Błąd konwersji total_net_price', offer.total_net_price);
       }
 
       this.offerDetails = offer.offer_details;
+      this.offer.pdfInfo = offer.pdf_info;
       this.offer.customer_id = offer.customer_id;
 
       // Dopasowanie statusu
@@ -317,6 +353,27 @@ const useOfferStore = defineStore('offer', {
         )
       );
     },
+    applyFileDataToDetail(index) {
+      const toolStore = useToolsStore();
+      const detail = this.offerDetails[index];
+    
+      if (detail.fileId !== null) {
+        const file = toolStore.files.find(f => f.id === detail.fileId);
+    
+        if (file) {
+          detail.diameter = file.diameter || 0;
+          detail.tool_net_price = file.price || 0;
+          detail.flutesNumber = file.flutesNumber ?? null;
+          detail.fileId = file.id ?? null;
+          detail.symbol = file.name ?? "";
+        } else {
+          console.warn(`Nie znaleziono pliku o ID: ${detail.fileId}`);
+        }
+    
+        this.updateCoatingNetPrice(index);
+        this.calculateOfferTotalNetPrice();
+      }
+    }
   },
   getters: {
     getRegrindingOptions: (state) => (detail) => {
@@ -339,6 +396,39 @@ const useOfferStore = defineStore('offer', {
 
       return (priceWithoutDiscount - discountAmount).toFixed(2);
     },
+    getRadius: (state) => (detail) => {
+      switch (detail.toolType) {
+        case "Frez Promieniowy":
+          return detail.radius ?? 0;
+        case "Frez Kulowy": 
+          return (detail.diameter / 2) ?? 0;
+        default: 
+          return 0; 
+      }
+    },
+    getSymbolForDetail: (state) => (detail) => {
+      switch (detail.toolType) {
+        case 'Niestandardowe':
+          return detail.symbol || '';  // Wpisujemy ręcznie
+    
+        case 'Kartoteka':
+          const toolStore = useToolsStore();
+          const file = toolStore.files.find(f => f.id === detail.fileId);
+          return file ? file.name : '';  // Pokazujemy nazwę pliku
+    
+        default:
+          // Łączymy toolType, diameter, flutesNumber i coating
+          let symbol = `${detail.toolType} D${detail.diameter} Z-${detail.flutesNumber}`;
+          
+          // Dodajemy coatingCode tylko, jeśli nie jest 'none'
+          if (detail.coatingCode && detail.coatingCode !== 'none') {
+            symbol += ` ${detail.coatingCode}`;
+          }
+          
+          return symbol;
+      }
+    }
+    
   },
 });
 

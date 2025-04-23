@@ -6,6 +6,7 @@ use App\Models\ToolGeometry;
 use Illuminate\Http\Request;
 use App\Models\ToolType;
 use Illuminate\Support\Facades\DB;
+use App\Models\Tool;
 
 class ToolController extends Controller
 {
@@ -43,9 +44,12 @@ public function index()
             return $tool;
         });
 
+        $files = Tool::All();
+
         return response()->json([
             'toolTypes' => $toolTypes, 
             'tools' => $tools,
+            'files' => $files
         ]);
     }
 }

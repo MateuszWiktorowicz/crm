@@ -39,7 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/offers', [OfferController::class, 'store']);
     Route::put('/offers/{offer}', [OfferController::class, 'edit']);
     Route::delete('/offers/{offer}', [OfferController::class, 'destroy']);
-    Route::get('/offers/{offer}/generate-pdf', [OfferController::class, 'generateOfferPdf'])->name('offer.generatePdf');
+    Route::post('/offers/{offer}/generate-pdf', [OfferController::class, 'generateOfferPdf'])->name('offer.generatePdf');
     Route::put('/offers/{id}/update-number', [OfferController::class, 'updateOfferNumber']);
 
 

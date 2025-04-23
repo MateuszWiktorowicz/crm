@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OfferRequest;
 use Illuminate\Http\Request;
-use App\Models\{Offer, Status, Settings};
+use App\Models\{Offer, Status, Settings, OfferPdfInfo};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -25,6 +25,12 @@ class OfferController extends Controller
                 'total_net_price' => number_format($offer->total_price, 2, ',', ' '),
                 'created_at' => $offer->created_at->format('d-m-Y'),
                 'offer_number' => $offer->offer_number,
+                'pdf_info' => [
+                    'deliveryTime' => $offer->pdfInfo->delivery_time ?? null,
+                    'offerValidity' => $offer->pdfInfo->offer_validity ?? null,
+                    'paymentTerms' => $offer->pdfInfo->payment_terms ?? null,
+                    'displayDiscount' => $offer->pdfInfo->display_discount ?? false,
+                ],
                 'offer_details' => $offer->offerDetails->map(function ($detail) {
                     return [
                         'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, 
@@ -39,7 +45,9 @@ class OfferController extends Controller
                         'coating_net_price' => $detail->coating_net_price,
                         'radius' => $detail->radius,
                         'regrinding_option' => $detail->regrinding_option,
-                        'description' => $detail->description
+                        'description' => $detail->description,
+                        'symbol' => $detail->symbol, // Dodaj symbol
+                        'fileId' => $detail->file_id // Dodaj file_id
                     ];
                 }),
             ];
@@ -70,10 +78,21 @@ class OfferController extends Controller
             ]);
     
             foreach ($validated['offer_details'] as $detail) {
-                // if (empty($detail['coating_price_id'])) {
-                //     $detail['coating_net_price'] = 0;
-                // }
-                $offer->offerDetails()->create($detail);
+                // Dodaj symbol i file_id do danych przed zapisaniem
+                $offer->offerDetails()->create([
+                    'offer_id' => $offer->id,
+                    'tool_geometry_id' => $detail['tool_geometry_id'],
+                    'quantity' => $detail['quantity'],
+                    'discount' => $detail['discount'],
+                    'tool_net_price' => $detail['tool_net_price'],
+                    'coating_price_id' => $detail['coating_price_id'],
+                    'coating_net_price' => $detail['coating_net_price'],
+                    'radius' => $detail['radius'],
+                    'regrinding_option' => $detail['regrinding_option'],
+                    'description' => $detail['description'],
+                    'symbol' => $detail['symbol'] ?? null,  // Dodaj symbol
+                    'file_id' => $detail['fileId'] ?? null,  // Dodaj file_id
+                ]);
             }
     
             DB::commit();
@@ -102,13 +121,22 @@ class OfferController extends Controller
             ]);
 
             $offer->offerDetails()->delete();
-            foreach ($validated['offer_details'] as &$detail) {
-                if (!isset($detail['coating_price_id'])) {
-                    // $detail = array_merge($detail, [
-                    //     'coating_net_price' => 0,
-                    // ]);
-                }
-                $offer->offerDetails()->create($detail);
+            foreach ($validated['offer_details'] as $detail) {
+                // Dodaj symbol i file_id do danych przed zapisaniem
+                $offer->offerDetails()->create([
+                    'offer_id' => $offer->id,
+                    'tool_geometry_id' => $detail['tool_geometry_id'],
+                    'quantity' => $detail['quantity'],
+                    'discount' => $detail['discount'],
+                    'tool_net_price' => $detail['tool_net_price'],
+                    'coating_price_id' => $detail['coating_price_id'],
+                    'coating_net_price' => $detail['coating_net_price'],
+                    'radius' => $detail['radius'],
+                    'regrinding_option' => $detail['regrinding_option'],
+                    'description' => $detail['description'],
+                    'symbol' => $detail['symbol'] ?? null,  // Dodaj symbol
+                    'file_id' => $detail['fileId'] ?? null,  // Dodaj file_id
+                ]);
             }
             DB::commit();
 
@@ -144,7 +172,7 @@ class OfferController extends Controller
         }
     }
 
-    public function generateOfferPdf($offerId)
+    public function generateOfferPdf(Request $request, $offerId)
     {
         $setting = Settings::first();
         $offer = Offer::findOrFail($offerId);  // Załaduj ofertę na podstawie ID
@@ -162,9 +190,21 @@ class OfferController extends Controller
             // Możesz zwrócić jakąś informację o braku szczegółów oferty
             return response()->json(['error' => 'Brak szczegółów oferty'], 404);
         }
+
+        $pdfInfo = $request->only(['deliveryTime', 'offerValidity', 'paymentTerms', 'displayDiscount']);
+
+        OfferPdfInfo::updateOrCreate(
+            ['offer_id' => $offerId],
+            [
+                'delivery_time' => $pdfInfo['deliveryTime'] ?? null,
+                'offer_validity' => $pdfInfo['offerValidity'] ?? null,
+                'payment_terms' => $pdfInfo['paymentTerms'] ?? null,
+                'display_discount' => $pdfInfo['displayDiscount'] ?? false,
+            ]
+        );
     
         // Generowanie PDF
-        $pdf = Pdf::loadView('offer.pdf', compact('offer', 'offerDetails'))
+        $pdf = Pdf::loadView('offer.pdf', compact('offer', 'offerDetails', 'pdfInfo'))
         ->setPaper('A4', 'portrait')
         ->setOption('isHtml5ParserEnabled', true)
         ->setOption('isPhpEnabled', true)
