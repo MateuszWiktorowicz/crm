@@ -43,4 +43,20 @@ class UserRequest extends FormRequest
         }
         return [];
     }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nazwa użytkownika',
+            'email' => 'adres e-mail',
+            'password' => 'hasło',
+            'marker' => 'znacznik',
+            'roles' => 'role',
+        ];
+    }
 }
