@@ -1,6 +1,6 @@
 <script setup>
   import GuestLayout from '../Layouts/GuestLayout.vue';
-  import { onMounted, ref } from 'vue';
+  import { ref } from 'vue';
   import axiosClient from '../axios.js';
   import router from '../router.js';
   import InputError from '../components/InputError.vue';

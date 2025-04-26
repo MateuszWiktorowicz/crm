@@ -16,4 +16,10 @@ class Customer extends Model
         'saler_marker',
         'description',
     ];
+
+    public function offers()
+    {
+        return $this->hasMany(Offer::class);
+    }
+
 }

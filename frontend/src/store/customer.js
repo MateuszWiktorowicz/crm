@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axiosClient from '../axios';
+import useUserStore from './user';
 
 const useCustomerStore = defineStore('customer', {
   state: () => ({
@@ -47,9 +48,8 @@ const useCustomerStore = defineStore('customer', {
         }
         this.isModalOpen = false;
         await this.fetchCustomers();
-        this.errors = {}; // Po udanym zapisie, wyczyść błędy
+        this.errors = {};
       } catch (error) {
-        // W przypadku błędów walidacji, ustaw je w stanie errors
         this.errors = error.response?.data?.errors ?? {};
       }
     },
@@ -59,8 +59,9 @@ const useCustomerStore = defineStore('customer', {
           await axiosClient.delete(`/api/klienci/${customerId}`);
           await this.fetchCustomers();
         }
+        this.errors = {};
       } catch (error) {
-        console.error('Błąd podczas usuwania klienta:', error);
+        this.errors = error.response?.data?.errors ?? {};
       }
     },
     async importCustomers(fileData) {
@@ -69,8 +70,10 @@ const useCustomerStore = defineStore('customer', {
       });
       this.fetchCustomers();
     },
-    openModal(customer = null) {
-      this.customer = customer || {
+    resetCustomer() {
+      const userStore = useUserStore();
+    
+      this.customer = {
         code: '',
         name: '',
         nip: '',
@@ -80,10 +83,20 @@ const useCustomerStore = defineStore('customer', {
         saler_marker: '',
         description: '',
       };
+    
+      if (userStore.user?.roles.includes('saler')) {
+        this.customer.saler_marker = userStore.user.marker;
+      }
+    },
+    
+    openModal(customer = null) {
+      customer ? this.customer = customer : this.resetCustomer();
+      this.errors = {};
       this.isModalOpen = true;
     },
     closeModal() {
       this.isModalOpen = false;
+      this.errors = {};
     },
     setSelectedFile(file) {
       this.selectedFile = file;

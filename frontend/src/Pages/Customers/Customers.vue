@@ -45,7 +45,7 @@
 
     <button
       @click="customerStore.openModal()"
-      class="mx-2 mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition"
+      class="mx-2 mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition cursor-pointer"
     >
       + Dodaj Klienta
     </button>
@@ -54,7 +54,7 @@
       @click="selectFile"
       :disabled="!userStore.isCreator()"
       :class="[
-        'mx-2 mb-4 px-5 py-2 rounded-lg shadow-md transition',
+        'mx-2 mb-4 px-5 py-2 rounded-lg shadow-md transition cursor-pointer',
         userStore.isCreator()
           ? 'bg-blue-600 text-white hover:bg-blue-700'
           : 'bg-gray-400 text-gray-600 cursor-not-allowed',
@@ -65,14 +65,24 @@
 
     <!-- Ukryty input, aby nie wyświetlał się na stronie -->
     <input type="file" id="fileInput" @change="handleFileUpload" class="hidden" />
-
+    <div
+            v-if="Object.keys(customerStore.errors).length"
+            class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+          >
+            <p class="font-semibold">Wystąpiły błędy:</p>
+            <ul class="list-disc list-inside">
+              <li v-for="(errorMessages, field) in customerStore.errors" :key="field">
+                <span v-for="(message, index) in errorMessages" :key="index">{{ message }}</span>
+              </li>
+            </ul>
+          </div>
     <div
       class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
     >
+
       <table class="w-full border-separate border-spacing-0">
         <thead class="bg-gray-100 sticky top-0 z-10">
           <tr class="bg-gray-100 text-gray-700 uppercase text-xs leading-normal rounded-t-lg">
-            <!-- <th class="border border-gray-300 p-3 text-left">ID</th> -->
             <th class="border border-gray-300 p-3 text-center">
               Kod
               <CustomersFilterInput :column="'code'" placeholder="Filtruj" />
@@ -93,7 +103,6 @@
               Adres
               <CustomersFilterInput :column="'address'" placeholder="Filtruj" />
             </th>
-            <!-- <th class="border border-gray-300 p-3 text-left">Kod Pocztowy</th> -->
             <th class="border border-gray-300 p-3 text-center">
               Znacznik
               <CustomersFilterInput :column="'saler_marker'" placeholder="Filtruj" />
@@ -106,6 +115,7 @@
           </tr>
         </thead>
         <tbody v-if="customerStore.filteredCustomers.length > 0" class="text-gray-600 text-xs">
+
           <tr v-for="customer in customerStore.filteredCustomers" :key="customer.id">
             <td class="border border-gray-300 p-3">{{ customer.code }}</td>
             <td class="border border-gray-300 p-3">{{ customer.name }}</td>
@@ -118,16 +128,16 @@
                 {{ customer.description }}
               </div>
             </td>
-            <td class="border border-gray-300 p-3">
+            <td class="border border-gray-300 p-3 text-center ">
               <button
                 @click="customerStore.openModal(customer)"
-                class="mx-2 px-2 py-1 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
+                class="m-2 px-2 py-1 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition cursor-pointer"
               >
                 Edytuj
               </button>
               <button
                 @click="customerStore.deleteCustomer(customer.id)"
-                class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
+                class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition cursor-pointer"
               >
                 Usuń
               </button>

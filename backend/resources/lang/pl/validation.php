@@ -13,4 +13,5 @@ return [
     'exists' => 'Wybrana wartość dla :attribute jest nieprawidłowa.',
     'string' => 'Pole :attribute musi być tekstem.',
     'array' => 'Pole :attribute musi być tablicą.',
+    'unique' => 'Pole :attribute musi być unikalne.',
 ];
