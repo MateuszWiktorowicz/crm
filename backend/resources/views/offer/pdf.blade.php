@@ -118,7 +118,7 @@
 <table class="header-table">
     <tr>
         <td style="width: 50%; vertical-align: top;">
-            <img src="{{ storage_path('app/public/images/mastermet-logo.png') }}" style="max-height: 50px;"><br><br>
+            <img src="{{ public_path('images/mastermet-logo.png') }}" style="max-height: 50px;"><br><br>
             <strong>Mastermet Sp. z o.o.</strong><br>
             ul. Międzyrzeck 3/1<br>
             50-421 Wrocław<br>
