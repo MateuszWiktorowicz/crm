@@ -29,7 +29,7 @@ return new class extends Migration
     
                 $table->foreign('offer_id')->references('id')->on('offers')->onDelete('restrict');
                 $table->foreign('tool_geometry_id')->references('id')->on('tool_geometries')->onDelete('restrict');
-                $table->foreign('coating_price_id')->references('id')->on('coating_prices')->onDelete('restrict');
+                $table->foreign('coating_price_id')->references('id')->on('coating_prices')->onDelete('restrict')->nullabe();
             });
         }
     }
