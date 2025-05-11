@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->decimal('tool_discount', 5, 2);
                 $table->decimal('tool_net_price', 10, 2);
                 $table->decimal('tool_gross_price', 10, 2);
-                $table->unsignedBigInteger('coating_price_id')->nullabe();
+                $table->unsignedBigInteger('coating_price_id')->nullable();
                 $table->integer('coating_quantity');
                 $table->decimal('coating_discount', 5, 2);
                 $table->decimal('coating_net_price', 10, 2);
