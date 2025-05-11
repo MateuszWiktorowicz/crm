@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->decimal('tool_discount', 5, 2);
                 $table->decimal('tool_net_price', 10, 2);
                 $table->decimal('tool_gross_price', 10, 2);
-                $table->unsignedBigInteger('coating_price_id');
+                $table->unsignedBigInteger('coating_price_id')->nullabe();;
                 $table->integer('coating_quantity');
                 $table->decimal('coating_discount', 5, 2);
                 $table->decimal('coating_net_price', 10, 2);
@@ -29,7 +29,7 @@ return new class extends Migration
     
                 $table->foreign('offer_id')->references('id')->on('offers')->onDelete('restrict');
                 $table->foreign('tool_geometry_id')->references('id')->on('tool_geometries')->onDelete('restrict');
-                $table->foreign('coating_price_id')->references('id')->on('coating_prices')->onDelete('restrict')->nullabe();
+                $table->foreign('coating_price_id')->references('id')->on('coating_prices')->onDelete('restrict');
             });
         }
     }
