@@ -1,9 +1,9 @@
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { onMounted } from 'vue';
   import useCustomerStore from '../../store/customer';
   import CustomerModal from './CustomerModal.vue';
   import useUserStore from '../../store/user';
-  import CustomersFilterInput from '../../components/CustomersFilterInput.vue';
+  import FilterInput from '../../components/FilterInput.vue';
 
   const customerStore = useCustomerStore();
   const userStore = useUserStore();
@@ -85,31 +85,59 @@
           <tr class="bg-gray-100 text-gray-700 uppercase text-xs leading-normal rounded-t-lg">
             <th class="border border-gray-300 p-3 text-center">
               Kod
-              <CustomersFilterInput :column="'code'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="code"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               Nazwa
-              <CustomersFilterInput :column="'name'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="name"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               NIP
-              <CustomersFilterInput :column="'nip'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="nip"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               Miasto
-              <CustomersFilterInput :column="'city'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="city"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               Adres
-              <CustomersFilterInput :column="'address'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="address"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               Znacznik
-              <CustomersFilterInput :column="'saler_marker'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="saler_marker"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">
               Uwagi
-              <CustomersFilterInput :column="'description'" placeholder="Filtruj" />
+              <FilterInput
+              :store="customerStore"
+              column="description"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-center">Akcje</th>
           </tr>

@@ -2,7 +2,7 @@
   import { onMounted } from 'vue';
   import useUserStore from '../../store/user';
   import UserModal from './UserModal.vue';
-  import UsersFilterInput from '../../components/UsersFilterInput.vue';
+  import FilterInput from '../../components/FilterInput.vue';
 
   const userStore = useUserStore();
 
@@ -28,19 +28,30 @@
       <table class="w-full border-separate border-spacing-0">
         <thead class="bg-gray-100 sticky top-0 z-10">
           <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
-            <!-- <th class="border border-gray-300 p-3 text-left">ID</th> -->
             <th class="border border-gray-300 p-3 text-left">
               Imię
-              <UsersFilterInput :column="'name'" />
+              <FilterInput
+              :store="userStore"
+              column="name"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">
               E-mail
-              <UsersFilterInput :column="'email'" />
+              <FilterInput
+              :store="userStore"
+              column="email"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">Uprawnienia</th>
             <th class="border border-gray-300 p-3 text-left">
               Znacznik
-              <UsersFilterInput :column="'marker'" />
+              <FilterInput
+              :store="userStore"
+              column="marker"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">Akcje</th>
           </tr>
@@ -83,8 +94,6 @@
         </tbody>
       </table>
     </div>
-
-    <!-- Modal -->
     <UserModal />
   </div>
 </template>

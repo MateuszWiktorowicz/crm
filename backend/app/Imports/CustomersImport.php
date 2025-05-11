@@ -16,29 +16,29 @@ class CustomersImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-        $existingCustomer = Customer::where('code', $row['kod']) ->orwhere('nip', $row['nip'])->first();
+        $existingCustomer = Customer::where('code', $row['code']) ->orwhere('nip', $row['nip'])->first();
         
         if ($existingCustomer) {
             $existingCustomer->update([
-                'code' => $row['kod'],
-                'name' => $row['nazwa'],
+                'code' => $row['code'],
+                'name' => $row['name'],
                 'nip' => $row['nip'],
-                'zip_code' => $row['kod_pocztowy'],
-                'city' => $row['miasto'],
-                'address' => $row['ulica'],
-                'saler_marker' => $row['grupa'],
-                'description' => $row['uwagi'],
+                'zip_code' => $row['zip_code'],
+                'city' => $row['city'],
+                'address' => $row['address'],
+                'saler_marker' => $row['saler_marker'],
+                'description' => $row['description'],
             ]);
         } else {
             return new Customer([
-                'code' => $row['kod'],
-                'name' => $row['nazwa'],
+                'code' => $row['code'],
+                'name' => $row['name'],
                 'nip' => $row['nip'],
-                'zip_code' => $row['kod_pocztowy'],
-                'city' => $row['miasto'],
-                'address' => $row['ulica'],
-                'saler_marker' => $row['grupa'],
-                'description' => $row['uwagi'],
+                'zip_code' => $row['zip_code'],
+                'city' => $row['city'],
+                'address' => $row['address'],
+                'saler_marker' => $row['saler_marker'],
+                'description' => $row['description'],
             ]);
         }
     }

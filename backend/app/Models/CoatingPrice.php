@@ -7,6 +7,8 @@ use App\Models\CoatingType;
 
 class CoatingPrice extends Model
 {
+    public $timestamps = false;
+    
     protected $fillable = [
         'diameter',
         'price',

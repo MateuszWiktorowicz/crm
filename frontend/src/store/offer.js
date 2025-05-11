@@ -22,7 +22,7 @@ const useOfferStore = defineStore('offer', {
         deliveryTime: '12–15 dni roboczych',
         offerValidity: '7 dni',
         paymentTerms: 'przelew 14 dni',
-        displayDiscount: null
+        displayDiscount: false
       },
     },
     offerDetails: [
@@ -92,6 +92,7 @@ const useOfferStore = defineStore('offer', {
         status_id: this.offer.status_id || 1,
         total_net_price: Number(this.offer.total_net_price),
         offer_details: this.offerDetails,
+        pdf_info: this.offer.pdfInfo,
       };
       try {
         this.errors = {};

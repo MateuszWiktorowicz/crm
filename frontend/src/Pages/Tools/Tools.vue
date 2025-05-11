@@ -2,7 +2,7 @@
   import { onMounted } from 'vue';
   import Header from '../../components/Header.vue';
   import useToolsStore from '../../store/tools';
-  import ToolFilterInput from '../../components/ToolFilterInput.vue';
+  import FilterInput from '../../components/FilterInput.vue';
 
   const toolsStore = useToolsStore();
 
@@ -12,6 +12,7 @@
 </script>
 
 <template>
+  <div>
   <Header title="Baza narzędzi" />
 
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -21,30 +22,38 @@
       <table class="w-full border-separate border-spacing-0">
         <thead class="bg-gray-100 sticky top-0 z-10">
           <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
-            <!-- <th class="border border-gray-300 p-3 text-left">ID</th> -->
             <th class="border border-gray-300 p-3 text-left">
               Typ narzędzia
-              <ToolFilterInput :column="'tool_type_name'" />
+              <FilterInput
+              :store="toolsStore"
+              column="tool_type_name"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">
               Ilość ostrzy
-              <ToolFilterInput :column="'flutes_number'" />
+              <FilterInput
+              :store="toolsStore"
+              column="flutes_number"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">
               Średnica
-              <ToolFilterInput :column="'diameter'" />
+              <FilterInput
+              :store="toolsStore"
+              column="diameter"
+              placeholder="Filtruj"
+            />
             </th>
             <th class="border border-gray-300 p-3 text-left">
               Cena ostrzenia czoła
-              <!-- <UsersFilterInput :column="'marker'" /> -->
             </th>
             <th class="border border-gray-300 p-3 text-left">
               Cena ostrzenia obwodu
-              <!-- <UsersFilterInput :column="'marker'" /> -->
             </th>
             <th class="border border-gray-300 p-3 text-left">
               Cena ostrzenia komplet
-              <!-- <UsersFilterInput :column="'marker'" /> -->
             </th>
           </tr>
         </thead>
@@ -85,6 +94,7 @@
       </table>
     </div>
   </div>
+</div>
 </template>
 
 <style scoped></style>

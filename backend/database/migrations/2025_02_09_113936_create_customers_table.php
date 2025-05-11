@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('code', 255)->unique();
             $table->string('name', 255);
-            $table->string('nip', 10)->unique();
+            $table->string('nip', 20)->unique();
             $table->string('zip_code', 10)->nullable();
             $table->string('city', 255)->nullable();
             $table->string('address', 255)->nullable();
             $table->string('saler_marker', 10)->nullable();
-            $table->string('description', 255)->nullable();
+            $table->string('description', 1000)->nullable();
             $table->timestamps();
         });
     }

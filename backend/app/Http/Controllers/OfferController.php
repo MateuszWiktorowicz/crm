@@ -29,7 +29,7 @@ class OfferController extends Controller
                     'deliveryTime' => $offer->pdfInfo->delivery_time ?? null,
                     'offerValidity' => $offer->pdfInfo->offer_validity ?? null,
                     'paymentTerms' => $offer->pdfInfo->payment_terms ?? null,
-                    'displayDiscount' => $offer->pdfInfo->display_discount ?? false,
+'displayDiscount' => (bool) ($offer->pdfInfo->display_discount ?? false),
                 ],
                 'offer_details' => $offer->offerDetails->map(function ($detail) {
                     return [
@@ -94,6 +94,13 @@ class OfferController extends Controller
                     'file_id' => $detail['fileId'] ?? null,  // Dodaj file_id
                 ]);
             }
+
+            $offer->pdfInfo()->create([
+                'delivery_time' => $validated['pdf_info']['deliveryTime'] ?? null,
+                'offer_validity' => $validated['pdf_info']['offerValidity'] ?? null,
+                'payment_terms' => $validated['pdf_info']['paymentTerms'] ?? null,
+                'display_discount' => $validated['pdf_info']['displayDiscount'] ?? false,
+            ]);
     
             DB::commit();
     
@@ -138,6 +145,23 @@ class OfferController extends Controller
                     'file_id' => $detail['fileId'] ?? null,  // Dodaj file_id
                 ]);
             }
+
+            if ($offer->pdfInfo) {
+                $offer->pdfInfo()->update([
+                    'delivery_time' => $validated['pdf_info']['deliveryTime'] ?? null,
+                    'offer_validity' => $validated['pdf_info']['offerValidity'] ?? null,
+                    'payment_terms' => $validated['pdf_info']['paymentTerms'] ?? null,
+                    'display_discount' => $validated['pdf_info']['displayDiscount'] ?? false,
+                ]);
+            } else {
+                $offer->pdfInfo()->create([
+                    'delivery_time' => $validated['pdf_info']['deliveryTime'] ?? null,
+                    'offer_validity' => $validated['pdf_info']['offerValidity'] ?? null,
+                    'payment_terms' => $validated['pdf_info']['paymentTerms'] ?? null,
+                    'display_discount' => $validated['pdf_info']['displayDiscount'] ?? false,
+                ]);
+            }
+
             DB::commit();
 
             return response()->json(['message' => 'Oferta zaktualizowana pomyślnie', 'offer' => $offer], 200);

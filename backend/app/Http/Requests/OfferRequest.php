@@ -42,6 +42,10 @@ class OfferRequest extends FormRequest
             'offer_details.*.description' => 'nullable|string',
             'offer_details.*.fileId' => 'nullable',
             'offer_details.*.symbol' => 'nullable',
+            'pdf_info.deliveryTime' => 'nullable|string',
+'pdf_info.offerValidity' => 'nullable|string',
+'pdf_info.paymentTerms' => 'nullable|string',
+'pdf_info.displayDiscount' => 'nullable|boolean'
         ];
     }
 

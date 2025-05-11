@@ -7,6 +7,8 @@ use App\Models\CoatingPrice;
 
 class CoatingType extends Model
 {
+    public $timestamps = false;
+    
     protected $fillable = [
         'mastermet_name',
         'mastermet_code',
