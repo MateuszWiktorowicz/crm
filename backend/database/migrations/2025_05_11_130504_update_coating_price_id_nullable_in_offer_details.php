@@ -4,7 +4,7 @@
     use Illuminate\Database\Schema\Blueprint;
     use Illuminate\Support\Facades\Schema;
     
-    class UpdateCoatingPriceIdInOfferDetails extends Migration
+    class UpdateCoatingPriceIdAsNullableInOfferDetails extends Migration
     {
         public function up()
         {
