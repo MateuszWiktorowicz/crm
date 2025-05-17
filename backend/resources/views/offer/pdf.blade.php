@@ -120,7 +120,7 @@
         <td style="width: 50%; vertical-align: top;">
             <img src="{{ public_path('images/mastermet-logo.png') }}" style="max-height: 50px;"><br><br>
             <strong>Mastermet Sp. z o.o.</strong><br>
-            ul. Międzyrzeck 3/1<br>
+            ul. Międzyrzecka 3/1<br>
             50-421 Wrocław<br>
             NIP: 8971745244<br><br>
             regeneracja@mastermet.eu<br>
