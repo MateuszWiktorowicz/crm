@@ -153,6 +153,7 @@
     <thead>
         <tr>
             <th>Symbol</th>
+            <th>Opis</th>
             <th>Cena jednostkowa netto</th>
             @if($pdfInfo['displayDiscount'])
                 <th>Cena po rabacie</th>
@@ -176,6 +177,7 @@
                 <td>
                     {{ $detail->symbol }}
                 </td>
+                <td>{{ $detail->description }}</td>
                 <td>{{ number_format($basePrice, 2) }} PLN</td>
                 @if($pdfInfo['displayDiscount'])
                     <td>{{ number_format($discountedPrice, 2) }} PLN</td>
@@ -188,7 +190,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="{{ $pdfInfo['displayDiscount'] ? 5 : 3 }}"></td>
+            <td colspan="{{ $pdfInfo['displayDiscount'] ? 6 : 4 }}"></td>
             <td><strong>Kwota oferty:</strong> {{ number_format($offer->total_price, 2) }} PLN</td>
         </tr>
     </tfoot>

@@ -72,7 +72,7 @@ const useCustomerStore = defineStore('customer', {
     },
     resetCustomer() {
       const userStore = useUserStore();
-    
+
       this.customer = {
         code: '',
         name: '',
@@ -83,14 +83,14 @@ const useCustomerStore = defineStore('customer', {
         saler_marker: '',
         description: '',
       };
-    
+
       if (userStore.user?.roles.includes('saler')) {
         this.customer.saler_marker = userStore.user.marker;
       }
     },
-    
+
     openModal(customer = null) {
-      customer ? this.customer = customer : this.resetCustomer();
+      customer ? (this.customer = customer) : this.resetCustomer();
       this.errors = {};
       this.isModalOpen = true;
     },
