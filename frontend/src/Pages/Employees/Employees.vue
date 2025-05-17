@@ -30,28 +30,16 @@
           <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
             <th class="border border-gray-300 p-3 text-left">
               Imię
-              <FilterInput
-              :store="userStore"
-              column="name"
-              placeholder="Filtruj"
-            />
+              <FilterInput :store="userStore" column="name" placeholder="Filtruj" />
             </th>
             <th class="border border-gray-300 p-3 text-left">
               E-mail
-              <FilterInput
-              :store="userStore"
-              column="email"
-              placeholder="Filtruj"
-            />
+              <FilterInput :store="userStore" column="email" placeholder="Filtruj" />
             </th>
             <th class="border border-gray-300 p-3 text-left">Uprawnienia</th>
             <th class="border border-gray-300 p-3 text-left">
               Znacznik
-              <FilterInput
-              :store="userStore"
-              column="marker"
-              placeholder="Filtruj"
-            />
+              <FilterInput :store="userStore" column="marker" placeholder="Filtruj" />
             </th>
             <th class="border border-gray-300 p-3 text-left">Akcje</th>
           </tr>

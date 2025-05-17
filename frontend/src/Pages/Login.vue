@@ -82,5 +82,4 @@
   </GuestLayout>
 </template>
 
-
 <style scoped></style>

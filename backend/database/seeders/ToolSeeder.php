@@ -47,10 +47,22 @@ class ToolSeeder extends Seeder
             ['code' => 'MM99-06/90st. L', 'name' => 'MM99-06/90st. L', 'price' => 26.06, 'diameter' => 6],
             ['code' => 'H3058318-6 6x2.5/90st.', 'name' => 'H3058318-6 6x2.5/90st.', 'price' => 26.06, 'diameter' => 6],
             ['code' => 'N1012', 'name' => 'N1012', 'price' => 130.30, 'diameter' => 6],
+            ['code' => 'E1001', 'name' => 'N1012', 'price' => 124.37, 'diameter' => 6],
+            ['code' => 'E1002', 'name' => 'E1002', 'price' => 124.37, 'diameter' => 6],
+            ['code' => 'E1003', 'name' => 'E1003', 'price' => 124.37, 'diameter' => 6],
+            ['code' => 'E1004', 'name' => 'E1004', 'price' => 124.37, 'diameter' => 6],
+            ['code' => 'E1009', 'name' => 'E1009', 'price' => 47.27, 'diameter' => 10],
+            ['code' => 'E1010', 'name' => 'E1010', 'price' => 31.40, 'diameter' => 10],
+            ['code' => 'E1013', 'name' => 'E1013', 'price' => 47.27, 'diameter' => 14],
+            ['code' => 'E1014', 'name' => 'E1014', 'price' => 31.40, 'diameter' => 14],
+            ['code' => 'E1020', 'name' => 'E1020', 'price' => 17.83, 'diameter' => 20],
         ];
 
         foreach ($tools as $tool) {
-            Tool::create($tool);
+            Tool::firstOrCreate(
+                ['code' => $tool['code']],
+                $tool
+            );
         }
     }
 }

@@ -12,29 +12,31 @@
 </script>
 
 <template>
-  <Header title="Settings" />
+  <div>
+    <Header title="Settings" />
 
-  <main>
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <h1 class="text-xl font-semibold mb-4">Ustawienia</h1>
+    <main>
+      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <h1 class="text-xl font-semibold mb-4">Ustawienia</h1>
 
-      <!-- Wyświetlanie numeru oferty -->
-      <p><strong>Numer oferty:</strong> {{ settingsStore.setting.offer_number }}</p>
+        <!-- Wyświetlanie numeru oferty -->
+        <p><strong>Numer oferty:</strong> {{ settingsStore.setting.offer_number }}</p>
 
-      <!-- Edytowanie numeru oferty -->
-      <input
-        v-model="settingsStore.setting.offer_number"
-        type="number"
-        placeholder="Wpisz nowy numer oferty"
-        class="p-2 border rounded"
-      />
+        <!-- Edytowanie numeru oferty -->
+        <input
+          v-model="settingsStore.setting.offer_number"
+          type="number"
+          placeholder="Wpisz nowy numer oferty"
+          class="p-2 border rounded"
+        />
 
-      <!-- Przycisk do zapisania ustawienia -->
-      <button @click="settingsStore.saveSetting" class="mt-4 p-2 bg-blue-500 text-white rounded">
-        Zapisz
-      </button>
-    </div>
-  </main>
+        <!-- Przycisk do zapisania ustawienia -->
+        <button @click="settingsStore.saveSetting" class="mt-4 p-2 bg-blue-500 text-white rounded">
+          Zapisz
+        </button>
+      </div>
+    </main>
+  </div>
 </template>
 
 <style scoped></style>
