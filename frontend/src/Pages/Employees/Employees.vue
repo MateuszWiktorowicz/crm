@@ -3,6 +3,7 @@
   import useUserStore from '../../store/user';
   import UserModal from './UserModal.vue';
   import FilterInput from '../../components/FilterInput.vue';
+  import Button from '@/components/Button.vue';
 
   const userStore = useUserStore();
 
@@ -14,14 +15,13 @@
 <template>
   <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Lista użytkowników</h1>
-
-    <button
-      @click="userStore.openModal()"
-      class="mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition"
+    <Button
+    @click="userStore.openModal()"
+    variant="success"
+    class="mb-2"
     >
       + Dodaj użytkownika
-    </button>
-
+    </Button>
     <div
       class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
     >
@@ -58,18 +58,19 @@
             </td>
             <td class="border border-gray-300 p-3">{{ user.marker }}</td>
             <td class="border border-gray-300 p-3">
-              <button
-                @click="userStore.openModal(user)"
-                class="mx-2 px-2 py-1 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
+              <Button
+              @click="userStore.openModal(user)"
+              variant="warning"
+              class="mb-2 mr-2"
               >
                 Edytuj
-              </button>
-              <button
-                @click="userStore.deleteUser(user.id)"
-                class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
+              </Button>
+              <Button
+              @click="userStore.deleteUser(user.id)"
+              variant="danger"
               >
                 Usuń
-              </button>
+              </Button>
             </td>
           </tr>
         </tbody>

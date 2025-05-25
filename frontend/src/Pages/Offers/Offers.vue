@@ -4,6 +4,7 @@
   import useOfferStore from '../../store/offer';
   import OfferModal from './OfferModal.vue';
   import FilterInput from '../../components/FilterInput.vue';
+  import Button from '@/components/Button.vue';
 
   const offerStore = useOfferStore();
 
@@ -23,12 +24,13 @@
       </ul>
     </div>
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <button
+      <Button
         @click="offerStore.openModal()"
-        class="mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition cursor-pointer"
+        variant="success"
+        class="mb-2"
       >
         + Stwórz ofertę
-      </button>
+      </Button>
       <div
         class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
       >
@@ -107,18 +109,19 @@
               </td>
               <td class="border border-gray-300 p-3">{{ offer.created_at }}</td>
               <td class="border border-gray-300 p-3">
-                <button
-                  @click="offerStore.editOffer(offer)"
-                  class="px-2 py-1 bg-yellow-500 text-white rounded cursor-pointer"
+                <Button
+                @click="offerStore.editOffer(offer)"
+                variant="warning"
+                class="mr-2 mb-2"
                 >
-                  Edytuj
-                </button>
-                <button
-                  @click="offerStore.destroyOffer(offer.id)"
-                  class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition cursor-pointer"
+                Edytuj
+                </Button>
+                <Button
+                @click="offerStore.destroyOffer(offer.id)"
+                variant="danger"
                 >
-                  Usuń
-                </button>
+                Usuń
+                </Button>
               </td>
             </tr>
           </tbody>

@@ -153,7 +153,7 @@
     <thead>
         <tr>
             <th>Symbol</th>
-            <th>Opis</th>
+            <th>Nazwa usługi</th>
             <th>Cena jednostkowa netto</th>
             @if($pdfInfo['displayDiscount'])
                 <th>Cena po rabacie</th>

@@ -2,6 +2,7 @@
   import useUserStore from '../../store/user';
   import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue';
   import InputError from '../../components/InputError.vue';
+  import Button from '@/components/Button.vue';
 
   const userStore = useUserStore();
 
@@ -77,14 +78,17 @@
             </div>
 
             <div class="flex justify-end space-x-2">
-              <button
-                type="button"
+              <Button
                 @click="userStore.closeModal"
-                class="px-4 py-2 bg-gray-300 rounded"
+                variant="secondary"
               >
                 Anuluj
-              </button>
-              <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Zapisz</button>
+              </Button>
+              <Button
+                type="submit"
+              >
+                Zapisz
+              </Button>
             </div>
           </form>
         </DialogPanel>

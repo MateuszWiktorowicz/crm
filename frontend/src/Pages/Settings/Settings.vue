@@ -2,6 +2,7 @@
   import Header from '../../components/Header.vue';
   import { ref, onMounted } from 'vue';
   import useSettingsStore from '../../store/settings'; // Importujemy store Pinia
+  import Button from '@/components/Button.vue';
 
   const settingsStore = useSettingsStore(); // Inicjalizujemy store
 
@@ -27,13 +28,15 @@
           v-model="settingsStore.setting.offer_number"
           type="number"
           placeholder="Wpisz nowy numer oferty"
-          class="p-2 border rounded"
+          class="p-2 border rounded mr-2"
         />
 
         <!-- Przycisk do zapisania ustawienia -->
-        <button @click="settingsStore.saveSetting" class="mt-4 p-2 bg-blue-500 text-white rounded">
+         <Button
+         @click="settingsStore.saveSetting"
+         >
           Zapisz
-        </button>
+         </Button>
       </div>
     </main>
   </div>

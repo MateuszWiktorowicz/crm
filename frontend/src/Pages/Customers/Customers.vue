@@ -4,6 +4,7 @@
   import CustomerModal from './CustomerModal.vue';
   import useUserStore from '../../store/user';
   import FilterInput from '../../components/FilterInput.vue';
+  import Button from '@/components/Button.vue';
 
   const customerStore = useCustomerStore();
   const userStore = useUserStore();
@@ -43,27 +44,12 @@
     <div class="container mx-auto p-2">
       <h1 class="text-2xl font-bold mb-6 text-gray-800">Lista klientów</h1>
 
-      <button
-        @click="customerStore.openModal()"
-        class="mx-2 mb-4 px-5 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition cursor-pointer"
-      >
-        + Dodaj Klienta
-      </button>
-
-      <button
-        @click="selectFile"
-        :disabled="!userStore.isCreator()"
-        :class="[
-          'mx-2 mb-4 px-5 py-2 rounded-lg shadow-md transition cursor-pointer',
-          userStore.isCreator()
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-400 text-gray-600 cursor-not-allowed',
-        ]"
-      >
-        📂 Importuj Klientów
-      </button>
-
-      <!-- Ukryty input, aby nie wyświetlał się na stronie -->
+      <div class="flex gap-3 mb-3">
+        <Button variant="success" @click="customerStore.openModal()"> + Dodaj Klienta </Button>
+        <Button @click="selectFile" :disabled="!userStore.isCreator()">
+          📂 Importuj Klientów
+        </Button>
+      </div>
       <input type="file" id="fileInput" @change="handleFileUpload" class="hidden" />
       <div
         v-if="Object.keys(customerStore.errors).length"
@@ -79,14 +65,14 @@
       <div
         class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
       >
-        <table class="w-full border-separate border-spacing-0">
+        <table class="table-fixed w-full border-separate border-spacing-0">
           <thead class="bg-gray-100 sticky top-0 z-10">
             <tr class="bg-gray-100 text-gray-700 uppercase text-xs leading-normal rounded-t-lg">
-              <th class="border border-gray-300 p-3 text-center">
+              <th class="border border-gray-300 p-3 text-center w-[100px]">
                 Kod
                 <FilterInput :store="customerStore" column="code" placeholder="Filtruj" />
               </th>
-              <th class="border border-gray-300 p-3 text-center">
+              <th class="border border-gray-300 p-3 text-center w-[300px] break-words whitespace-normal">
                 Nazwa
                 <FilterInput :store="customerStore" column="name" placeholder="Filtruj" />
               </th>
@@ -106,7 +92,7 @@
                 Znacznik
                 <FilterInput :store="customerStore" column="saler_marker" placeholder="Filtruj" />
               </th>
-              <th class="border border-gray-300 p-3 text-center">
+              <th class="border border-gray-300 p-3 text-center w-[300px]">
                 Uwagi
                 <FilterInput :store="customerStore" column="description" placeholder="Filtruj" />
               </th>
@@ -127,18 +113,21 @@
                 </div>
               </td>
               <td class="border border-gray-300 p-3 text-center">
-                <button
-                  @click="customerStore.openModal(customer)"
-                  class="m-2 px-2 py-1 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition cursor-pointer"
+                <Button
+                @click="customerStore.openModal(customer)"
+                size="small"
+                variant="warning"
                 >
-                  Edytuj
-                </button>
-                <button
-                  @click="customerStore.deleteCustomer(customer.id)"
-                  class="mx-2 px-2 py-1 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition cursor-pointer"
+                Edytuj
+                </Button>
+                <Button 
+                @click="customerStore.deleteCustomer(customer.id)"
+                size="small"
+                variant="danger"
+                class="mt-2"
                 >
                   Usuń
-                </button>
+                </Button>
               </td>
             </tr>
           </tbody>

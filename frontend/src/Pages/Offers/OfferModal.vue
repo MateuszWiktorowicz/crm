@@ -6,6 +6,7 @@
   import useToolsStore from '../../store/tools';
   import useCoatingStore from '../../store/coating';
   import { ref, computed, nextTick } from 'vue';
+  import Button from '@/components/Button.vue';
 
   const isCustomerModalOpen = ref(false);
   const isFilesModalOpen = ref(false);
@@ -189,12 +190,13 @@ if (isNaN(value) || value < 0) {
 
             <!-- Przycisk anulowania na stałe na dole -->
             <div class="mt-4">
-              <button
-                @click="isCustomerModalOpen = false"
-                class="px-4 py-2 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-400"
+              <Button
+              @click="isCustomerModalOpen = false"
+              variant="secondary"
               >
-                Anuluj
-              </button>
+            Anuluj
+
+              </Button>
             </div>
           </DialogPanel>
         </div>
@@ -234,12 +236,13 @@ if (isNaN(value) || value < 0) {
 
             <!-- Przycisk anulowania na stałe na dole -->
             <div class="mt-4">
-              <button
-                @click="handleFilesModalClose(index)"
-                class="w-full px-4 py-2 bg-gray-300 rounded cursor-pointer"
+              <Button
+              @click="handleFilesModalClose(index)"
+              variant="secondary"
               >
-                Anuluj
-              </button>
+            Anuluj
+
+              </Button>
             </div>
           </DialogPanel>
         </div>
@@ -257,16 +260,15 @@ if (isNaN(value) || value < 0) {
           <div class="flex items-center gap-5 justify-between p-4 bg-gray-100 rounded-lg shadow-md">
             <div class="mb-4 max-w-3xl">
               <label class="block text-sm font-medium text-gray-700 mb-1">Kontrahent</label>
-              <button
-                type="button"
-                @click="isCustomerModalOpen = true"
-                class="w-full p-2 border border-gray-300 rounded-lg bg-white text-left cursor-pointer hover:bg-gray-300"
+              <Button
+              @click="isCustomerModalOpen = true"
+              variant="success"
               >
-                {{
+              {{
                   customerStore.customers.find((c) => c.id === offerStore.offer.customer_id)
                     ?.name || 'Wybierz kontrahenta'
-                }}
-              </button>
+              }}
+              </Button>
             </div>
 
             <div class="flex flex-col items-end">
@@ -556,13 +558,12 @@ if (isNaN(value) || value < 0) {
                   </td>
                   <!-- Akcja -->
                   <td class="border border-gray-300 p-3">
-                    <button
-                      type="button"
-                      @click="offerStore.removeToolRow(index)"
-                      class="px-2 py-1 bg-red-500 text-white rounded cursor-pointer"
+                    <Button
+                    @click="offerStore.removeToolRow(index)"
+                    variant="danger"
                     >
-                      Usuń
-                    </button>
+                    Usuń
+                    </Button>
                   </td>
                 </tr>
               </tbody>
@@ -570,33 +571,33 @@ if (isNaN(value) || value < 0) {
           </div>
           <!-- Przycisk dodawania nowego narzędzia -->
           <div class="mt-4">
-            <button
-              type="button"
-              @click="scrollToNewTool"
-              class="px-4 py-2 bg-green-600 text-white rounded cursor-pointer"
-            >
-              Dodaj narzędzie
-            </button>
+            <Button
+                    @click="scrollToNewTool"
+                    variant="success"
+                    >
+                    Dodaj narzędzie
+            </Button>
             <div class="flex justify-end space-x-2 mt-4">
-              <button
-                type="button"
-                @click="offerStore.closeModal"
-                class="px-4 py-2 bg-gray-500 text-white rounded cursor-pointer hover:bg-gray-400"
-              >
-                Anuluj
-              </button>
-              <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">
-                Zapisz
-              </button>
+              <Button
+                    @click="offerStore.closeModal"
+                    variant="secondary"
+                    >
+                    Anuluj
+            </Button>
 
-              <button
-                type="button"
-                @click="offerStore.generatePdf()"
-                class="px-4 cursor-pointer py-2 bg-blue-600 text-white rounded shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-                :disabled="offerStore.offer.id === null"
-              >
-                Generuj PDF
-              </button>
+            <Button
+                    type="submit"
+
+                    >
+                    Zapisz
+            </Button>
+            <Button
+            @click="offerStore.generatePdf()"
+            variant="warning"
+            :disabled="offerStore.offer.id === null"
+            >
+              Generuj PDF
+            </Button>
             </div>
           </div>
           <!-- Przycisk zapisu oferty -->

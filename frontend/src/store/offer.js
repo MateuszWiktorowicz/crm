@@ -82,6 +82,7 @@ const useOfferStore = defineStore('offer', {
       }
     },
     async saveOffer() {
+      this.formatDescriptions();
       this.offerDetails.forEach((detail) => {
         3;
         if (!this.isCustom(detail)) {
@@ -373,6 +374,27 @@ const useOfferStore = defineStore('offer', {
         this.calculateOfferTotalNetPrice();
       }
     },
+    formatDescriptions() {
+      this.offerDetails.forEach((detail) => {
+        if (['Frez Walcowy', 'Frez Promieniowy', 'Frez Kulowy', "Fazownik", "Wiertlo Krete"].includes(detail.toolType)) {
+          let prefix = "";
+    
+          if (detail.regrinding_option === "face_regrinding") {
+            prefix = "ostrzenie czoła";
+          } else if (detail.regrinding_option === "full_regrinding") {
+            prefix = "ostrzenie kpl.";
+          }
+    
+          if (prefix) {
+            if (!detail.description || detail.description.trim() === "") {
+              detail.description = prefix;
+            } else if (!detail.description.startsWith(prefix)) {
+              detail.description = `${prefix} ${detail.description}`;
+            }
+          }
+        }
+      });
+    }
   },
   getters: {
     getRegrindingOptions: (state) => (detail) => {
