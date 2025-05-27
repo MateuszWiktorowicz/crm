@@ -3,6 +3,7 @@ import useToolsStore from './tools';
 import axiosClient from '../axios';
 import useCoatingStore from './coating';
 import useSettingsStore from './settings';
+import useCustomerStore from './customer';
 
 const useOfferStore = defineStore('offer', {
   state: () => ({
@@ -130,7 +131,7 @@ const useOfferStore = defineStore('offer', {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `offer_${this.offer.id}.pdf`);
+        link.setAttribute('download', `Reg_${this.customer?.code}_${this.offer.offer_number}.pdf`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -449,6 +450,12 @@ const useOfferStore = defineStore('offer', {
           return symbol;
       }
     },
+    customer() {
+      const customerStore = useCustomerStore();
+      return customerStore.customers.find(
+        (c) => c.id === this.offer.customer_id
+      );
+    }
   },
 });
 
