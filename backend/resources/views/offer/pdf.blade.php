@@ -105,6 +105,7 @@
         <p>Przy zamówieniu prosimy o powołanie się na powyższy nr oferty.</p>
         <ol>
             <li>Termin realizacji: {{$pdfInfo['deliveryTime']}}</li>
+            <li>W przypadku braku opakowań doliczamy koszt 2 pln/szt.</li>
             <li>Ważność oferty: {{$pdfInfo['offerValidity']}}</li>
             <li>Warunki płatności: {{$pdfInfo['paymentTerms']}}</li>
             <li>Transport: 21,90 zł (poniżej wartości zamówienia 1000 zł)</li>
