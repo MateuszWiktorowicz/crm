@@ -7,21 +7,18 @@ export default defineConfig([
   {
     files: ['**/*.{js,mjs,cjs,vue}'],
     plugins: {
-      js,           // Użyj pluginu dla JavaScript
-      vue: pluginVue, // Użyj pluginu dla Vue
+      js,
+      vue: pluginVue,
     },
-    extends: [
-      'eslint:recommended',
-      'plugin:vue/vue3-recommended', // Wybierz odpowiednią konfigurację dla Vue
-      'plugin:prettier/recommended', // Jeśli używasz Prettiera
-    ],
+    extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'plugin:prettier/recommended'],
     languageOptions: {
       globals: {
         ...globals.browser,
       },
     },
     rules: {
-      // Twoje reguły
+      'no-invalid-this': 'error', // <<< Dodaj tę regułę tutaj
+      // inne reguły...
     },
   },
 ]);

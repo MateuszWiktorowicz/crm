@@ -1,11 +1,12 @@
 {
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["src/*"],
-        "@/components": ["src/components/*"]
-      }
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/components": ["src/components/*"]
     },
-    "include": ["src/**/*"]
-  }
-  
+    "checkJs": true // <-- to włącza sprawdzanie JS
+    // "strict": true
+  },
+  "include": ["src/**/*"]
+}
