@@ -11,47 +11,42 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OfferController extends Controller
 {
+
+    public function show($id)
+{
+    $offer = Offer::with([
+        'customer',
+        'offerDetails.coatingPrice.coatingType',
+        'offerDetails.toolType',
+        'offerDetails.toolGeometry',
+        'offerDetails.tool',
+        'status',
+        'createdBy',
+        'changedBy',
+        'pdfInfo'
+    ])->find($id);
+
+    if (!$offer) {
+        return response()->json(['error' => 'Oferta nie istnieje'], 404);
+    }
+
+    return response()->json(['offer' => $offer]);
+}
+
+
     public function index(Request $request)
 {
-    $offers = Offer::with(['offerDetails.toolGeometry', 'offerDetails.coatingPrice', 'createdBy', 'customer', 'status'])
-        ->get()
-        ->map(function ($offer) {
-            return [
-                'id' => $offer->id,
-                'customer_name' => $offer->customer->name,
-                'customer_id' => $offer->customer->id,
-                'employee_name' => $offer->createdBy->name,
-                'status_name' => $offer->status->name,
-                'total_net_price' => number_format($offer->total_price, 2, ',', ' '),
-                'created_at' => $offer->created_at->format('d-m-Y'),
-                'offer_number' => $offer->offer_number,
-                'pdf_info' => [
-                    'deliveryTime' => $offer->pdfInfo->delivery_time ?? null,
-                    'offerValidity' => $offer->pdfInfo->offer_validity ?? null,
-                    'paymentTerms' => $offer->pdfInfo->payment_terms ?? null,
-'displayDiscount' => (bool) ($offer->pdfInfo->display_discount ?? false),
-                ],
-                'offer_details' => $offer->offerDetails->map(function ($detail) {
-                    return [
-                        'toolType' => $detail->toolGeometry->toolType->tool_type_name ?? null, 
-                        'flutesNumber' => $detail->toolGeometry->flutes_number ?? null,
-                        'diameter' => $detail->toolGeometry->diameter ?? null,
-                        'tool_geometry_id' => $detail->tool_geometry_id,
-                        'quantity' => $detail->quantity,
-                        'discount' => $detail->discount,
-                        'tool_net_price' => $detail->tool_net_price,
-                        'coating_price_id' => $detail->coating_price_id,
-                        'coatingCode' => $detail->coatingPrice->coatingType->mastermet_code ?? null,
-                        'coating_net_price' => $detail->coating_net_price,
-                        'radius' => $detail->radius,
-                        'regrinding_option' => $detail->regrinding_option,
-                        'description' => $detail->description,
-                        'symbol' => $detail->symbol, // Dodaj symbol
-                        'fileId' => $detail->file_id // Dodaj file_id
-                    ];
-                }),
-            ];
-        });
+    $offers = Offer::with([
+        'customer',
+        'offerDetails.coatingPrice.coatingType',
+        'offerDetails.toolType',
+        'offerDetails.toolGeometry',
+        'offerDetails.tool',
+        'status',
+        'createdBy',
+        'changedBy',
+        'pdfInfo'
+    ])->get();
 
         $statuses = Status::all();
 
@@ -82,10 +77,12 @@ class OfferController extends Controller
                 $offer->offerDetails()->create([
                     'offer_id' => $offer->id,
                     'tool_geometry_id' => $detail['tool_geometry_id'],
+                        'tool_type_id' => $detail['tool_type_id'] ?? null,  // <-- dodaj toolType id
+
                     'quantity' => $detail['quantity'],
                     'discount' => $detail['discount'],
                     'tool_net_price' => $detail['tool_net_price'],
-                    'coating_price_id' => $detail['coating_price_id'],
+                    'coating_price_id' => $detail['coating_price_id'] === 0 ? null : $detail['coating_price_id'], // Jeśli coating_price_id jest 0, ustaw na null
                     'coating_net_price' => $detail['coating_net_price'],
                     'radius' => $detail['radius'],
                     'regrinding_option' => $detail['regrinding_option'],
@@ -133,10 +130,12 @@ class OfferController extends Controller
                 $offer->offerDetails()->create([
                     'offer_id' => $offer->id,
                     'tool_geometry_id' => $detail['tool_geometry_id'],
+                        'tool_type_id' => $detail['tool_type_id'] ?? null,  // <-- dodaj toolType id
+
                     'quantity' => $detail['quantity'],
-                    'discount' => $detail['discount'],
+                'discount' => $detail['discount'] ?? 0,
                     'tool_net_price' => $detail['tool_net_price'],
-                    'coating_price_id' => $detail['coating_price_id'],
+                    'coating_price_id' => $detail['coating_price_id'] === null ? null : $detail['coating_price_id'], // Jeśli coating_price_id jest 0, ustaw na null
                     'coating_net_price' => $detail['coating_net_price'],
                     'radius' => $detail['radius'],
                     'regrinding_option' => $detail['regrinding_option'],
@@ -227,6 +226,19 @@ class OfferController extends Controller
             ]
         );
     
+if (!$offer->offer_number) {
+    $offerNumber = $setting->offer_number + 1;
+    
+    $setting->update(['offer_number' => $offerNumber]);
+
+    $formattedOfferNumber = $offerNumber . '/' . now()->format('d/m/Y');
+
+    $offer->update(['offer_number' => $formattedOfferNumber]);
+    
+    // Odśwież model, żeby mieć aktualne dane w $offer
+    $offer->refresh();
+}
+
         // Generowanie PDF
         $pdf = Pdf::loadView('offer.pdf', compact('offer', 'offerDetails', 'pdfInfo'))
         ->setPaper('A4', 'portrait')
@@ -234,29 +246,18 @@ class OfferController extends Controller
         ->setOption('isPhpEnabled', true)
         ->setOption('encoding', 'UTF-8'); // Ustawienie kodowania UTF-8
 
-        if (!$offer->offer_number) {
-            // Jeśli numer oferty nie jest przypisany, zaktualizuj numer oferty
-            $offerNumber = $setting->offer_number + 1;
     
-            // Zaktualizuj numer oferty w tabeli settings
-            $setting->update([
-                'offer_number' => $offerNumber
-            ]);
-    
-            // Formatowanie numeru oferty jako numer/dzień/miesiąc/rok
-            $formattedOfferNumber = $offerNumber . '/' . now()->format('d/m/Y');
-            
-            // Zaktualizuj numer oferty w tabeli offers
-            $offer->update([
-                'offer_number' => $formattedOfferNumber
-            ]);
-        }
     
         // Dodaj nagłówki CORS dla odpowiedzi na PDF
-        return $pdf->download('offer_' . $offerId . '.pdf')
-                    ->header('Access-Control-Allow-Origin', '*')
-                    ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-                    ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, X-Requested-With');
+        $filename = 'oferta_' . time() . '.pdf'; // Możesz użyć np. $offer->customer->code
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Origin, Content-Type, X-Requested-With',
+        ]);
     }
 
     public function updateOfferNumber(Request $request, $id)

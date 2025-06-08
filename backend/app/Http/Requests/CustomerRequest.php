@@ -28,10 +28,10 @@ class CustomerRequest extends FormRequest
             'code' => 'required|string|max:255|unique:customers,code,' . $customerId,
             'name' => 'required|string|max:255',
             'nip' => 'required|string|unique:customers,nip,' . $customerId,
-            'zip_code' => 'nullable|string|max:10',
+            'zipCode' => 'nullable|string|max:10',
             'city' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
-            'saler_marker' => 'nullable|string|max:10',
+            'salerMarker' => 'nullable|string|max:10',
             'description' => 'nullable|string|max:1000',
         ];
     }
@@ -47,10 +47,10 @@ class CustomerRequest extends FormRequest
             'code' => 'kod klienta',
             'name' => 'nazwa klienta',
             'nip' => 'NIP',
-            'zip_code' => 'kod pocztowy',
+            'zipCode' => 'kod pocztowy',
             'city' => 'miasto',
             'address' => 'adres',
-            'saler_marker' => 'znacznik handlowca',
+            'salerMarker' => 'znacznik handlowca',
             'description' => 'uwagi',
         ];
     }

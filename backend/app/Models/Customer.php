@@ -17,9 +17,25 @@ class Customer extends Model
         'description',
     ];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     public function offers()
     {
         return $this->hasMany(Offer::class);
     }
 
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'code' => $this->code,
+            'name' => $this->name,
+            'nip' => $this->nip,
+            'zipCode' => $this->zip_code,
+            'city' => $this->city,
+            'address' => $this->address,
+            'salerMarker' => $this->saler_marker,
+            'description' => $this->description,
+        ];
+    }
 }

@@ -20,11 +20,11 @@ class SettingsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'offer_number' => 'required|integer|min:1',
+            'offerNumber' => 'required|integer|min:1',
         ]);
 
         $setting = Settings::create([
-            'offer_number' => $validatedData['offer_number'],
+            'offer_number' => $validatedData['offerNumber'],
         ]);
 
         return response()->json($setting, 201);
@@ -34,12 +34,12 @@ class SettingsController extends Controller
     public function update(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'offer_number' => 'required|integer|min:1',
+            'offerNumber' => 'required|integer|min:1',
         ]);
 
         $setting = Settings::findOrFail($id);
         $setting->update([
-            'offer_number' => $validatedData['offer_number'],
+            'offer_number' => $validatedData['offerNumber'],
         ]);
 
         return response()->json($setting);

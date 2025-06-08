@@ -20,4 +20,15 @@ class CoatingType extends Model
     {
         return $this->hasMany(CoatingPrice::class, 'id_coating');
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'mastermetName' => $this->mastermet_name,
+            'mastermetCode' => $this->mastermet_code,
+            'purpose' => $this->purpose,
+            'description' => $this->description,
+        ];
+    }
 }

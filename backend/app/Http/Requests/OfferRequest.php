@@ -33,6 +33,7 @@ class OfferRequest extends FormRequest
                 'exists:tool_geometries,id',
             ],
             'offer_details.*.coating_price_id' => 'nullable|exists:coating_prices,id',
+                      'offer_details.*.tool_type_id' => 'required|numeric|min:0',
             'offer_details.*.tool_net_price' => 'required|numeric|min:0',
             'offer_details.*.coating_net_price' => 'nullable|numeric|min:0',
             'offer_details.*.quantity' => 'required|integer|min:1',

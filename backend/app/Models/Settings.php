@@ -12,4 +12,11 @@ class Settings extends Model
         'offer_number'
     ];
 
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'offerNumber' => $this->offer_number,
+        ];
+    }
 }

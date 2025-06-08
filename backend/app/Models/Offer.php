@@ -18,8 +18,11 @@ class Offer extends Model
     ];
 
     protected $casts = [
-        'tool_price' => 'float',
+        'total_price' => 'float',
     ];
+
+    protected $hidden = ['status_id', 'customer_id'];
+
 
     public function customer(): BelongsTo 
     {
@@ -47,7 +50,26 @@ class Offer extends Model
     }
 
     public function pdfInfo()
-{
-    return $this->hasOne(OfferPdfInfo::class);
-}
+    {
+        return $this->hasOne(OfferPdfInfo::class);
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'customer' => $this->customer ? $this->customer->toArray() : null,
+            'status' => $this->status ? $this->status->toArray() : null,
+            'totalPrice' => $this->total_price,
+            'createdBy' => $this->createdBy ? $this->createdBy->toArray() : null,
+            'changedBy' => $this->changedBy ? $this->changedBy->toArray() : null,
+            'offerNumber' => $this->offer_number,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
+            'offerDetails' => $this->offerDetails->map(function ($detail) {
+                return $detail->toArray();
+            })->all(),
+            'pdfInfo' => $this->pdfInfo ? $this->pdfInfo->toArray() : null,
+        ];
+    }
 }

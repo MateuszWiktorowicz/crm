@@ -19,4 +19,16 @@ class OfferPdfInfo extends Model
     {
         return $this->belongsTo(Offer::class);
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'offerId' => $this->offer_id,
+            'deliveryTime' => $this->delivery_time,
+            'offerValidity' => $this->offer_validity,
+            'paymentTerms' => $this->payment_terms,
+            'displayDiscount' => $this->display_discount,
+        ];
+    }
 }

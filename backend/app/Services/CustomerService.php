@@ -39,10 +39,23 @@ class CustomerService
     public function store(CustomerRequest $request)
     {
         try {
+             $data = $request->validated();
 
-            $this->authorize('create', [Customer::class, $request->validated()]);
+                        $mappedData = [
+    'code' => $data['code'] ?? null,
+    'name' => $data['name'] ?? null,
+    'nip' => $data['nip'] ?? null,
+    'zip_code' => $data['zipCode'] ?? null,
+    'city' => $data['city'] ?? null,
+    'address' => $data['address'] ?? null,
+    'saler_marker' => $data['salerMarker'] ?? null,
+    'description' => $data['description'] ?? null,
+];
+            $this->authorize('create', [Customer::class, $mappedData]);
+
+
     
-            $customer = Customer::create($request->validated());
+            $customer = Customer::create($mappedData);
     
             return response()->json([
                 'message' => 'Klient został pomyślnie dodany.',
@@ -64,6 +77,18 @@ class CustomerService
     public function edit(CustomerRequest $request, Customer $customer)
     {
         try {
+                         $data = $request->validated();
+
+                        $mappedData = [
+    'code' => $data['code'] ?? null,
+    'name' => $data['name'] ?? null,
+    'nip' => $data['nip'] ?? null,
+    'zip_code' => $data['zipCode'] ?? null,
+    'city' => $data['city'] ?? null,
+    'address' => $data['address'] ?? null,
+    'saler_marker' => $data['salerMarker'] ?? null,
+    'description' => $data['description'] ?? null,
+];
             $this->authorize('update', $customer);
 
             if (!$customer) {
@@ -75,7 +100,7 @@ class CustomerService
             }
 
 
-            $customer->update($request->validated());
+            $customer->update($mappedData);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             // Obsługa wyjątku, jeśli użytkownik nie ma uprawnień

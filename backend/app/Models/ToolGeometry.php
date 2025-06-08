@@ -16,9 +16,37 @@ class ToolGeometry extends Model
         'id_tool_type'
     ];
 
+    protected $hidden = ['face_grinding_time', 'periphery_grinding_time_2d_tool'];
+
     public function toolType() 
     {
         return $this->belongsTo(ToolType::class, 'id_tool_type');
     } 
     
+public function toArray()
+{
+    return [
+        'id' => $this->id,
+        'flutesNumber' => $this->flutes_number,
+        'diameter' => $this->diameter,
+        'faceGrindingPrice' => round($this->face_grinding_time * 5, 2),
+        'peripheryGrindingPrice' => $this->periphery_grinding_time_2d_tool
+            ? round($this->periphery_grinding_time_2d_tool * 5, 2)
+            : null,
+        'toolType' => $this->toolType ? $this->toolType->toArray() : null,
+        'regrindingOptions' => collect([
+            [
+                'key' => 'face_regrinding',
+                'label' => 'Ostrzenie czoła',
+            ],
+            $this->periphery_grinding_time_2d_tool ? [
+                'key' => 'full_regrinding',
+                'label' => 'Ostrzenie komplet',
+            ] : null,
+        ])->filter()->values(),
+    ];
+}
+
+
+
 }

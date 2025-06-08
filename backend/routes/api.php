@@ -35,6 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/tools', [ToolController::class, 'index']);
     Route::get('/coatings', [CoatingController::class, 'index']);
 
+    Route::get('/offers/{id}', [OfferController::class, 'show']);
     Route::get('/offers', [OfferController::class, 'index']);
     Route::post('/offers', [OfferController::class, 'store']);
     Route::put('/offers/{offer}', [OfferController::class, 'edit']);

@@ -15,4 +15,12 @@ class ToolType extends Model
     {
         return $this->hasMany(ToolGeometry::class, 'id_tool_type');
     }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'toolTypeName' => $this->tool_type_name,
+        ];
+    }
 }

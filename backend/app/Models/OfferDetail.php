@@ -10,6 +10,7 @@ class OfferDetail extends Model
 {
     protected $fillable = [
         'offer_id',
+        'tool_type_id',
         'tool_geometry_id',
         'quantity',
         'discount',
@@ -19,8 +20,8 @@ class OfferDetail extends Model
         'radius',
         'regrinding_option',
         'description',
-        'symbol',           // Dodaj symbol
-        'file_id',          // Dodaj file_id
+        'symbol',
+        'file_id', 
     ];
 
     protected $casts = [
@@ -29,6 +30,8 @@ class OfferDetail extends Model
         'discount' => 'float',
         'quantity' => 'integer',
     ];
+
+    protected $hidden = ['created_at', 'updated_at', 'file_id', 'coating_price_id', 'tool_type_id', 'tool_geometry_id'];
 
     public function offer(): BelongsTo
     {
@@ -43,5 +46,36 @@ class OfferDetail extends Model
     public function coatingPrice(): BelongsTo
     {
         return $this->belongsTo(CoatingPrice::class, 'coating_price_id');
+    }
+
+    public function toolType()
+    {
+        return $this->belongsTo(ToolType::class, 'tool_type_id');
+    }
+
+    public function tool(): BelongsTo
+    {
+        return $this->belongsTo(Tool::class, 'file_id');
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'offerId' => $this->offer_id,
+            'quantity' => $this->quantity,
+            'discount' => $this->discount,
+            'toolNetPrice' => $this->tool_net_price,
+            'coatingNetPrice' => $this->coating_net_price,
+            'radius' => $this->radius,
+            'regrindingOption' => $this->regrinding_option,
+            'description' => $this->description,
+            'symbol' => $this->symbol,
+
+            'coatingPrice' => $this->coatingPrice ? $this->coatingPrice->toArray() : null,
+            'toolType' => $this->toolType ? $this->toolType->toArray() : null,
+            'toolGeometry' => $this->toolGeometry ? $this->toolGeometry->toArray() : null,
+            'tool' => $this->tool ? $this->tool->toArray() : null,
+        ];
     }
 }

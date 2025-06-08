@@ -133,7 +133,7 @@
             <div style="background-color: #f2f2f2; padding: 15px; border-radius: 6px;">
                 <div style="font-size: 20px; font-weight: bold;">OFERTA HANDLOWA</div>
                 <div style="margin-top: 10px;">
-                    Nr oferty: <strong>{{ $offer->id }}/{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong><br>
+                    Nr oferty: <strong>{{ $offer->offer_number }}</strong><br>
                     Data wystawienia: <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong><br>
                     Dostawa/usługa: <strong>{{ \Carbon\Carbon::now()->format('d/m/Y') }}</strong>
                 </div>
