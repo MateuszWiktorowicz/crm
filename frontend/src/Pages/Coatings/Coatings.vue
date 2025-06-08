@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { onMounted } from 'vue';
   import Header from '../../components/Header.vue';
   import useCoatingStore from '../../store/coating';
@@ -23,11 +23,11 @@
             <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
               <th class="border border-gray-300 p-3 text-left">
                 Pokrycie
-                <FilterInput :store="coatingStore" column="mastermet_name" placeholder="Filtruj" />
+                <FilterInput :store="coatingStore" column="mastermetName" placeholder="Filtruj" />
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Kod
-                <FilterInput :store="coatingStore" column="mastermet_code" placeholder="Filtruj" />
+                <FilterInput :store="coatingStore" column="mastermetCode" placeholder="Filtruj" />
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Średnica
@@ -43,8 +43,8 @@
               class="border-b border-gray-300 hover:bg-gray-50 transition"
             >
               <!-- <td class="border border-gray-300 p-3">{{ user.id }}</td> -->
-              <td class="border border-gray-300 p-3">{{ coating.mastermet_name }}</td>
-              <td class="border border-gray-300 p-3">{{ coating.mastermet_code }}</td>
+              <td class="border border-gray-300 p-3">{{ coating.coatingType.mastermetName }}</td>
+              <td class="border border-gray-300 p-3">{{ coating.coatingType.mastermetCode }}</td>
               <td class="border border-gray-300 p-3">{{ coating.diameter }}</td>
               <td class="border border-gray-300 p-3">{{ Number(coating.price) }} PLN</td>
             </tr>

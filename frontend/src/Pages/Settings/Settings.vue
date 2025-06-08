@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import Header from '../../components/Header.vue';
   import { ref, onMounted } from 'vue';
   import useSettingsStore from '../../store/settings'; // Importujemy store Pinia
@@ -21,22 +21,18 @@
         <h1 class="text-xl font-semibold mb-4">Ustawienia</h1>
 
         <!-- Wyświetlanie numeru oferty -->
-        <p><strong>Numer oferty:</strong> {{ settingsStore.setting.offer_number }}</p>
+        <p><strong>Numer oferty:</strong> {{ settingsStore.setting.offerNumber }}</p>
 
         <!-- Edytowanie numeru oferty -->
         <input
-          v-model="settingsStore.setting.offer_number"
+          v-model="settingsStore.setting.offerNumber"
           type="number"
           placeholder="Wpisz nowy numer oferty"
           class="p-2 border rounded mr-2"
         />
 
         <!-- Przycisk do zapisania ustawienia -->
-         <Button
-         @click="settingsStore.saveSetting"
-         >
-          Zapisz
-         </Button>
+        <Button @click="settingsStore.saveSetting"> Zapisz </Button>
       </div>
     </main>
   </div>

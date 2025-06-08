@@ -1,12 +1,49 @@
-<script setup>
-  import { onMounted } from 'vue';
+<script setup lang="ts">
+  import { onMounted, ref } from 'vue';
   import Header from '../../components/Header.vue';
-  import useOfferStore from '../../store/offer';
-  import OfferModal from './OfferModal.vue';
+  import { useOfferStore } from '@/store/offer';
+  import OfferModal from './OfferModal/OfferModal.vue';
   import FilterInput from '../../components/FilterInput.vue';
   import Button from '@/components/Button.vue';
+  import { useConfirmationDialog } from '@/composables/useConfirmationDialog';
+  import { Offer } from '@/types/types';
+  import { formatDate } from '@/utils/formatDate';
 
-  const offerStore = useOfferStore();
+  /*
+Początek nowej logiki
+*/
+
+  const { showConfirmationDialog, dialogRef, ConfirmationDialog } = useConfirmationDialog();
+  const offerStore: ReturnType<typeof useOfferStore> = useOfferStore();
+
+  const handleDelete = async (id: number | null) => {
+    if (!id) return;
+
+    const confirmed = await showConfirmationDialog('Czy na pewno chcesz usunąć ofertę?');
+    if (confirmed) {
+      await offerStore.destroyOffer(id);
+    }
+  };
+
+  const handleEdit = (offer: Offer) => {
+    offerStore.editOffer(offer);
+    openModal();
+  };
+
+  const isModalOpen = ref(false);
+
+  const openModal = () => {
+    isModalOpen.value = true;
+  };
+
+  const closeModal = () => {
+    offerStore.resetOffer();
+    isModalOpen.value = false;
+  };
+
+  /*
+Koniec nowej logiki
+*/
 
   onMounted(() => {
     offerStore.fetchOffers();
@@ -14,6 +51,7 @@
 </script>
 
 <template>
+  <ConfirmationDialog ref="dialogRef" />
   <div>
     <Header title="Oferty" />
     <div v-if="offerStore.errors.length > 0" class="mb-4">
@@ -24,13 +62,7 @@
       </ul>
     </div>
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <Button
-        @click="offerStore.openModal()"
-        variant="success"
-        class="mb-2"
-      >
-        + Stwórz ofertę
-      </Button>
+      <Button @click="openModal" variant="success" class="mb-2"> + Stwórz ofertę </Button>
       <div
         class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
       >
@@ -80,48 +112,35 @@
           </thead>
           <tbody v-if="offerStore.filteredOffers.length > 0" class="text-gray-600 text-sm">
             <tr
-              v-for="offer in offerStore.filteredOffers"
-              :key="offer.id"
+              v-for="offer in offerStore.filteredOffers as Offer[]"
+              :key="offer.id ?? undefined"
               :class="[
                 'border-b border-gray-300 transition text-gray-700',
                 {
-                  'bg-green-100': offer.status_name === 'Zamówienie',
-                  'bg-yellow-100': offer.status_name === 'Do sprawdzenia',
-                  'bg-blue-100': offer.status_name === 'Wysłana',
-                  'bg-gray-100': offer.status_name === 'Robocza',
-                  'bg-red-100': offer.status_name === 'Odrzucona',
+                  'bg-green-100': offer.status.name === 'Zamówienie',
+                  'bg-yellow-100': offer.status.name === 'Do sprawdzenia',
+                  'bg-blue-100': offer.status.name === 'Wysłana',
+                  'bg-gray-100': offer.status.name === 'Robocza',
+                  'bg-red-100': offer.status.name === 'Odrzucona',
                 },
               ]"
             >
               <!-- <td class="border border-gray-300 p-3">{{ user.id }}</td> -->
-              <td class="border border-gray-300 p-3">{{ offer.offer_number }}</td>
-              <td class="border border-gray-300 p-3">{{ offer.customer_name }}</td>
-              <td class="border border-gray-300 p-3">{{ offer.employee_name }}</td>
-              <td class="border border-gray-300 p-3">{{ offer.status_name }}</td>
+              <td class="border border-gray-300 p-3">{{ offer.offerNumber }}</td>
+              <td class="border border-gray-300 p-3">{{ offer.customer?.name ?? '-' }}</td>
+              <td class="border border-gray-300 p-3">{{ offer.createdBy?.name ?? '-' }}</td>
+              <td class="border border-gray-300 p-3">{{ offer.status.name }}</td>
+              <td class="border border-gray-300 p-3">{{ offer.totalPrice.toFixed(2) }} PLN</td>
               <td class="border border-gray-300 p-3">
-                {{ offer.total_net_price.replace(/\s+/g, '').replace(',', '.') }}
-              </td>
-              <td class="border border-gray-300 p-3">
-                {{
-                  (offer.total_net_price.replace(/\s+/g, '').replace(',', '.') * 1.23).toFixed(2)
-                }}
+                {{ (offer.totalPrice * 1.23).toFixed(2) }}
                 PLN
               </td>
-              <td class="border border-gray-300 p-3">{{ offer.created_at }}</td>
+              <td class="border border-gray-300 p-3">{{ formatDate(offer.createdAt ?? '-') }}</td>
               <td class="border border-gray-300 p-3">
-                <Button
-                @click="offerStore.editOffer(offer)"
-                variant="warning"
-                class="mr-2 mb-2"
-                >
-                Edytuj
+                <Button @click="handleEdit(offer)" variant="warning" class="mr-2 mb-2">
+                  Edytuj
                 </Button>
-                <Button
-                @click="offerStore.destroyOffer(offer.id)"
-                variant="danger"
-                >
-                Usuń
-                </Button>
+                <Button @click="handleDelete(offer.id)" variant="danger"> Usuń </Button>
               </td>
             </tr>
           </tbody>
@@ -133,7 +152,7 @@
         </table>
       </div>
     </div>
-    <OfferModal />
+    <OfferModal :isModalOpen="isModalOpen" :closeModal="closeModal" />
   </div>
 </template>
 

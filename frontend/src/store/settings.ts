@@ -1,10 +1,19 @@
 import { defineStore } from 'pinia';
 import axiosClient from '../axios.js'; // Zakładam, że masz już skonfigurowanego axiosClient
 
+interface SettingsStoreState {
+  setting: {
+    id: number;
+    offerNumber: number;
+  };
+  errors: Record<string, string[]>;
+}
+
 const useSettingsStore = defineStore('settings', {
-  state: () => ({
+  state: (): SettingsStoreState => ({
     setting: {
-      offer_number: null,
+      id: 1,
+      offerNumber: 1,
     },
     errors: {},
   }),
@@ -13,7 +22,6 @@ const useSettingsStore = defineStore('settings', {
       try {
         const response = await axiosClient.get('/api/settings');
         this.setting = response.data;
-        console.log(this.setting);
       } catch (error) {
         console.error('Błąd pobierania ustawień:', error);
         throw error;
@@ -29,7 +37,7 @@ const useSettingsStore = defineStore('settings', {
         }
         await this.fetchSettings();
         this.errors = {};
-      } catch (error) {
+      } catch (error: any) {
         this.errors = error.response?.data?.errors ?? {}; // Przechwytywanie błędów
       }
     },

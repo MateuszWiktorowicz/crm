@@ -15,11 +15,7 @@
 <template>
   <div class="container mx-auto p-6">
     <h1 class="text-2xl font-bold mb-6 text-gray-800">Lista użytkowników</h1>
-    <Button
-    @click="userStore.openModal()"
-    variant="success"
-    class="mb-2"
-    >
+    <Button @click="userStore.openModal()" variant="success" class="mb-2">
       + Dodaj użytkownika
     </Button>
     <div
@@ -58,19 +54,10 @@
             </td>
             <td class="border border-gray-300 p-3">{{ user.marker }}</td>
             <td class="border border-gray-300 p-3">
-              <Button
-              @click="userStore.openModal(user)"
-              variant="warning"
-              class="mb-2 mr-2"
-              >
+              <Button @click="userStore.openModal(user)" variant="warning" class="mb-2 mr-2">
                 Edytuj
               </Button>
-              <Button
-              @click="userStore.deleteUser(user.id)"
-              variant="danger"
-              >
-                Usuń
-              </Button>
+              <Button @click="userStore.deleteUser(user.id)" variant="danger"> Usuń </Button>
             </td>
           </tr>
         </tbody>

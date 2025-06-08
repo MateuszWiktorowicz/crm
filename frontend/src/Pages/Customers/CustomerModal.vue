@@ -1,19 +1,26 @@
-<script setup>
+<script setup lang="ts">
   import useCustomerStore from '../../store/customer';
   import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue';
   import InputField from '../../components/Forms/InputField.vue';
   import useUserStore from '../../store/user';
   import Button from '@/components/Button.vue';
+  import { Customer } from '@/types/types';
+
+  const { isModalOpen, closeModal } = defineProps<{
+    isModalOpen: boolean;
+    closeModal: () => void;
+  }>();
 
   const customerStore = useCustomerStore();
 
-  const saveCustomer = async () => {
-    await customerStore.saveCustomer(customerStore.customer);
+  const saveCustomer = async (customer: Customer) => {
+    await customerStore.saveCustomer(customer);
+    closeModal();
   };
 </script>
 
 <template>
-  <TransitionRoot appear :show="customerStore.isModalOpen" as="template">
+  <TransitionRoot appear :show="isModalOpen" as="template">
     <Dialog as="div" class="relative z-10">
       <div class="fixed inset-0 bg-black/50"></div>
 
@@ -25,7 +32,7 @@
             {{ customerStore.customer?.id ? 'Edytuj Klienta' : 'Dodaj Klienta' }}
           </DialogTitle>
 
-          <form @submit.prevent="saveCustomer" class="space-y-4 mt-3 overflow-y-auto max-h-[80vh]">
+          <form class="space-y-4 mt-3 overflow-y-auto max-h-[80vh]">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <InputField
@@ -70,10 +77,10 @@
               </div>
               <div>
                 <InputField
-                  v-model="customerStore.customer.zip_code"
+                  v-model="customerStore.customer.zipCode"
                   :store="customerStore"
                   :object="'customer'"
-                  :field="'zip_code'"
+                  :field="'zipCode'"
                   label="Kod pocztowy"
                   inputId="zipCode"
                 />
@@ -101,10 +108,10 @@
               </div>
               <div>
                 <InputField
-                  v-model="customerStore.customer.saler_marker"
+                  v-model="customerStore.customer.salerMarker"
                   :store="customerStore"
                   :object="'customer'"
-                  :field="'saler_marker'"
+                  :field="'salerMarker'"
                   label="Znacznik"
                   inputId="salerMarker"
                 />
@@ -121,8 +128,8 @@
               </div>
             </div>
             <div class="flex gap-3">
-              <Button @click="customerStore.closeModal" variant="secondary"> Anuluj </Button>
-              <Button type="submit"> Zapisz </Button>
+              <Button @click="closeModal" variant="secondary"> Anuluj </Button>
+              <Button @click="saveCustomer(customerStore.customer)"> Zapisz </Button>
             </div>
           </form>
         </DialogPanel>

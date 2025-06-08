@@ -78,17 +78,8 @@
             </div>
 
             <div class="flex justify-end space-x-2">
-              <Button
-                @click="userStore.closeModal"
-                variant="secondary"
-              >
-                Anuluj
-              </Button>
-              <Button
-                type="submit"
-              >
-                Zapisz
-              </Button>
+              <Button @click="userStore.closeModal" variant="secondary"> Anuluj </Button>
+              <Button type="submit"> Zapisz </Button>
             </div>
           </form>
         </DialogPanel>
