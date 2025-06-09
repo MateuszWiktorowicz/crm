@@ -153,6 +153,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Lp.</th>
             <th>Symbol</th>
             <th>Nazwa usługi</th>
             <th>Cena jednostkowa netto</th>
@@ -165,7 +166,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($offerDetails as $detail)
+       @foreach($offerDetails as $index => $detail)
             @php
                 $cleanDescription = preg_replace('/\[.*?\]/', '', $detail->description);
                 $basePrice = $pdfInfo['displayDiscount'] ? $detail->tool_net_price + $detail->coating_net_price : ($detail->tool_net_price + $detail->coating_net_price) * (1 - $detail->discount / 100);
@@ -175,6 +176,7 @@
                 $total = $unitPrice * $detail->quantity;
             @endphp
             <tr>
+                 <td>{{ $index + 1 }}</td>
                 <td>
                     {{ $detail->symbol }}
                 </td>
@@ -191,8 +193,8 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="{{ $pdfInfo['displayDiscount'] ? 6 : 4 }}"></td>
-            <td><strong>Kwota oferty:</strong> {{ number_format($offer->total_price, 2) }} PLN</td>
+            <td colspan="{{ $pdfInfo['displayDiscount'] ? 7 : 5 }}"></td>
+            <td><strong>Wartość oferty netto:</strong> {{ number_format($offer->total_price, 2) }} PLN</td>
         </tr>
     </tfoot>
 </table>

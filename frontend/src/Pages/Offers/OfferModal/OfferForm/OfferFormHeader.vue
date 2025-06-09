@@ -5,25 +5,31 @@
   import Button from '@/components/Button.vue';
   import SelectModal from '@/components/SelectModal.vue';
   import { Customer } from '@/types/types';
+import { storeToRefs } from 'pinia';
 
   const offerStore = useOfferStore();
   const customerStore = useCustomerStore();
-  const offer = offerStore.offer;
+const { offer } = storeToRefs(offerStore);
 
   const customerName = computed(
     () =>
-      customerStore.customers.find((c) => c.id === offer.customer?.id)?.name ||
+      customerStore.customers.find((c) => c.id === offer.value.customer?.id)?.name ||
       'Wybierz kontrahenta'
   );
 
-  watch(
-    [() => offer.globalDiscount, () => offer.offerDetails],
-    () => {
-      offerStore.applyGlobalDiscount(offer.globalDiscount);
-      offerStore.calculateOfferTotalNetPrice();
-    },
-    { deep: true } // jeśli offerDetails to tablica obiektów
-  );
+watch(
+  () => offer.value.globalDiscount,
+  () => {
+    offerStore.applyGlobalDiscount(offer.value.globalDiscount);
+    offerStore.calculateOfferTotalNetPrice();
+  }
+);
+
+watch(
+  () => offer.value.offerDetails,   // pojedyncze źródło ⇒ działa { deep: true }
+  () => offerStore.calculateOfferTotalNetPrice(),
+  { deep: true }
+);
 
   const isCustomerModalOpen = ref(false);
 
@@ -32,7 +38,7 @@
     const value = parseFloat(input.value);
 
     if (isNaN(value) || value < 0) {
-      offer.globalDiscount = 0;
+      offer.value.globalDiscount = 0;
     }
   };
 

@@ -105,7 +105,7 @@ class CustomToolSeeder extends Seeder
         ['flutes_number' => 2, 'diameter' => 6, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 2, 'diameter' => 8, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 2, 'diameter' => 10, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
-        ['flutes_number' => 2, 'diameter' => 12, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
+        ['flutes_number' => 2, 'diameter' => 12, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 2, 'diameter' => 14, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 2, 'diameter' => 16, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 2, 'diameter' => 18, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
@@ -114,7 +114,7 @@ class CustomToolSeeder extends Seeder
         ['flutes_number' => 3, 'diameter' => 6, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 3, 'diameter' => 8, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 3, 'diameter' => 10, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
-        ['flutes_number' => 3, 'diameter' => 12, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
+        ['flutes_number' => 3, 'diameter' => 12, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 3, 'diameter' => 14, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 3, 'diameter' => 16, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
         ['flutes_number' => 3, 'diameter' => 18, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 5],
@@ -169,7 +169,6 @@ class CustomToolSeeder extends Seeder
         ['flutes_number' => 8, 'diameter' => 20, 'face_grinding_time' => 30, 'periphery_grinding_time_2d_tool' => 27, 'id_tool_type' => 2],
         ['flutes_number' => 9, 'diameter' => 8, 'face_grinding_time' => 24, 'periphery_grinding_time_2d_tool' => 17, 'id_tool_type' => 2],
         ['flutes_number' => 9, 'diameter' => 10, 'face_grinding_time' => 25, 'periphery_grinding_time_2d_tool' => 20, 'id_tool_type' => 2],
-        ['flutes_number' => 0, 'diameter' => 0, 'face_grinding_time' => 0, 'periphery_grinding_time_2d_tool' => 0, 'id_tool_type' => 6],
     ];
 
         foreach ($data as $item) {

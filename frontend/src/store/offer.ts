@@ -109,7 +109,6 @@ Koniec nowej logiki
     },
     async saveOffer(this: OfferState & ReturnType<typeof useOfferStore>) {
       this.formatDescriptions();
-      this.finishEdit();
 
       try {
         this.errors = {};
@@ -317,7 +316,7 @@ Koniec nowej logiki
             prefix = 'ostrzenie kpl.';
           }
 
-          if (detail.coatingPrice.coatingType.mastermetCode) {
+          if (detail.coatingPrice?.coatingType?.mastermetCode) {
             prefix += ` + powłoka ${detail.coatingPrice.coatingType.mastermetCode}`;
           }
 

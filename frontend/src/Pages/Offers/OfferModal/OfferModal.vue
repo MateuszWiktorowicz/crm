@@ -472,6 +472,7 @@ const handleFilesModalClose = () => {
                       step="0.01"
                       v-model="detail.toolNetPrice"
                       @input="detail.isToolPriceManual = true"
+                      class="w-full p-2 border rounded text-[11px]"
                     />
                   </td>
                   <!-- Pokrycie -->
@@ -525,7 +526,7 @@ const handleFilesModalClose = () => {
                   </td>
                   <!-- Cena całkowita netto -->
                   <td class="border border-gray-300 p-3">
-                    {{ offerStore.getTotalNetDetailPrice(detail) }} PLN
+                    {{ offerStore.getTotalNetDetailPrice(detail) }}
                   </td>
                   <!-- Cena całkowita brutto -->
                   <!-- <td class="border border-gray-300 p-3"> -->
