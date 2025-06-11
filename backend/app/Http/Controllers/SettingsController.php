@@ -1,5 +1,7 @@
 <?php
 namespace App\Http\Controllers;
+use App\Models\Offer;
+use Carbon\Carbon;
 
 use App\Models\Settings;
 use Illuminate\Http\Request;
@@ -16,32 +18,60 @@ class SettingsController extends Controller
         return response()->json($setting);
     }
 
-    // Zapisanie nowego ustawienia
-    public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'offerNumber' => 'required|integer|min:1',
-        ]);
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'offerNumber' => 'required|integer|min:1',
+    ]);
 
-        $setting = Settings::create([
-            'offer_number' => $validatedData['offerNumber'],
-        ]);
+    $year = Carbon::now()->year;
 
-        return response()->json($setting, 201);
+    // Pobierz maksymalny numer ofertowy z danego roku
+    $maxOfferNumber = Offer::whereYear('created_at', $year)
+        ->selectRaw('MAX(CAST(SUBSTRING_INDEX(offer_number, "/", 1) AS UNSIGNED)) as max_number')
+        ->value('max_number');
+
+    // Jeśli brak ofert, traktuj max jako 0
+    $maxOfferNumber = $maxOfferNumber ?? 0;
+
+    if ($validatedData['offerNumber'] <= $maxOfferNumber) {
+        return response()->json([
+            'message' => "Numer musi być większy niż ostatnio użyty numer ({$maxOfferNumber}) w roku {$year}.",
+        ], 422);
     }
 
-    // Aktualizacja ustawienia
-    public function update(Request $request, $id)
-    {
-        $validatedData = $request->validate([
-            'offerNumber' => 'required|integer|min:1',
-        ]);
+    $setting = Settings::create([
+        'offer_number' => $validatedData['offerNumber'],
+    ]);
 
-        $setting = Settings::findOrFail($id);
-        $setting->update([
-            'offer_number' => $validatedData['offerNumber'],
-        ]);
+    return response()->json($setting, 201);
+}
 
-        return response()->json($setting);
+public function update(Request $request, $id)
+{
+    $validatedData = $request->validate([
+        'offerNumber' => 'required|integer|min:0',
+    ]);
+
+    $year = Carbon::now()->year;
+
+    $maxOfferNumber = Offer::whereYear('created_at', $year)
+        ->selectRaw('MAX(CAST(SUBSTRING_INDEX(offer_number, "/", 1) AS UNSIGNED)) as max_number')
+        ->value('max_number');
+
+    $maxOfferNumber = $maxOfferNumber ?? -1;
+
+    if ($validatedData['offerNumber'] <= $maxOfferNumber) {
+        return response()->json([
+            'message' => "Numer musi być większy niż ostatnio użyty numer ({$maxOfferNumber}) w roku {$year}.",
+        ], 422);
     }
+
+    $setting = Settings::findOrFail($id);
+    $setting->update([
+        'offer_number' => $validatedData['offerNumber'],
+    ]);
+
+    return response()->json($setting);
+}
 }

@@ -38,8 +38,18 @@ const useSettingsStore = defineStore('settings', {
         await this.fetchSettings();
         this.errors = {};
       } catch (error: any) {
-        this.errors = error.response?.data?.errors ?? {}; // Przechwytywanie błędów
-      }
+  if (error.response?.data?.errors) {
+    this.errors = error.response.data.errors;
+  } else if (error.response?.data?.message) {
+    this.errors = {
+      offerNumber: [error.response.data.message], // ⬅️ Wrzuć `message` do errors.offerNumber
+    };
+  } else {
+    this.errors = {
+      offerNumber: ['Wystąpił nieoczekiwany błąd.'],
+    };
+  }
+}
     },
   },
 });

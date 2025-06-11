@@ -3,6 +3,8 @@ import useSettingsStore from './settings';
 import { OfferService } from '@/services/OfferService';
 import { Offer, OfferDetail, OfferFilters, Status } from '@/types/types';
 import axiosClient from '@/axios';
+import dayjs from 'dayjs';
+
 
 interface OfferState {
   isEditing: boolean;
@@ -108,6 +110,7 @@ Koniec nowej logiki
       } catch (error: any) {}
     },
     async saveOffer(this: OfferState & ReturnType<typeof useOfferStore>) {
+      console.log(this.offer);
       this.formatDescriptions();
 
       try {
@@ -271,36 +274,65 @@ Koniec nowej logiki
       this.filters[column] = value;
       this.filterOffers();
     },
-    filterOffers() {
-      if (!Array.isArray(this.offers)) return;
+filterOffers() {
+  if (!Array.isArray(this.offers)) return;
 
-      this.filteredOffers = this.offers.filter((offer) =>
-        Object.entries(this.filters).every(
-          ([key, value]) => !value || (offer[key] || '').toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    },
-    // applyFileDataToDetail(index: number) {
-    //   const toolStore = useToolsStore();
-    //   const detail = this.offer.offerDetails[index];
+  this.filteredOffers = this.offers.filter((offer) => {
+    // Filtr po numerze oferty (prostym polu)
+if (this.filters.offerNumber) {
+  const offerNumber = (offer.offerNumber ?? '').toString().toLowerCase();
+  const filter = this.filters.offerNumber.toLowerCase();
+  if (!offerNumber.includes(filter)) {
+    return false;
+  }
+}
 
-    //   if (detail.tool?.id !== null) {
-    //     const file = toolStore.files.find((f) => f.id === detail.fileId);
+    // Filtr po nazwie klienta (zagnieżdżone pole customer.name)
+    if (this.filters.customerName) {
+      if (!offer.customer || !offer.customer.name.toLowerCase().includes(this.filters.customerName.toLowerCase())) {
+        return false;
+      }
+    }
 
-    //     if (file) {
-    //       detail.diameter = file.diameter || 0;
-    //       detail.toolNetPrice = file.price || 0;
-    //       detail.flutesNumber = file.flutesNumber ?? null;
-    //       detail.fileId = file.id ?? null;
-    //       detail.symbol = file.name ?? '';
-    //     } else {
-    //       console.warn(`Nie znaleziono pliku o ID: ${detail.fileId}`);
-    //     }
+    // Filtr po nazwie pracownika (createdBy.name)
+    if (this.filters.employeeName) {
+      if (!offer.createdBy || !offer.createdBy.name.toLowerCase().includes(this.filters.employeeName.toLowerCase())) {
+        return false;
+      }
+    }
 
-    //     this.updateCoatingNetPrice(index);
-    //     this.calculateOfferTotalNetPrice();
-    //   }
-    // },
+    // Filtr po statusie (status.name)
+    if (this.filters.statusName) {
+      if (!offer.status || !offer.status.name.toLowerCase().includes(this.filters.statusName.toLowerCase())) {
+        return false;
+      }
+    }
+
+if (this.filters.createdAt) {
+      const createdAtFull = offer.createdAt ?? '';
+
+      if (!createdAtFull) return false;
+
+      const parsedDate = dayjs(createdAtFull);
+      if (!parsedDate.isValid()) return false;
+
+      // Format daty taki sam jak w tabeli
+      const formattedDate = parsedDate.format('DD/MM/YYYY'); // np. "11/06/2025"
+
+      // Normalizujemy oba ciągi: usuwamy spacje, zamieniamy na lowercase
+      const normalizedFilter = this.filters.createdAt.trim().toLowerCase();
+      const normalizedDate = formattedDate.toLowerCase();
+
+      // Proste includes (możesz też usunąć ukośniki w obu jeśli chcesz)
+      if (!normalizedDate.includes(normalizedFilter)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+},
+
     formatDescriptions() {
       this.offer.offerDetails.forEach((detail) => {
         if (
@@ -309,6 +341,8 @@ Koniec nowej logiki
           )
         ) {
           let prefix = '';
+
+          if (detail.description !== null) return;
 
           if (detail.regrindingOption === 'face_regrinding') {
             prefix = 'ostrzenie czoła';
@@ -352,4 +386,3 @@ Koniec nowej logiki
   },
 });
 
-export default useOfferStore;

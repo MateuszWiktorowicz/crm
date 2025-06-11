@@ -70,10 +70,13 @@ Koniec nowej logiki
           <thead class="bg-gray-100 sticky top-0 z-10">
             <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
               <th class="border border-gray-300 p-3 text-left">
+                Lp
+              </th>
+              <th class="border border-gray-300 p-3 text-left">
                 Nr Oferty
                 <FilterInput
                   :store="offerStore"
-                  column="offer_number"
+                  column="offerNumber"
                   placeholder="Filtruj numer oferty"
                 />
               </th>
@@ -81,7 +84,7 @@ Koniec nowej logiki
                 Klient
                 <FilterInput
                   :store="offerStore"
-                  column="customer_name"
+                  column="customerName"
                   placeholder="Filtruj klientów"
                 />
               </th>
@@ -89,7 +92,7 @@ Koniec nowej logiki
                 Pracownik
                 <FilterInput
                   :store="offerStore"
-                  column="employee_name"
+                  column="employeeName"
                   placeholder="Filtruj pracownika"
                 />
               </th>
@@ -97,7 +100,7 @@ Koniec nowej logiki
                 Status
                 <FilterInput
                   :store="offerStore"
-                  column="status_name"
+                  column="statusName"
                   placeholder="Filtruj status"
                 />
               </th>
@@ -105,14 +108,14 @@ Koniec nowej logiki
               <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
               <th class="border border-gray-300 p-3 text-left">
                 Data stworzenia
-                <FilterInput :store="offerStore" column="created_at" placeholder="Filtruj datę" />
+                <FilterInput :store="offerStore" column="createdAt" placeholder="Filtruj datę" />
               </th>
               <th class="border border-gray-300 p-3 text-left min-w-[150px]">Actions</th>
             </tr>
           </thead>
           <tbody v-if="offerStore.filteredOffers.length > 0" class="text-gray-600 text-sm">
             <tr
-              v-for="offer in offerStore.filteredOffers as Offer[]"
+              v-for="(offer, index) in offerStore.filteredOffers as Offer[]"
               :key="offer.id ?? undefined"
               :class="[
                 'border-b border-gray-300 transition text-gray-700',
@@ -125,7 +128,7 @@ Koniec nowej logiki
                 },
               ]"
             >
-              <!-- <td class="border border-gray-300 p-3">{{ user.id }}</td> -->
+              <td class="border border-gray-300 p-3">{{ index + 1 }}</td>
               <td class="border border-gray-300 p-3">{{ offer.offerNumber }}</td>
               <td class="border border-gray-300 p-3">{{ offer.customer?.name ?? '-' }}</td>
               <td class="border border-gray-300 p-3">{{ offer.createdBy?.name ?? '-' }}</td>
