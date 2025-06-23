@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axiosClient from '../axios.js'; // Zakładam, że masz już skonfigurowanego axiosClient
+import axiosClient from '../axios.js';
 
 interface SettingsStoreState {
   setting: {

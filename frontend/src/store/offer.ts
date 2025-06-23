@@ -7,6 +7,9 @@ import dayjs from 'dayjs';
 
 
 interface OfferState {
+  isLoading: boolean;
+  isSaving: boolean,
+  isPdfGenerating: boolean;
   isEditing: boolean;
   isInitialEditPhase: boolean;
   offers: Offer[];
@@ -18,6 +21,9 @@ interface OfferState {
 }
 export const useOfferStore = defineStore('offer', {
   state: (): OfferState => ({
+    isSaving: false,
+    isPdfGenerating: false,
+    isLoading: false,
     isEditing: false,
     isInitialEditPhase: false,
     offers: [],
@@ -110,12 +116,20 @@ Koniec nowej logiki
       } catch (error: any) {}
     },
     async saveOffer(this: OfferState & ReturnType<typeof useOfferStore>) {
-      console.log(this.offer);
+      this.isLoading = true;
+     this.isSaving = true;
+
       this.formatDescriptions();
 
       try {
         this.errors = {};
-        const response = await OfferService.save(this.offer);
+            const delay = new Promise(resolve => setTimeout(resolve, 1000));
+    
+        const [response] = await Promise.all([
+          OfferService.save(this.offer),
+          delay,
+        ]);
+
         this.editOffer(response.offer);
         this.fetchOffers();
       } catch (error: any) {
@@ -124,17 +138,22 @@ Koniec nowej logiki
         } else {
           console.error('Nieznany błąd:', error);
         }
+      } finally {
+        this.isLoading = false;
+        this.isSaving = false;
       }
     },
 
     async generatePdf() {
+      this.isLoading = true;
+      this.isPdfGenerating = true;
       try {
         const settingsStore = useSettingsStore();
         await settingsStore.fetchSettings();
 
         const pdfBlob = await OfferService.generatePdf(this.offer.id ?? 0, this.offer.pdfInfo);
         const response = await axiosClient.get(`/api/offers/${this.offer.id}`);
-        console.log(response.data);
+
         this.offer.offerNumber = response.data.offer.offerNumber;
 
         const url = window.URL.createObjectURL(new Blob([pdfBlob]));
@@ -150,6 +169,9 @@ Koniec nowej logiki
       } catch (error) {
         console.error('Failed to generate PDF:', error);
         alert('Wystąpił błąd przy generowaniu PDF.');
+      } finally {
+        this.isLoading = false
+        this.isPdfGenerating = false;
       }
     },
     applyGlobalDiscount(discount: number) {
@@ -342,7 +364,7 @@ if (this.filters.createdAt) {
         ) {
           let prefix = '';
 
-          if (detail.description !== null) return;
+if (detail.description && detail.description.trim() !== '') return;
 
           if (detail.regrindingOption === 'face_regrinding') {
             prefix = 'ostrzenie czoła';

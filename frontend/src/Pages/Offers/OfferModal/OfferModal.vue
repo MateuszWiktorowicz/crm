@@ -73,7 +73,6 @@ Początek nowej logiki
     () => offerStore.offer.offerDetails.map((d: OfferDetail) => d.toolType?.toolTypeName),
     (newTypes, oldTypes) => {
       if (offerStore.isEditing && offerStore.isInitialEditPhase) {
-        // pierwsza zmiana po wejściu w edycję — ignoruj, ale wyłącz flagę
         offerStore.isInitialEditPhase = false;
         return;
       }
@@ -559,15 +558,23 @@ const handleFilesModalClose = () => {
             <div class="flex justify-end space-x-2 mt-4">
               <Button @click="closeModal" variant="secondary"> Anuluj </Button>
 
-              <Button :key="'id' + offerStore.offer.id" type="submit">
-                {{ offerStore.offer.id ? 'Edytuj' : 'Zapisz' }}
-              </Button>
+            <Button :key="'id' + offerStore.offer.id" type="submit" :disabled="offerStore.isLoading">
+              <template v-if="offerStore.isSaving">
+                <span class="animate-spin mr-2">⏳</span> Zapisuję...
+              </template>
+              <template v-else>
+                Zapisz
+              </template>
+            </Button>
               <Button
                 @click="offerStore.generatePdf()"
                 variant="warning"
-                :disabled="offerStore.offer.id === null"
+                :disabled="offerStore.offer.id === null || offerStore.isLoading"
               >
-                Generuj PDF
+                <template v-if="offerStore.isPdfGenerating">
+                <span class="animate-spin mr-2">⏳</span> Generuję...
+              </template>
+                 <template v-else>Generuj PDF</template>
               </Button>
             </div>
           </div>
