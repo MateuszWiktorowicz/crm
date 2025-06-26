@@ -181,6 +181,26 @@ Koniec nowej logiki
         detail.discount = discount;
       });
     },
+
+cloneOffer(originalOffer: Offer) {
+  const cloned = JSON.parse(JSON.stringify(originalOffer));
+
+  cloned.id = null;
+  cloned.offerNumber = '';
+  cloned.status = { id: 1, name: 'Robocza' };
+  cloned.createdAt = '';
+  cloned.updatedAt = '';
+  cloned.createdBy = null;
+  cloned.changedBy = null;
+
+  cloned.offerDetails = cloned.offerDetails.map((detail: any) => ({
+    ...detail,
+    id: null,
+    offerId: null,
+  }));
+
+  this.editOffer(cloned);
+},
     addToolRow() {
       this.offer.offerDetails.push({
         id: null,
@@ -344,8 +364,6 @@ if (this.filters.createdAt) {
       // Normalizujemy oba ciągi: usuwamy spacje, zamieniamy na lowercase
       const normalizedFilter = this.filters.createdAt.trim().toLowerCase();
       const normalizedDate = formattedDate.toLowerCase();
-
-      // Proste includes (możesz też usunąć ukośniki w obu jeśli chcesz)
       if (!normalizedDate.includes(normalizedFilter)) {
         return false;
       }

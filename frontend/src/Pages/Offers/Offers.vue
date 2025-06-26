@@ -41,6 +41,11 @@ Początek nowej logiki
     isModalOpen.value = false;
   };
 
+  const handleClone = (offer: Offer) => {
+  offerStore.cloneOffer(offer);
+  openModal();
+};
+
   /*
 Koniec nowej logiki
 */
@@ -143,7 +148,9 @@ Koniec nowej logiki
                 <Button @click="handleEdit(offer)" variant="warning" class="mr-2 mb-2">
                   Edytuj
                 </Button>
-                <Button @click="handleDelete(offer.id)" variant="danger"> Usuń </Button>
+                <Button @click="handleDelete(offer.id)" variant="danger" class="mr-2 mb-2"> Usuń </Button>
+                <Button @click="handleClone(offer)" variant="info" class="mr-2 mb-2">Klonuj</Button>
+
               </td>
             </tr>
           </tbody>

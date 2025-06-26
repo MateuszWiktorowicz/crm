@@ -31,28 +31,61 @@ Początek nowej logiki
     );
   };
 
+  function getTwistDrillDiameterLabel(
+  diameter: number,
+  allDiameters: number[]
+): string {
+  const unique = [...new Set(allDiameters)].sort((a, b) => a - b);
+  const index = unique.indexOf(diameter);
+
+  if (index === 0) {
+    return `>=${diameter}`;
+  }
+
+  const lower = +(unique[index - 1] + 0.1).toFixed(1);
+  return `${lower} - ${diameter}`;
+}
+
   watch(
     () => offerStore.offer.offerDetails,
     (newDetails) => {
       newDetails.forEach((detail: OfferDetail, index: number) => {
-        if (
-          isCalculatedTool(detail) &&
-          detail.toolType?.toolTypeName &&
-          detail.flutesNumber &&
-          detail.diameter
-        ) {
-          detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${detail.diameter}`;
-          const newGeometry = toolStore.getSelectedTool(
-            detail.toolType,
-            detail.flutesNumber,
-            detail.diameter
-          );
+if (
+  isCalculatedTool(detail) &&
+  detail.toolType?.toolTypeName &&
+  detail.flutesNumber &&
+  detail.diameter
+) {
+  const isTwistDrill =
+    detail.toolType.toolTypeName.toLowerCase().replace('ó', 'o').trim() === 'wiertlo krete';
 
-          if (detail.toolGeometry !== newGeometry) {
-            detail.toolGeometry = newGeometry;
-            detail.isToolPriceManual = false;
-          }
-        }
+      let diameterLabel = `${detail.diameter}`;
+      if (isTwistDrill) {
+        // zebrane dostępne średnice z toolStore
+        const allDiameters = toolStore.tools
+          .filter(
+            (t) =>
+              t.toolType.toolTypeName === detail.toolType.toolTypeName &&
+              t.flutesNumber === detail.flutesNumber
+          )
+          .map((t) => t.diameter);
+
+        diameterLabel = getTwistDrillDiameterLabel(detail.diameter, allDiameters);
+      }
+
+      detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel}`;
+      
+      const newGeometry = toolStore.getSelectedTool(
+        detail.toolType,
+        detail.flutesNumber,
+        detail.diameter
+      );
+
+      if (detail.toolGeometry !== newGeometry) {
+        detail.toolGeometry = newGeometry;
+        detail.isToolPriceManual = false;
+      }
+    }
 
         if (
           isCalculatedTool(detail) &&
