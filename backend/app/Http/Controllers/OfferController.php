@@ -35,20 +35,42 @@ class OfferController extends Controller
 
 
     public function index(Request $request)
-{
-    $offers = Offer::with([
-        'customer',
-        'offerDetails.coatingPrice.coatingType',
-        'offerDetails.toolType',
-        'offerDetails.toolGeometry',
-        'offerDetails.tool',
-        'status',
-        'createdBy',
-        'changedBy',
-        'pdfInfo'
-    ])->get();
+    {
+        $user = $request->user();  
 
-        $statuses = Status::all();
+        if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
+        $offers = Offer::with([
+            'customer',
+            'offerDetails.coatingPrice.coatingType',
+            'offerDetails.toolType',
+            'offerDetails.toolGeometry',
+            'offerDetails.tool',
+            'status',
+            'createdBy',
+            'changedBy',
+            'pdfInfo'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        } else {
+            $offers = Offer::with([
+            'customer',
+            'offerDetails.coatingPrice.coatingType',
+            'offerDetails.toolType',
+            'offerDetails.toolGeometry',
+            'offerDetails.tool',
+            'status',
+            'createdBy',
+            'changedBy',
+            'pdfInfo'
+            ])
+             ->where('created_by', $user->id)
+             ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+
+            $statuses = Status::all();
 
     return response()->json([
         'offers' => $offers,
@@ -100,6 +122,16 @@ class OfferController extends Controller
             ]);
     
             DB::commit();
+
+            $offer->load([
+    'pdfInfo',
+    'offerDetails.toolGeometry.toolType',
+    'offerDetails.coatingPrice.coatingType',
+    'status',
+    'customer',
+    'createdBy',
+    'changedBy'
+]);
     
             return response()->json(['message' => 'Oferta utworzona pomyślnie', 'offer' => $offer], 201);
         } catch (\Exception $e) {
@@ -163,6 +195,15 @@ class OfferController extends Controller
 
             DB::commit();
 
+            $offer->load([
+    'pdfInfo',
+    'offerDetails.toolGeometry.toolType',
+    'offerDetails.coatingPrice.coatingType',
+    'status',
+    'customer',
+    'createdBy',
+    'changedBy'
+]);
             return response()->json(['message' => 'Oferta zaktualizowana pomyślnie', 'offer' => $offer], 200);
         } catch (\Exception $e) {
             DB::rollBack();

@@ -34,10 +34,10 @@
         <!-- Przycisk do zapisania ustawienia -->
         <Button @click="settingsStore.saveSetting"> Zapisz </Button>
         <ul v-if="settingsStore.errors.offerNumber" class="text-red-600 mt-2 text-sm">
-  <li v-for="(error, index) in settingsStore.errors.offerNumber" :key="index">
-    {{ error }}
-  </li>
-</ul>
+          <li v-for="(error, index) in settingsStore.errors.offerNumber" :key="index">
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </main>
   </div>

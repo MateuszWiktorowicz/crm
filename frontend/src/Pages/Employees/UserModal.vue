@@ -1,5 +1,5 @@
-<script setup>
-  import useUserStore from '../../store/user';
+<script setup lang="ts">
+  import { useUserStore } from '../../store/user';
   import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue';
   import InputError from '../../components/InputError.vue';
   import Button from '@/components/Button.vue';
@@ -7,7 +7,7 @@
   const userStore = useUserStore();
 
   const saveUser = async () => {
-    await userStore.saveUser(userStore.user);
+    await userStore.saveUser();
   };
 </script>
 
@@ -70,9 +70,9 @@
 
             <div class="mb-4">
               <label class="block text-sm font-medium">Uprawnienia</label>
-              <span class="mx-2" v-for="(label, role) in userStore.rolesToAssign" :key="role">
+              <span class="mx-2" v-for="role in userStore.rolesToAssign" :key="role">
                 <input type="checkbox" :id="role" :value="role" v-model="userStore.user.roles" />
-                <label :for="role">{{ label }}</label>
+                <label :for="role">{{ role }}</label>
               </span>
               <InputError :message="userStore.errors.roles" />
             </div>

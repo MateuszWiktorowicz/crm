@@ -1,10 +1,42 @@
 import { defineStore } from 'pinia';
 import axiosClient from '../axios.js';
+import { isAxiosError } from 'axios';
 
-const useUserStore = defineStore('user', {
-  state: () => ({
+interface UserFilters {
+  name: string;
+  email: string;
+  roles: string;
+  marker: string;
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  marker: string;
+  roles: string[];
+}
+
+interface UserState {
+  users: User[];
+  user: User;
+  loggedInUser: User | null;
+  filteredUsers: User[];
+  isModalOpen: boolean;
+  navigation: any[];
+  filters: UserFilters;
+  errors: Record<string, any>;
+  rolesToAssign: any[];
+}
+
+export const useUserStore = defineStore('user', {
+  state: (): UserState => ({
     users: [],
+    loggedInUser: null,
     user: {
+      id: 0,
       name: '',
       email: '',
       password: '',
@@ -28,7 +60,7 @@ const useUserStore = defineStore('user', {
     async fetchUser() {
       try {
         const response = await axiosClient.get('/api/user');
-        this.user = response.data;
+        this.loggedInUser = response.data;
       } catch (error) {
         console.error('Błąd pobierania użytkownika', error);
         throw error;
@@ -58,11 +90,16 @@ const useUserStore = defineStore('user', {
         this.isModalOpen = false;
         await this.fetchUsers();
         this.errors = {};
-      } catch (error) {
-        this.errors = error.response?.data?.errors ?? {};
+      } catch (error: unknown) {
+        if (isAxiosError(error)) {
+          this.errors = error.response?.data?.errors ?? {};
+        } else {
+          console.error('Nieoczekiwany błąd:', error);
+          this.errors = { general: 'Wystąpił nieoczekiwany błąd.' };
+        }
       }
     },
-    async deleteUser(userId) {
+    async deleteUser(userId: number) {
       try {
         if (confirm('Czy na pewno chcesz usunąć tego użytkownika?')) {
           await axiosClient.delete(`/api/pracownicy/${userId}`);
@@ -72,8 +109,9 @@ const useUserStore = defineStore('user', {
         console.error('Błąd podczas usuwania użytkownika:', error);
       }
     },
-    openModal(user = null) {
+    openModal(user: User | null = null) {
       this.user = user || {
+        id: 0,
         name: '',
         email: '',
         password: '',
@@ -87,13 +125,14 @@ const useUserStore = defineStore('user', {
       this.isModalOpen = false;
     },
     isCreator() {
-      if (!this.user) return false;
+      if (!this.loggedInUser) return false;
       return (
-        this.user.roles &&
-        (this.user.roles.includes('admin') || this.user.roles.includes('regeneration'))
+        this.loggedInUser.roles &&
+        (this.loggedInUser.roles.includes('admin') ||
+          this.loggedInUser.roles.includes('regeneration'))
       );
     },
-    setFilter(column, value) {
+    setFilter(column: keyof UserFilters, value: string) {
       this.filters[column] = value;
       this.filterUsers();
     },
@@ -101,12 +140,22 @@ const useUserStore = defineStore('user', {
       if (!Array.isArray(this.users)) return;
 
       this.filteredUsers = this.users.filter((user) =>
-        Object.entries(this.filters).every(
-          ([key, value]) => !value || (user[key] || '').toLowerCase().includes(value.toLowerCase())
-        )
+        (Object.entries(this.filters) as [keyof UserFilters, string][]).every(([key, value]) => {
+          if (!value) return true;
+
+          const userValue = user[key];
+
+          if (typeof userValue === 'string') {
+            return userValue.toLowerCase().includes(value.toLowerCase());
+          }
+
+          if (Array.isArray(userValue)) {
+            return userValue.some((role) => role.toLowerCase().includes(value.toLowerCase()));
+          }
+
+          return false;
+        })
       );
     },
   },
 });
-
-export default useUserStore;

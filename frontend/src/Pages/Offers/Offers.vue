@@ -42,9 +42,9 @@ Początek nowej logiki
   };
 
   const handleClone = (offer: Offer) => {
-  offerStore.cloneOffer(offer);
-  openModal();
-};
+    offerStore.cloneOffer(offer);
+    openModal();
+  };
 
   /*
 Koniec nowej logiki
@@ -74,9 +74,7 @@ Koniec nowej logiki
         <table class="w-full border-separate border-spacing-0">
           <thead class="bg-gray-100 sticky top-0 z-10">
             <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal rounded-t-lg">
-              <th class="border border-gray-300 p-3 text-left">
-                Lp
-              </th>
+              <th class="border border-gray-300 p-3 text-left">Lp</th>
               <th class="border border-gray-300 p-3 text-left">
                 Nr Oferty
                 <FilterInput
@@ -103,11 +101,7 @@ Koniec nowej logiki
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Status
-                <FilterInput
-                  :store="offerStore"
-                  column="statusName"
-                  placeholder="Filtruj status"
-                />
+                <FilterInput :store="offerStore" column="statusName" placeholder="Filtruj status" />
               </th>
               <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
               <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
@@ -148,9 +142,10 @@ Koniec nowej logiki
                 <Button @click="handleEdit(offer)" variant="warning" class="mr-2 mb-2">
                   Edytuj
                 </Button>
-                <Button @click="handleDelete(offer.id)" variant="danger" class="mr-2 mb-2"> Usuń </Button>
+                <Button @click="handleDelete(offer.id)" variant="danger" class="mr-2 mb-2">
+                  Usuń
+                </Button>
                 <Button @click="handleClone(offer)" variant="info" class="mr-2 mb-2">Klonuj</Button>
-
               </td>
             </tr>
           </tbody>

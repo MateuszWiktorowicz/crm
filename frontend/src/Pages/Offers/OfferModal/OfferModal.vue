@@ -9,6 +9,13 @@
   import SelectModal from '@/components/SelectModal.vue';
   import OfferFormHeader from './OfferForm/OfferFormHeader.vue';
   import { CoatingType, OfferDetail, Tool, ToolType } from '@/types/types';
+  import { useUserStore } from '@/store/user';
+  import { useDiscountWatcher } from '@/composables/useDiscountWatcher';
+  import PdfConfig from './OfferForm/PdfConfig.vue';
+  import FormActionsSection from './OfferForm/FormActionsSection.vue';
+  import InfoSection from './OfferForm/InfoSection.vue';
+  import OfferForm from './OfferForm/OfferForm.vue';
+  import OfferFormTableHeader from './OfferForm/OfferFormTableHeader.vue';
 
   /*
 Początek nowej logiki
@@ -22,6 +29,7 @@ Początek nowej logiki
   const customerStore = useCustomerStore();
   const toolStore = useToolsStore();
   const coatingStore = useCoatingStore();
+  const userStore = useUserStore();
 
   const isCalculatedTool = (detail: OfferDetail) => {
     return (
@@ -31,61 +39,60 @@ Początek nowej logiki
     );
   };
 
-  function getTwistDrillDiameterLabel(
-  diameter: number,
-  allDiameters: number[]
-): string {
-  const unique = [...new Set(allDiameters)].sort((a, b) => a - b);
-  const index = unique.indexOf(diameter);
+  function getTwistDrillDiameterLabel(diameter: number, allDiameters: number[]): string {
+    const unique = [...new Set(allDiameters)].sort((a, b) => a - b);
+    const index = unique.indexOf(diameter);
 
-  if (index === 0) {
-    return `>=${diameter}`;
+    if (index === 0) {
+      return `>=${diameter}`;
+    }
+
+    const lower = +(unique[index - 1] + 0.1).toFixed(1);
+    return `${lower} - ${diameter}`;
   }
 
-  const lower = +(unique[index - 1] + 0.1).toFixed(1);
-  return `${lower} - ${diameter}`;
-}
+  useDiscountWatcher();
 
   watch(
     () => offerStore.offer.offerDetails,
     (newDetails) => {
       newDetails.forEach((detail: OfferDetail, index: number) => {
-if (
-  isCalculatedTool(detail) &&
-  detail.toolType?.toolTypeName &&
-  detail.flutesNumber &&
-  detail.diameter
-) {
-  const isTwistDrill =
-    detail.toolType.toolTypeName.toLowerCase().replace('ó', 'o').trim() === 'wiertlo krete';
+        if (
+          isCalculatedTool(detail) &&
+          detail.toolType?.toolTypeName &&
+          detail.flutesNumber &&
+          detail.diameter
+        ) {
+          const isTwistDrill =
+            detail.toolType.toolTypeName.toLowerCase().replace('ó', 'o').trim() === 'wiertlo krete';
 
-      let diameterLabel = `${detail.diameter}`;
-      if (isTwistDrill) {
-        // zebrane dostępne średnice z toolStore
-        const allDiameters = toolStore.tools
-          .filter(
-            (t) =>
-              t.toolType.toolTypeName === detail.toolType.toolTypeName &&
-              t.flutesNumber === detail.flutesNumber
-          )
-          .map((t) => t.diameter);
+          let diameterLabel = `${detail.diameter}`;
+          if (isTwistDrill) {
+            // zebrane dostępne średnice z toolStore
+            const allDiameters = toolStore.tools
+              .filter(
+                (t) =>
+                  t.toolType.toolTypeName === detail.toolType.toolTypeName &&
+                  t.flutesNumber === detail.flutesNumber
+              )
+              .map((t) => t.diameter);
 
-        diameterLabel = getTwistDrillDiameterLabel(detail.diameter, allDiameters);
-      }
+            diameterLabel = getTwistDrillDiameterLabel(detail.diameter, allDiameters);
+          }
 
-      detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel}`;
-      
-      const newGeometry = toolStore.getSelectedTool(
-        detail.toolType,
-        detail.flutesNumber,
-        detail.diameter
-      );
+          detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel}`;
 
-      if (detail.toolGeometry !== newGeometry) {
-        detail.toolGeometry = newGeometry;
-        detail.isToolPriceManual = false;
-      }
-    }
+          const newGeometry = toolStore.getSelectedTool(
+            detail.toolType,
+            detail.flutesNumber,
+            detail.diameter
+          );
+
+          if (detail.toolGeometry !== newGeometry) {
+            detail.toolGeometry = newGeometry;
+            detail.isToolPriceManual = false;
+          }
+        }
 
         if (
           isCalculatedTool(detail) &&
@@ -237,7 +244,7 @@ Koniec nowej logiki
   const selectedFileModalIndex = ref<number | null>(null);
   const searchQuery = ref('');
 
-const toolRows = ref<HTMLElement[]>([]);
+  const toolRows = ref<HTMLElement[]>([]);
 
   const inputRef = ref(null);
 
@@ -259,21 +266,21 @@ const toolRows = ref<HTMLElement[]>([]);
     selectedFileModalIndex.value = null;
   };
 
-const handleFilesModalClose = () => {
-  const idx = selectedFileModalIndex.value;
-  if (idx === null || idx === undefined) return;
+  const handleFilesModalClose = () => {
+    const idx = selectedFileModalIndex.value;
+    if (idx === null || idx === undefined) return;
 
-  const detail = offerStore.offer.offerDetails?.[idx];
-  if (!detail) return; // jeśli brak szczegółu, przerywamy
+    const detail = offerStore.offer.offerDetails?.[idx];
+    if (!detail) return; // jeśli brak szczegółu, przerywamy
 
-  // Sprawdzamy, czy tool istnieje i czy ma id === null
-  if (detail.tool?.id === null) {
-    detail.toolType = {id: 1, toolTypeName: 'Frez Walcowy'};
-  }
+    // Sprawdzamy, czy tool istnieje i czy ma id === null
+    if (detail.tool?.id === null) {
+      detail.toolType = { id: 1, toolTypeName: 'Frez Walcowy' };
+    }
 
-  isFilesModalOpen.value = false;
-  selectedFileModalIndex.value = null;
-};
+    isFilesModalOpen.value = false;
+    selectedFileModalIndex.value = null;
+  };
 
   onMounted(() => {
     customerStore.fetchCustomers();
@@ -304,52 +311,7 @@ const handleFilesModalClose = () => {
             class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
           >
             <table class="w-[100%] border-separate border-spacing-0 table-fixed">
-              <thead class="bg-gray-100 font-normal sticky top-0 z-10">
-                <tr
-                  class="bg-gray-100 font-normal text-gray-700 uppercase text-sm leading-normal rounded-t-lg"
-                >
-                  <th
-                    class="bg-gray-100 font-normal text-gray-700 uppercase text-sm w-[50px] leading-normal rounded-t-lg"
-                  >
-                    Lp.
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[150px]">
-                    Typ narzędzia
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[150px]">Symbol</th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[90px]">
-                    Ilość ostrzy
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[90px]">
-                    Średnica
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[80px]">Promień</th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[150px]">
-                    Wariant ostrzenia
-                  </th>
-                  <th class="border font-normal border-gray-300 w-[120px] p-3 text-left">
-                    Cena <span class="font-bold">katalogowa</span> ostrzenia netto [PLN]
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[100px]">
-                    Pokrycie
-                  </th>
-                  <th
-                    class="border font-normal font-normal border-gray-300 p-3 w-[120px] text-left"
-                  >
-                    Cena <span class="font-extrabold">katalogowa</span> pokrycia netto [PLN]
-                  </th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[80px]">Ilość</th>
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[80px]">Rabat</th>
-                  <th class="border font-normal border-gray-300 p-3 w-[120px] text-left">
-                    Cena całkowita netto [PLN]
-                  </th>
-                  <!-- <th class="border font-normal border-gray-300 p-3 text-left">
-                    Cena całkowita brutto [PLN]
-                  </th> -->
-                  <th class="border font-normal border-gray-300 p-3 text-left w-[200px]">Opis</th>
-                  <th class="border font-normal border-gray-300 p-3 w-[100px] text-left">Akcja</th>
-                </tr>
-              </thead>
+              <OfferFormTableHeader />
               <tbody class="text-gray-600 text-sm">
                 <tr
                   v-for="(detail, index) in offerStore.offer.offerDetails as OfferDetail[]"
@@ -500,6 +462,7 @@ const handleFilesModalClose = () => {
                         '-' +
                         index
                       "
+                      :disabled="!userStore.isCreator()"
                       type="number"
                       step="0.01"
                       v-model="detail.toolNetPrice"
@@ -529,6 +492,7 @@ const handleFilesModalClose = () => {
                   <!-- Cena jednostkowa pokrycia netto -->
                   <td class="border border-gray-300 p-3">
                     <input
+                      :disabled="!userStore.isCreator()"
                       type="number"
                       step="0.01"
                       v-model="detail.coatingNetPrice"
@@ -553,6 +517,7 @@ const handleFilesModalClose = () => {
                       v-model="detail.discount"
                       class="w-full p-2 border rounded text-[11px]"
                       placeholder="Rabat (%)"
+                      :max="!userStore.isCreator() ? 10 : undefined"
                       :disabled="offerStore.offer.globalDiscount !== 0"
                     />
                   </td>
@@ -585,82 +550,11 @@ const handleFilesModalClose = () => {
               </tbody>
             </table>
           </div>
-          <!-- Przycisk dodawania nowego narzędzia -->
-          <div class="mt-4">
-            <Button @click="scrollToNewTool" variant="success"> Dodaj narzędzie </Button>
-            <div class="flex justify-end space-x-2 mt-4">
-              <Button @click="closeModal" variant="secondary"> Anuluj </Button>
-
-            <Button :key="'id' + offerStore.offer.id" type="submit" :disabled="offerStore.isLoading">
-              <template v-if="offerStore.isSaving">
-                <span class="animate-spin mr-2">⏳</span> Zapisuję...
-              </template>
-              <template v-else>
-                Zapisz
-              </template>
-            </Button>
-              <Button
-                @click="offerStore.generatePdf()"
-                variant="warning"
-                :disabled="offerStore.offer.id === null || offerStore.isLoading"
-              >
-                <template v-if="offerStore.isPdfGenerating">
-                <span class="animate-spin mr-2">⏳</span> Generuję...
-              </template>
-                 <template v-else>Generuj PDF</template>
-              </Button>
-            </div>
-          </div>
+          <FormActionsSection :scrollToNewTool="scrollToNewTool" :closeModal="closeModal" />
           <!-- Przycisk zapisu oferty -->
         </form>
-        <div
-          v-if="Object.keys(offerStore.errors).length"
-          class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
-        >
-          <p class="font-semibold">Wystąpiły błędy:</p>
-          <ul class="list-disc list-inside">
-            <li v-for="(errorMessages, field) in offerStore.errors" :key="field">
-              <span v-for="(message, index) in errorMessages" :key="index">{{ message }}</span>
-            </li>
-          </ul>
-        </div>
-        <p v-if="offerStore.offer.globalDiscount !== 0" class="text-sm text-red-500 mt-1">
-          Uwaga: Rabat całej oferty jest ustawiony! Jeśli chcesz zmienić rabat pojedyńczego
-          narzędzia ustaw rabat globalny na 0.
-        </p>
-        <div class="mt-6 flex gap-3 space-y-3">
-          <div class="flex flex-col">
-            <label class="font-semibold">Termin realizacji:</label>
-            <input
-              v-model="offerStore.offer.pdfInfo.deliveryTime"
-              class="border rounded p-2 bg-gray-100"
-            />
-          </div>
-
-          <div class="flex flex-col">
-            <label class="font-semibold">Ważność oferty:</label>
-            <input
-              v-model="offerStore.offer.pdfInfo.offerValidity"
-              class="border rounded p-2 bg-gray-100"
-            />
-          </div>
-
-          <div class="flex flex-col">
-            <label class="font-semibold">Warunki płatności:</label>
-            <input
-              v-model="offerStore.offer.pdfInfo.paymentTerms"
-              class="border rounded p-2 bg-gray-100"
-            />
-          </div>
-          <div class="flex flex-col">
-            <label class="font-semibold">Pokaż rabat:</label>
-            <input
-              type="checkbox"
-              v-model="offerStore.offer.pdfInfo.displayDiscount"
-              class="border flex mt-4 f-full items-center self-center rounded p-5"
-            />
-          </div>
-        </div>
+        <InfoSection />
+        <PdfConfig v-if="userStore.isCreator()" />
       </div>
     </div>
   </div>

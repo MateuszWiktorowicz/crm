@@ -1,4 +1,4 @@
-import { createRouter } from 'vue-router';
+import { createRouter, NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { createWebHistory } from 'vue-router';
 import DefaultLayout from './Layouts/DefaultLayout.vue';
 import Tools from './Pages/Tools/Tools.vue';
@@ -9,7 +9,7 @@ import Customers from './Pages/Customers/Customers.vue';
 import Offers from './Pages/Offers/Offers.vue';
 import Employees from './Pages/Employees/Employees.vue';
 import Coatings from './Pages/Coatings/Coatings.vue';
-import useUserStore from './store/user';
+import { useUserStore } from './store/user';
 import Settings from './Pages/Settings/Settings.vue';
 
 const routes = [
@@ -26,9 +26,13 @@ const routes = [
         path: '/pracownicy',
         name: 'Employees',
         component: Employees,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
           const userStore = useUserStore();
-          const user = userStore.user;
+          const user = userStore.loggedInUser;
           if (user && (user.roles.includes('admin') || user.roles.includes('regeneration'))) {
             next();
           } else {
@@ -40,9 +44,13 @@ const routes = [
         path: '/ustawienia',
         name: 'Settings',
         component: Settings,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
           const userStore = useUserStore();
-          const user = userStore.user;
+          const user = userStore.loggedInUser;
           if (user && (user.roles.includes('admin') || user.roles.includes('regeneration'))) {
             next();
           } else {
@@ -51,7 +59,11 @@ const routes = [
         },
       },
     ],
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       try {
         const userStore = useUserStore();
         await userStore.fetchUser();

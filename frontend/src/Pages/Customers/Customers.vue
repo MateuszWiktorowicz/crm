@@ -2,7 +2,7 @@
   import { onMounted, ref } from 'vue';
   import useCustomerStore from '../../store/customer';
   import CustomerModal from './CustomerModal.vue';
-  import useUserStore from '../../store/user';
+  import { useUserStore } from '../../store/user';
   import FilterInput from '../../components/FilterInput.vue';
   import Button from '@/components/Button.vue';
   import { useConfirmationDialog } from '@/composables/useConfirmationDialog';

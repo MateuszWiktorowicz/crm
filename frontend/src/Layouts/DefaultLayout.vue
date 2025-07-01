@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import {
     Disclosure,
     DisclosureButton,
@@ -12,12 +12,12 @@
   import axiosClient from '../axios.js';
   import router from '../router.js';
   import { computed, onMounted } from 'vue';
-  import useUserStore from '../store/user.js';
+  import { useUserStore } from '../store/user';
   import ApplicationLogo from '../components/ApplicationLogo.vue';
 
   const userStore = useUserStore();
 
-  const user = computed(() => userStore.user);
+  const user = computed(() => userStore.loggedInUser);
   const navigation = computed(() => userStore.navigation);
 
   onMounted(() => {
@@ -67,7 +67,7 @@
                   >
                     <span class="absolute -inset-1.5" />
                     <span class="sr-only">Otwórz menu</span>
-                    <p class="text-white">{{ user.email }}</p>
+                    <p class="text-white">{{ user?.email }}</p>
                   </MenuButton>
                 </div>
                 <transition

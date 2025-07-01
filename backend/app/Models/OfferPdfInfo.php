@@ -20,6 +20,10 @@ class OfferPdfInfo extends Model
         return $this->belongsTo(Offer::class);
     }
 
+    protected $casts = [
+    'display_discount' => 'boolean',
+];
+
     public function toArray()
     {
         return [

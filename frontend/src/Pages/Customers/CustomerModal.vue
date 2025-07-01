@@ -2,21 +2,35 @@
   import useCustomerStore from '../../store/customer';
   import { Dialog, DialogPanel, DialogTitle, TransitionRoot } from '@headlessui/vue';
   import InputField from '../../components/Forms/InputField.vue';
-  import useUserStore from '../../store/user';
+  import { useUserStore } from '../../store/user';
   import Button from '@/components/Button.vue';
   import { Customer } from '@/types/types';
+  import { watch } from 'vue';
 
   const { isModalOpen, closeModal } = defineProps<{
     isModalOpen: boolean;
     closeModal: () => void;
   }>();
 
+  const userStore = useUserStore();
   const customerStore = useCustomerStore();
 
   const saveCustomer = async (customer: Customer) => {
-    await customerStore.saveCustomer(customer);
-    closeModal();
+    const response = await customerStore.saveCustomer(customer);
+    if (response !== undefined) {
+      closeModal();
+    }
   };
+
+  watch(
+    () => userStore.isCreator(),
+    (isCreator) => {
+      if (!isCreator && userStore.loggedInUser?.marker) {
+        customerStore.customer.salerMarker = userStore.loggedInUser.marker;
+      }
+    },
+    { immediate: true }
+  );
 </script>
 
 <template>
@@ -114,6 +128,7 @@
                   :field="'salerMarker'"
                   label="Znacznik"
                   inputId="salerMarker"
+                  :disabled="!userStore.isCreator()"
                 />
               </div>
               <div>

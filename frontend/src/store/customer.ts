@@ -90,7 +90,7 @@ const useCustomerStore = defineStore('customer', {
     },
     resetCustomer() {
       this.customer = {
-        id: 1,
+        id: null,
         code: '',
         name: '',
         nip: '',
@@ -116,6 +116,7 @@ const useCustomerStore = defineStore('customer', {
       });
     },
   },
+  getters: {},
 });
 
 export default useCustomerStore;

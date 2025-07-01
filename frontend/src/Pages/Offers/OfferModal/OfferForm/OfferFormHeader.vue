@@ -5,11 +5,16 @@
   import Button from '@/components/Button.vue';
   import SelectModal from '@/components/SelectModal.vue';
   import { Customer } from '@/types/types';
-import { storeToRefs } from 'pinia';
+  import { storeToRefs } from 'pinia';
+  import { useUserStore } from '@/store/user';
+  import { useDiscountWatcher } from '@/composables/useDiscountWatcher';
 
   const offerStore = useOfferStore();
   const customerStore = useCustomerStore();
-const { offer } = storeToRefs(offerStore);
+  const userStore = useUserStore();
+  const { offer } = storeToRefs(offerStore);
+
+  useDiscountWatcher();
 
   const customerName = computed(
     () =>
@@ -17,19 +22,19 @@ const { offer } = storeToRefs(offerStore);
       'Wybierz kontrahenta'
   );
 
-watch(
-  () => offer.value.globalDiscount,
-  () => {
-    offerStore.applyGlobalDiscount(offer.value.globalDiscount);
-    offerStore.calculateOfferTotalNetPrice();
-  }
-);
+  watch(
+    () => offer.value.globalDiscount,
+    () => {
+      offerStore.applyGlobalDiscount(offer.value.globalDiscount);
+      offerStore.calculateOfferTotalNetPrice();
+    }
+  );
 
-watch(
-  () => offer.value.offerDetails,   // pojedyncze źródło ⇒ działa { deep: true }
-  () => offerStore.calculateOfferTotalNetPrice(),
-  { deep: true }
-);
+  watch(
+    () => offer.value.offerDetails,
+    () => offerStore.calculateOfferTotalNetPrice(),
+    { deep: true }
+  );
 
   const isCustomerModalOpen = ref(false);
 
@@ -62,7 +67,12 @@ watch(
     <div class="flex flex-col items-end">
       <label class="block text-sm font-medium text-gray-700 mb-1">Status oferty</label>
       <select v-model="offer.status" class="w-full p-2 border rounded">
-        <option v-for="status in offerStore.statuses" :key="status.id" :value="status">
+        <option
+          v-for="(status, index) in offerStore.statuses"
+          :key="status.id"
+          :value="status"
+          :disabled="!userStore.isCreator() && index > 1"
+        >
           {{ status.name }}
         </option>
       </select>
@@ -72,7 +82,7 @@ watch(
     <div class="flex flex-col items-end">
       <label class="block text-sm font-medium text-gray-700 mb-1">Kwota netto oferty</label>
       <span class="text-lg font-semibold text-gray-800 bg-gray-200 px-3 py-1 rounded-lg shadow-sm">
-        {{ (offer.totalPrice).toFixed(2) }} PLN
+        {{ offer.totalPrice.toFixed(2) }} PLN
       </span>
     </div>
 

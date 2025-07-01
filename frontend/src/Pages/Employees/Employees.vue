@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
   import { onMounted } from 'vue';
-  import useUserStore from '../../store/user';
+  import { useUserStore } from '../../store/user';
   import UserModal from './UserModal.vue';
   import FilterInput from '../../components/FilterInput.vue';
   import Button from '@/components/Button.vue';

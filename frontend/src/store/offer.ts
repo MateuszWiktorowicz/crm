@@ -5,10 +5,9 @@ import { Offer, OfferDetail, OfferFilters, Status } from '@/types/types';
 import axiosClient from '@/axios';
 import dayjs from 'dayjs';
 
-
 interface OfferState {
   isLoading: boolean;
-  isSaving: boolean,
+  isSaving: boolean;
   isPdfGenerating: boolean;
   isEditing: boolean;
   isInitialEditPhase: boolean;
@@ -92,7 +91,7 @@ export const useOfferStore = defineStore('offer', {
 Początek nowej logiki
 */
 
-    async destroyOffer(this: OfferState & ReturnType<typeof useOfferStore>, id: number) {
+    async destroyOffer(id: number) {
       try {
         await OfferService.destroy(id);
         await this.fetchOffers();
@@ -105,7 +104,7 @@ Początek nowej logiki
 Koniec nowej logiki
 */
 
-    async fetchOffers(this: OfferState & ReturnType<typeof useOfferStore>) {
+    async fetchOffers() {
       try {
         const { offers, statuses } = await OfferService.fetchAll();
 
@@ -115,20 +114,17 @@ Koniec nowej logiki
         console.log(this.offers);
       } catch (error: any) {}
     },
-    async saveOffer(this: OfferState & ReturnType<typeof useOfferStore>) {
+    async saveOffer() {
       this.isLoading = true;
-     this.isSaving = true;
+      this.isSaving = true;
 
       this.formatDescriptions();
 
       try {
         this.errors = {};
-            const delay = new Promise(resolve => setTimeout(resolve, 1000));
-    
-        const [response] = await Promise.all([
-          OfferService.save(this.offer),
-          delay,
-        ]);
+        const delay = new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const [response] = await Promise.all([OfferService.save(this.offer), delay]);
 
         this.editOffer(response.offer);
         this.fetchOffers();
@@ -170,7 +166,7 @@ Koniec nowej logiki
         console.error('Failed to generate PDF:', error);
         alert('Wystąpił błąd przy generowaniu PDF.');
       } finally {
-        this.isLoading = false
+        this.isLoading = false;
         this.isPdfGenerating = false;
       }
     },
@@ -182,25 +178,25 @@ Koniec nowej logiki
       });
     },
 
-cloneOffer(originalOffer: Offer) {
-  const cloned = JSON.parse(JSON.stringify(originalOffer));
+    cloneOffer(originalOffer: Offer) {
+      const cloned = JSON.parse(JSON.stringify(originalOffer));
 
-  cloned.id = null;
-  cloned.offerNumber = '';
-  cloned.status = { id: 1, name: 'Robocza' };
-  cloned.createdAt = '';
-  cloned.updatedAt = '';
-  cloned.createdBy = null;
-  cloned.changedBy = null;
+      cloned.id = null;
+      cloned.offerNumber = '';
+      cloned.status = { id: 1, name: 'Robocza' };
+      cloned.createdAt = '';
+      cloned.updatedAt = '';
+      cloned.createdBy = null;
+      cloned.changedBy = null;
 
-  cloned.offerDetails = cloned.offerDetails.map((detail: any) => ({
-    ...detail,
-    id: null,
-    offerId: null,
-  }));
+      cloned.offerDetails = cloned.offerDetails.map((detail: any) => ({
+        ...detail,
+        id: null,
+        offerId: null,
+      }));
 
-  this.editOffer(cloned);
-},
+      this.editOffer(cloned);
+    },
     addToolRow() {
       this.offer.offerDetails.push({
         id: null,
@@ -316,62 +312,71 @@ cloneOffer(originalOffer: Offer) {
       this.filters[column] = value;
       this.filterOffers();
     },
-filterOffers() {
-  if (!Array.isArray(this.offers)) return;
+    filterOffers() {
+      if (!Array.isArray(this.offers)) return;
 
-  this.filteredOffers = this.offers.filter((offer) => {
-    // Filtr po numerze oferty (prostym polu)
-if (this.filters.offerNumber) {
-  const offerNumber = (offer.offerNumber ?? '').toString().toLowerCase();
-  const filter = this.filters.offerNumber.toLowerCase();
-  if (!offerNumber.includes(filter)) {
-    return false;
-  }
-}
+      this.filteredOffers = this.offers.filter((offer) => {
+        // Filtr po numerze oferty (prostym polu)
+        if (this.filters.offerNumber) {
+          const offerNumber = (offer.offerNumber ?? '').toString().toLowerCase();
+          const filter = this.filters.offerNumber.toLowerCase();
+          if (!offerNumber.includes(filter)) {
+            return false;
+          }
+        }
 
-    // Filtr po nazwie klienta (zagnieżdżone pole customer.name)
-    if (this.filters.customerName) {
-      if (!offer.customer || !offer.customer.name.toLowerCase().includes(this.filters.customerName.toLowerCase())) {
-        return false;
-      }
-    }
+        // Filtr po nazwie klienta (zagnieżdżone pole customer.name)
+        if (this.filters.customerName) {
+          if (
+            !offer.customer ||
+            !offer.customer.name.toLowerCase().includes(this.filters.customerName.toLowerCase())
+          ) {
+            return false;
+          }
+        }
 
-    // Filtr po nazwie pracownika (createdBy.name)
-    if (this.filters.employeeName) {
-      if (!offer.createdBy || !offer.createdBy.name.toLowerCase().includes(this.filters.employeeName.toLowerCase())) {
-        return false;
-      }
-    }
+        // Filtr po nazwie pracownika (createdBy.name)
+        if (this.filters.employeeName) {
+          if (
+            !offer.createdBy ||
+            !offer.createdBy.name.toLowerCase().includes(this.filters.employeeName.toLowerCase())
+          ) {
+            return false;
+          }
+        }
 
-    // Filtr po statusie (status.name)
-    if (this.filters.statusName) {
-      if (!offer.status || !offer.status.name.toLowerCase().includes(this.filters.statusName.toLowerCase())) {
-        return false;
-      }
-    }
+        // Filtr po statusie (status.name)
+        if (this.filters.statusName) {
+          if (
+            !offer.status ||
+            !offer.status.name.toLowerCase().includes(this.filters.statusName.toLowerCase())
+          ) {
+            return false;
+          }
+        }
 
-if (this.filters.createdAt) {
-      const createdAtFull = offer.createdAt ?? '';
+        if (this.filters.createdAt) {
+          const createdAtFull = offer.createdAt ?? '';
 
-      if (!createdAtFull) return false;
+          if (!createdAtFull) return false;
 
-      const parsedDate = dayjs(createdAtFull);
-      if (!parsedDate.isValid()) return false;
+          const parsedDate = dayjs(createdAtFull);
+          if (!parsedDate.isValid()) return false;
 
-      // Format daty taki sam jak w tabeli
-      const formattedDate = parsedDate.format('DD/MM/YYYY'); // np. "11/06/2025"
+          // Format daty taki sam jak w tabeli
+          const formattedDate = parsedDate.format('DD/MM/YYYY'); // np. "11/06/2025"
 
-      // Normalizujemy oba ciągi: usuwamy spacje, zamieniamy na lowercase
-      const normalizedFilter = this.filters.createdAt.trim().toLowerCase();
-      const normalizedDate = formattedDate.toLowerCase();
-      if (!normalizedDate.includes(normalizedFilter)) {
-        return false;
-      }
-    }
+          // Normalizujemy oba ciągi: usuwamy spacje, zamieniamy na lowercase
+          const normalizedFilter = this.filters.createdAt.trim().toLowerCase();
+          const normalizedDate = formattedDate.toLowerCase();
+          if (!normalizedDate.includes(normalizedFilter)) {
+            return false;
+          }
+        }
 
-    return true;
-  });
-},
+        return true;
+      });
+    },
 
     formatDescriptions() {
       this.offer.offerDetails.forEach((detail) => {
@@ -382,7 +387,7 @@ if (this.filters.createdAt) {
         ) {
           let prefix = '';
 
-if (detail.description && detail.description.trim() !== '') return;
+          if (detail.description && detail.description.trim() !== '') return;
 
           if (detail.regrindingOption === 'face_regrinding') {
             prefix = 'ostrzenie czoła';
@@ -425,4 +430,3 @@ if (detail.description && detail.description.trim() !== '') return;
     },
   },
 });
-
