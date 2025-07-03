@@ -268,9 +268,9 @@ class OfferController extends Controller
         );
     
 if (!$offer->offer_number) {
-    $offerNumber = $setting->offer_number + 1;
+    $offerNumber = $setting->offer_number;
     
-    $setting->update(['offer_number' => $offerNumber]);
+    $setting->update(['offer_number' => $offerNumber + 1]);
 
     $formattedOfferNumber = $offerNumber . '/' . now()->format('d/m/Y');
 

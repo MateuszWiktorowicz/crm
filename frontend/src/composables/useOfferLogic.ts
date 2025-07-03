@@ -1,47 +1,27 @@
-<script setup lang="ts">
-  import { useOfferStore } from '@/store/offer';
-  import useCustomerStore from '@/store/customer';
-  import useToolsStore from '@/store/tools';
-  import useCoatingStore from '@/store/coating';
-  import { useUserStore } from '@/store/user';
+import { watch, nextTick } from 'vue';
+import { useOfferStore } from '@/store/offer';
+import useToolsStore from '@/store/tools';
+import useCoatingStore from '@/store/coating';
+import { useDiscountWatcher } from '@/composables/useDiscountWatcher';
+import type { OfferDetail, Tool } from '@/types/types';
 
-  // Komponenty
-  import Button from '@/components/Button.vue';
-  import SelectModal from '@/components/SelectModal.vue';
-  import OfferFormTableHeader from '../OfferForm/OfferFormTableHeader.vue';
-  import OfferFormHeader from '../OfferForm/OfferFormHeader.vue';
-  import FormActionsSection from '../OfferForm/FormActionsSection.vue';
-
-  // Vue API
-  import { ref, computed, nextTick, watch, onMounted } from 'vue';
-
-  // Typy
-  import type { CoatingType, OfferDetail, Tool, ToolType } from '@/types/types';
-
-  // Composables
-  import { useDiscountWatcher } from '@/composables/useDiscountWatcher';
-  import OfferFormRow from './OfferFormRow.vue';
-  import { useFilesModal } from '@/composables/useFilesModal';
-
-  /*
-Początek nowej logiki
-*/
-  defineProps<{
-    closeModal: () => void;
-  }>();
-
+export function useOfferLogic() {
   const offerStore = useOfferStore();
-  const customerStore = useCustomerStore();
   const toolStore = useToolsStore();
   const coatingStore = useCoatingStore();
 
-
-
-const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModal } = useFilesModal();
+  const isCalculatedTool = (detail: OfferDetail) => {
+    return (
+      detail.toolType?.toolTypeName !== undefined &&
+      detail.toolType?.toolTypeName !== 'Niestandardowe' &&
+      detail.toolType?.toolTypeName !== 'Kartoteka'
+    );
+  };
 
   const setDetailToolNetPrice = (detail: OfferDetail) => {
     if (!isCalculatedTool(detail) || detail.toolGeometry === null || detail.isToolPriceManual)
       return;
+
     let price = 0;
 
     if (detail.regrindingOption === 'face_regrinding') {
@@ -63,14 +43,6 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
     detail.toolNetPrice = price;
   };
 
-  const isCalculatedTool = (detail: OfferDetail) => {
-    return (
-      detail.toolType?.toolTypeName !== undefined &&
-      detail.toolType?.toolTypeName !== 'Niestandardowe' &&
-      detail.toolType?.toolTypeName !== 'Kartoteka'
-    );
-  };
-
   function getTwistDrillDiameterLabel(diameter: number, allDiameters: number[]): string {
     const unique = [...new Set(allDiameters)].sort((a, b) => a - b);
     const index = unique.indexOf(diameter);
@@ -83,20 +55,20 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
     return `${lower} - ${diameter}`;
   }
 
-  useDiscountWatcher();
+  // Watchery
 
   watch(
     () => offerStore.offer.offerDetails,
     (newDetails) => {
-      newDetails.forEach((detail: OfferDetail, index: number) => {
+      newDetails.forEach((detail: OfferDetail) => {
         if (
           isCalculatedTool(detail) &&
           detail.toolType?.toolTypeName &&
           detail.flutesNumber &&
           detail.diameter
         ) {
-          const isTwistDrill =
-            detail.toolType.toolTypeName.toLowerCase().replace('ó', 'o').trim() === 'wiertlo krete';
+          const normalizedType = detail.toolType.toolTypeName.toLowerCase().replace('ó', 'o').trim();
+          const isTwistDrill = normalizedType === 'wiertlo krete';
 
           let diameterLabel = `${detail.diameter}`;
           if (isTwistDrill) {
@@ -180,8 +152,6 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
           }
 
           detail.coatingNetPrice = detail.coatingPrice?.price ?? 0;
-
-          console.log('[coating updated]', detail.coatingPrice);
         }
       });
     },
@@ -200,8 +170,7 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
           }
         }
       });
-    },
-    { deep: false }
+    }
   );
 
   watch(
@@ -225,10 +194,8 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
     if (newCoating) {
       detail.coatingPrice = newCoating;
       detail.coatingNetPrice = newCoating.price;
-      detail.isCoatingPriceManual = false; // jeśli potrzebujesz
-      console.log('[coating updated]', newCoating);
+      detail.isCoatingPriceManual = false;
     } else {
-      // Opcjonalnie: jeśli "Brak pokrycia"
       detail.coatingPrice = {
         id: 0,
         diameter: detail.diameter ?? 0,
@@ -242,88 +209,10 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
     }
   }
 
-  /*
-Koniec nowej logiki
-*/
-
-
-
-  const toolRows = ref<HTMLElement[]>([]);
-
-
-  const scrollToNewTool = async () => {
-    offerStore.addToolRow();
-    await nextTick();
-    const lastRow = toolRows.value.at(-1);
-    if (lastRow) {
-      lastRow.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  // Eksportujemy funkcje, które mogą być przydatne na zewnątrz
+  return {
+    isCalculatedTool,
+    setDetailToolNetPrice,
+    handleCoatingCodeChange,
   };
-
-  onMounted(() => {
-    customerStore.fetchCustomers();
-    toolStore.fetchTools();
-    coatingStore.fetchCoatings();
-  });
-
-  const selectFile = (tool: Tool) => {
-    if (selectedFileModalIndex.value !== null) {
-      offerStore.offer.offerDetails[selectedFileModalIndex.value].tool = tool;
-    }
-    isFilesModalOpen.value = false;
-    selectedFileModalIndex.value = null;
-  };
-
-  const handleFilesModalClose = () => {
-    const idx = selectedFileModalIndex.value;
-    if (idx === null || idx === undefined) return;
-
-    const detail = offerStore.offer.offerDetails?.[idx];
-    if (!detail) return;
-
-    if (detail.tool?.id === null) {
-      detail.toolType = { id: 1, toolTypeName: 'Frez Walcowy' };
-    }
-
-    isFilesModalOpen.value = false;
-    selectedFileModalIndex.value = null;
-  };
-
-  // const openFilesModal = (index: number) => {
-  //   selectedFileModalIndex.value = index;
-  //   isFilesModalOpen.value = true;
-  // };
-</script>
-
-<template>
-  <SelectModal
-    :isOpen="isFilesModalOpen"
-    title="Wybierz kartotekę"
-    searchPlaceholder="Wyszukaj kartotekę..."
-    :items="toolStore.files"
-    :onSelect="selectFile"
-    :onClose="handleFilesModalClose"
-  />
-  <form @submit.prevent="offerStore.saveOffer">
-    <OfferFormHeader />
-
-    <div
-      class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
-    >
-      <table class="w-[100%] border-separate border-spacing-0 table-fixed">
-        <OfferFormTableHeader />
-        <tbody class="text-gray-600 text-sm">
-          <OfferFormRow
-            v-for="(detail, index) in offerStore.offer.offerDetails"
-            :key="index"
-            :detail="detail"
-            :index="index"
-            :open-files-modal="openFilesModal"
-          />
-        </tbody>
-      </table>
-    </div>
-    <FormActionsSection :scrollToNewTool="scrollToNewTool" :closeModal="closeModal" />
-    <!-- Przycisk zapisu oferty -->
-  </form>
-</template>
+}
