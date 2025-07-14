@@ -18,6 +18,7 @@
       </select>
     </td>
 
+    <!-- Symmbol narzędzia -->
     <td class="border border-gray-300 p-3">
       <input
         type="text"

@@ -48,7 +48,7 @@ export function useOfferLogic() {
     const index = unique.indexOf(diameter);
 
     if (index === 0) {
-      return `>=${diameter}`;
+      return `<=${diameter}`;
     }
 
     const lower = +(unique[index - 1] + 0.1).toFixed(1);

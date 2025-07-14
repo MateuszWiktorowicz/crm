@@ -109,7 +109,7 @@ export const useToolsStore = defineStore('tools', {
         // 4) dla wiertła krętego budujemy przedziały
         return unique.map((d, i) => {
           if (i === 0) {
-            return { value: d, label: `>=${d}` };
+            return { value: d, label: `<=${d}` };
           }
           const lower = +(unique[i - 1] + 0.1).toFixed(1); // 4 → 4.1
           return { value: d, label: `${lower} - ${d}` };

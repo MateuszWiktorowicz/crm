@@ -22,6 +22,7 @@
   import { useDiscountWatcher } from '@/composables/useDiscountWatcher';
   import OfferFormRow from './OfferFormRow.vue';
   import { useFilesModal } from '@/composables/useFilesModal';
+import { useOfferLogic } from '@/composables/useOfferLogic';
 
   /*
 Początek nowej logiki
@@ -76,7 +77,7 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
     const index = unique.indexOf(diameter);
 
     if (index === 0) {
-      return `>=${diameter}`;
+      return `<=${diameter}`;
     }
 
     const lower = +(unique[index - 1] + 0.1).toFixed(1);
@@ -111,7 +112,13 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
             diameterLabel = getTwistDrillDiameterLabel(detail.diameter, allDiameters);
           }
 
+         const toolTypeName = detail.toolType.toolTypeName.toLowerCase();
+
+        if (toolTypeName.includes('promieniowy')) {
+          detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} R${detail.radius ?? 0}`;
+        } else {
           detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel}`;
+        }
 
           const newGeometry = toolStore.getSelectedTool(
             detail.toolType,
