@@ -63,12 +63,12 @@
 
 <template>
   <tr :key="index" ref="toolRows">
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       {{ index + 1 }}
     </td>
 
     <!-- Typ narzędzia -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <select
         :key="detail.toolType + '-' + index"
         v-model="detail.toolType"
@@ -84,7 +84,7 @@
         </option>
       </select>
     </td>
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         type="text"
         v-model="detail.symbol"
@@ -94,7 +94,7 @@
     </td>
 
     <!-- Ilość ostrzy -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <select
         :key="detail.flutesNumber + '-' + detail.toolType + '-' + index"
         v-model="detail.flutesNumber"
@@ -117,7 +117,7 @@
       </select>
     </td>
     <!-- Średnica -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <select
         :key="detail.toolType + '-' + detail.flutesNumber + '-' + index"
         v-model="detail.diameter"
@@ -143,7 +143,7 @@
       </select>
     </td>
     <!-- Promień -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         :disabled="!offerStore.isRadiusEndMill(detail)"
         min="0"
@@ -161,7 +161,7 @@
       />
     </td>
     <!-- Wariant ostrzenia -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <select
         :key="detail.toolType + '-' + detail.flutesNumber + '-' + detail.diameter + '-' + index"
         v-model="detail.regrindingOption"
@@ -186,7 +186,7 @@
       </select>
     </td>
     <!-- Cena jednostkowa ostrzenia netto -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         :key="
           detail.toolType +
@@ -208,7 +208,7 @@
       />
     </td>
     <!-- Pokrycie -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <select
         :value="detail.coatingPrice?.coatingType?.mastermetCode"
         class="w-full p-2 border rounded text-[11px]"
@@ -225,7 +225,7 @@
       </select>
     </td>
     <!-- Cena jednostkowa pokrycia netto -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         :disabled="!userStore.isCreator()"
         type="number"
@@ -235,7 +235,7 @@
       />
     </td>
     <!-- Ilość -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         type="number"
         v-model="detail.quantity"
@@ -246,7 +246,7 @@
       />
     </td>
     <!-- Rabat -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <input
         type="number"
         v-model="detail.discount"
@@ -257,7 +257,7 @@
       />
     </td>
     <!-- Cena całkowita netto -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       {{ offerStore.getTotalNetDetailPrice(detail) }}
     </td>
     <!-- Cena całkowita brutto -->
@@ -265,7 +265,7 @@
     <!-- {{ (Number(offerStore.getTotalNetDetailPrice(detail)) * 1.23).toFixed(2) }} PLN -->
     <!-- </td>  -->
     <!-- Opis -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <textarea
         v-model="detail.description"
         class="w-full p-2 border rounded text-left resize-none"
@@ -276,7 +276,7 @@
       >
     </td>
     <!-- Akcja -->
-    <td class="border border-gray-300 p-3">
+    <td class="border border-gray-300 px-3">
       <Button @click="offerStore.removeToolRow(index)" variant="danger"> Usuń </Button>
     </td>
   </tr>

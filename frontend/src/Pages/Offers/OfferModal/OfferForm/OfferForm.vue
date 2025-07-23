@@ -316,7 +316,7 @@ Koniec nowej logiki
     <OfferFormHeader />
 
     <div
-      class="overflow-x-auto max-h-114 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
+      class="overflow-x-auto max-h-128 overflow-y-auto bg-white shadow-lg rounded-lg border border-gray-300"
     >
       <table class="w-[100%] border-separate border-spacing-0 table-fixed">
         <OfferFormTableHeader />
