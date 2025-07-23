@@ -115,7 +115,7 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
          const toolTypeName = detail.toolType.toolTypeName.toLowerCase();
 
         if (toolTypeName.includes('promieniowy')) {
-          detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} R${detail.radius ?? 0}`;
+          detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel} R${detail.radius ?? 0}`;
         } else {
           detail.symbol = `${detail.toolType.toolTypeName} Z${detail.flutesNumber} D${diameterLabel}`;
         }
