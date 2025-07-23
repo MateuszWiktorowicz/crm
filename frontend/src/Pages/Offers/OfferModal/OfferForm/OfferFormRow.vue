@@ -38,7 +38,7 @@
   function handleCoatingCodeChange(index: number, newCode: string) {
     const detail = offerStore.offer.offerDetails[index];
 
-    const newCoating = coatingStore.findCoatingByDiameterAndCode(detail.diameter, newCode);
+    const newCoating = coatingStore.findCoatingByDiameterAndCode(detail.diameter, newCode, detail.toolType.toolTypeName);
 
     if (newCoating) {
       detail.coatingPrice = newCoating;

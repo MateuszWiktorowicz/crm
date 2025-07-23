@@ -179,14 +179,15 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
 
           const newCoating = coatingStore.findCoatingByDiameterAndCode(
             detail.diameter ?? null,
-            detail.coatingPrice?.coatingType?.mastermetCode ?? null
+            detail.coatingPrice?.coatingType?.mastermetCode ?? null,
+            detail.toolType.toolTypeName
           );
 
           if (newCoating) {
             detail.coatingPrice = newCoating;
           }
 
-          detail.coatingNetPrice = detail.coatingPrice?.price ?? 0;
+          detail.coatingNetPrice = detail.coatingNetPrice ?? 0;
 
           console.log('[coating updated]', detail.coatingPrice);
         }
@@ -227,12 +228,12 @@ const { selectedFileModalIndex, isFilesModalOpen, openFilesModal, closeFilesModa
   function handleCoatingCodeChange(index: number, newCode: string) {
     const detail = offerStore.offer.offerDetails[index];
 
-    const newCoating = coatingStore.findCoatingByDiameterAndCode(detail.diameter, newCode);
+    const newCoating = coatingStore.findCoatingByDiameterAndCode(detail.diameter, newCode, detail.toolType.toolTypeName);
 
     if (newCoating) {
       detail.coatingPrice = newCoating;
       detail.coatingNetPrice = newCoating.price;
-      detail.isCoatingPriceManual = false; // jeśli potrzebujesz
+      detail.isCoatingPriceManual = false;
       console.log('[coating updated]', newCoating);
     } else {
       // Opcjonalnie: jeśli "Brak pokrycia"
