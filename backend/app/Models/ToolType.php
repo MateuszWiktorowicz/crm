@@ -11,6 +11,9 @@ class ToolType extends Model
         'tool_type_name'
     ];
 
+    public $timestamps = false;
+
+
     public function toolGeometries() 
     {
         return $this->hasMany(ToolGeometry::class, 'id_tool_type');

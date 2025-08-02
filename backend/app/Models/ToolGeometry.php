@@ -43,6 +43,10 @@ public function toArray()
                 'key' => 'full_regrinding',
                 'label' => 'Ostrzenie komplet',
             ] : null,
+            $this->periphery_grinding_time_2d_tool ? [
+                'key' => 'periphery_regrinding',
+                'label' => 'Ostrzenie pod zębem',
+            ] : null,
         ])->filter()->values(),
     ];
 }
