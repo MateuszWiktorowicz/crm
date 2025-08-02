@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\ToolType;
 
 class ToolTypeSeeder extends Seeder
 {
@@ -20,13 +21,14 @@ class ToolTypeSeeder extends Seeder
             'Fazownik',
             'Wiertlo Krete',
             'Niestandardowe',
-            'Kartoteka'
+            'Kartoteka',
+            'Frez Zgrubny'
         ];
 
         foreach ($toolTypes as $toolType) {
-            DB::table('tool_types')->insert([
-                'tool_type_name' => $toolType
-            ]);
-        };
+            ToolType::firstOrCreate(
+                ['tool_type_name' => $toolType]
+            );
+        }
     }
 }

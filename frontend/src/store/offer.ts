@@ -381,7 +381,7 @@ Koniec nowej logiki
     formatDescriptions() {
       this.offer.offerDetails.forEach((detail) => {
         if (
-          ['Frez Walcowy', 'Frez Promieniowy', 'Frez Kulowy', 'Fazownik', 'Wiertlo Krete'].includes(
+          ['Frez Walcowy', 'Frez Promieniowy', 'Frez Kulowy', 'Fazownik', 'Wiertlo Krete', 'Frez Zgrubny'].includes(
             detail.toolType.toolTypeName
           )
         ) {
@@ -393,6 +393,8 @@ Koniec nowej logiki
             prefix = 'ostrzenie czoła';
           } else if (detail.regrindingOption === 'full_regrinding') {
             prefix = 'ostrzenie kpl.';
+          } else if (detail.regrindingOption === 'periphery_regrinding') {
+            prefix = 'ostrzenie pod zębem'
           }
 
           if (detail.coatingPrice?.coatingType?.mastermetCode) {
