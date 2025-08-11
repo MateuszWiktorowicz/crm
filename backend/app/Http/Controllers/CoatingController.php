@@ -11,7 +11,7 @@ class CoatingController extends Controller
 {
     public function index()
     {
-        $coatingTypes = CoatingType::all();
+        $coatingTypes = CoatingType::orderBy('mastermet_code', 'asc')->get();
         $coatings = CoatingPrice::with('coatingType')->get();
 
         return response()->json([
