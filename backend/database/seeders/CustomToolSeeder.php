@@ -13,6 +13,7 @@ class CustomToolSeeder extends Seeder
     public function run(): void
     {
         $data = [
+            //Frez Walcowy Z2
             ['flutes_number' => 2, 'diameter' => 4, 'face_grinding_time' => 6, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
             ['flutes_number' => 2, 'diameter' => 5, 'face_grinding_time' => 6, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
             ['flutes_number' => 2, 'diameter' => 6, 'face_grinding_time' => 7, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
@@ -23,6 +24,8 @@ class CustomToolSeeder extends Seeder
             ['flutes_number' => 2, 'diameter' => 16, 'face_grinding_time' => 9, 'periphery_grinding_time_2d_tool' => 6, 'id_tool_type' => 1],
             ['flutes_number' => 2, 'diameter' => 18, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => 6, 'id_tool_type' => 1],
             ['flutes_number' => 2, 'diameter' => 20, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 6, 'id_tool_type' => 1],
+            ['flutes_number' => 2, 'diameter' => 25, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
+            //Frez Walcowy Z3
             ['flutes_number' => 3, 'diameter' => 4, 'face_grinding_time' => 7, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
             ['flutes_number' => 3, 'diameter' => 5, 'face_grinding_time' => 7, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
             ['flutes_number' => 3, 'diameter' => 6, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 1],
@@ -33,6 +36,8 @@ class CustomToolSeeder extends Seeder
             ['flutes_number' => 3, 'diameter' => 16, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 6, 'id_tool_type' => 1],
             ['flutes_number' => 3, 'diameter' => 18, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 7, 'id_tool_type' => 1],
             ['flutes_number' => 3, 'diameter' => 20, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => 7, 'id_tool_type' => 1],
+            ['flutes_number' => 3, 'diameter' => 25, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
+            //Frez Walcowy Z4
             ['flutes_number' => 4, 'diameter' => 4, 'face_grinding_time' => 7, 'periphery_grinding_time_2d_tool' => 3, 'id_tool_type' => 1],
             ['flutes_number' => 4, 'diameter' => 5, 'face_grinding_time' => 7, 'periphery_grinding_time_2d_tool' => 3, 'id_tool_type' => 1],
             ['flutes_number' => 4, 'diameter' => 6, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 3, 'id_tool_type' => 1],
@@ -43,6 +48,8 @@ class CustomToolSeeder extends Seeder
             ['flutes_number' => 4, 'diameter' => 16, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 7, 'id_tool_type' => 1],
             ['flutes_number' => 4, 'diameter' => 18, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 8, 'id_tool_type' => 1],
             ['flutes_number' => 4, 'diameter' => 20, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => 8, 'id_tool_type' => 1],
+            ['flutes_number' => 4, 'diameter' => 25, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 15, 'id_tool_type' => 1],
+            //Frez Walcowy Z5
             ['flutes_number' => 5, 'diameter' => 4, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 4, 'id_tool_type' => 1],
             ['flutes_number' => 5, 'diameter' => 5, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 4, 'id_tool_type' => 1],
             ['flutes_number' => 5, 'diameter' => 6, 'face_grinding_time' => 9, 'periphery_grinding_time_2d_tool' => 4, 'id_tool_type' => 1],
@@ -53,6 +60,8 @@ class CustomToolSeeder extends Seeder
             ['flutes_number' => 5, 'diameter' => 16, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
             ['flutes_number' => 5, 'diameter' => 18, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
             ['flutes_number' => 5, 'diameter' => 20, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => 12, 'id_tool_type' => 1],
+             ['flutes_number' => 5, 'diameter' => 25, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 18, 'id_tool_type' => 1],
+            //Frez Walcowy Z6
             ['flutes_number' => 6, 'diameter' => 4, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 5, 'id_tool_type' => 1],
             ['flutes_number' => 6, 'diameter' => 5, 'face_grinding_time' => 8, 'periphery_grinding_time_2d_tool' => 5, 'id_tool_type' => 1],
             ['flutes_number' => 6, 'diameter' => 6, 'face_grinding_time' => 9, 'periphery_grinding_time_2d_tool' => 5, 'id_tool_type' => 1],
@@ -63,24 +72,32 @@ class CustomToolSeeder extends Seeder
             ['flutes_number' => 6, 'diameter' => 16, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
             ['flutes_number' => 6, 'diameter' => 18, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 12, 'id_tool_type' => 1],
             ['flutes_number' => 6, 'diameter' => 20, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
+            ['flutes_number' => 6, 'diameter' => 25, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => 19, 'id_tool_type' => 1],
+            //Frez Walcowy Z7
             ['flutes_number' => 7, 'diameter' => 10, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
             ['flutes_number' => 7, 'diameter' => 12, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
             ['flutes_number' => 7, 'diameter' => 14, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 12, 'id_tool_type' => 1],
             ['flutes_number' => 7, 'diameter' => 16, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
             ['flutes_number' => 7, 'diameter' => 18, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 12, 'id_tool_type' => 1],
             ['flutes_number' => 7, 'diameter' => 20, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 14, 'id_tool_type' => 1],
+            ['flutes_number' => 7, 'diameter' => 25, 'face_grinding_time' => 18, 'periphery_grinding_time_2d_tool' => 18, 'id_tool_type' => 1],
+            //Frez Walcowy Z8
         ['flutes_number' => 8, 'diameter' => 10, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
         ['flutes_number' => 8, 'diameter' => 12, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 11, 'id_tool_type' => 1],
         ['flutes_number' => 8, 'diameter' => 14, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 12, 'id_tool_type' => 1],
         ['flutes_number' => 8, 'diameter' => 16, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 14, 'id_tool_type' => 1],
         ['flutes_number' => 8, 'diameter' => 18, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
         ['flutes_number' => 8, 'diameter' => 20, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => 14, 'id_tool_type' => 1],
+        ['flutes_number' => 8, 'diameter' => 25, 'face_grinding_time' => 20, 'periphery_grinding_time_2d_tool' => 18, 'id_tool_type' => 1],
+        //Frez Walcowy Z9
         ['flutes_number' => 9, 'diameter' => 10, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
         ['flutes_number' => 9, 'diameter' => 12, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 13, 'id_tool_type' => 1],
         ['flutes_number' => 9, 'diameter' => 14, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => 14, 'id_tool_type' => 1],
         ['flutes_number' => 9, 'diameter' => 16, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 15, 'id_tool_type' => 1],
         ['flutes_number' => 9, 'diameter' => 18, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 16, 'id_tool_type' => 1],
         ['flutes_number' => 9, 'diameter' => 20, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => 16, 'id_tool_type' => 1],
+        ['flutes_number' => 9, 'diameter' => 25, 'face_grinding_time' => 22, 'periphery_grinding_time_2d_tool' => 20, 'id_tool_type' => 1],
+        //
         ['flutes_number' => 2, 'diameter' => 6, 'face_grinding_time' => 9, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 3],
         ['flutes_number' => 2, 'diameter' => 8, 'face_grinding_time' => 11, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 3],
         ['flutes_number' => 2, 'diameter' => 10, 'face_grinding_time' => 13, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 3],
