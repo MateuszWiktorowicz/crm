@@ -4,11 +4,14 @@
   import { useOfferStore } from '@/store/offer';
   import OfferModal from './OfferModal/OfferModal.vue';
   import Button from '@/components/Button.vue';
+  import SkeletonLoader from '@/components/SkeletonLoader.vue';
   import { useConfirmationDialog } from '@/composables/useConfirmationDialog';
+  import { useToast } from '@/composables/useToast';
   import { Offer, OfferFilters } from '@/types/types';
   import { formatDate } from '@/utils/formatDate';
 
   const { showConfirmationDialog, dialogRef, ConfirmationDialog } = useConfirmationDialog();
+  const { success, error } = useToast();
   const offerStore: ReturnType<typeof useOfferStore> = useOfferStore();
 
   // Lokalne filtry w komponencie
@@ -46,7 +49,12 @@
 
     const confirmed = await showConfirmationDialog('Czy na pewno chcesz usunąć ofertę?');
     if (confirmed) {
-      await offerStore.destroyOffer(id);
+      try {
+        await offerStore.destroyOffer(id);
+        success('Oferta została usunięta');
+      } catch (err) {
+        error('Błąd podczas usuwania oferty');
+      }
     }
   };
 
@@ -69,6 +77,7 @@
   const handleClone = (offer: Offer) => {
     offerStore.cloneOffer(offer);
     openModal();
+    success('Oferta została sklonowana');
   };
 
   // Oblicz numer Lp na podstawie strony
@@ -155,7 +164,14 @@
               <th class="border border-gray-300 p-3 text-left min-w-[150px]">Actions</th>
             </tr>
           </thead>
-          <tbody v-if="offerStore.offers.length > 0" class="text-gray-600 text-sm">
+          <tbody v-if="offerStore.isLoading" class="text-gray-600 text-sm">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-300">
+              <td class="border border-gray-300 p-3" colspan="9">
+                <SkeletonLoader type="table-row" :columns="9" />
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else-if="offerStore.offers.length > 0" class="text-gray-600 text-sm">
             <tr
               v-for="(offer, index) in offerStore.offers as Offer[]"
               :key="offer.id ?? undefined"
@@ -182,13 +198,50 @@
               </td>
               <td class="border border-gray-300 p-3">{{ formatDate(offer.createdAt ?? '-') }}</td>
               <td class="border border-gray-300 p-3">
-                <Button @click="handleEdit(offer)" variant="warning" class="mr-2 mb-2">
-                  Edytuj
-                </Button>
-                <Button @click="handleDelete(offer.id)" variant="danger" class="mr-2 mb-2">
-                  Usuń
-                </Button>
-                <Button @click="handleClone(offer)" variant="info" class="mr-2 mb-2">Klonuj</Button>
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="handleEdit(offer)"
+                    class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                    title="Edytuj"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    @click="handleClone(offer)"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Klonuj"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    @click="handleDelete(offer.id)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Usuń"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>

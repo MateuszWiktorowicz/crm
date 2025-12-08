@@ -1,14 +1,13 @@
 <template>
-  <div class="flex flex-col">
-    <label :for="inputId">{{ label }}</label>
+  <div class="flex flex-col space-y-1">
+    <label :for="inputId" class="text-sm font-medium text-gray-700">{{ label }}</label>
     <input
-      class="w-full p-2 border rounded"
+      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
       :id="inputId"
       type="text"
       :value="inputValue"
       @input="updateValue"
       :disabled="disabled"
-      :class="{ 'bg-gray-200': disabled, 'bg-white': !disabled }"
     />
   </div>
 </template>
@@ -63,19 +62,4 @@
   };
 </script>
 
-<style scoped>
-  input {
-    padding: 8px;
-    margin: 10px 0;
-    width: 200px;
-  }
-
-  .bg-gray-200 {
-    background-color: #e2e8f0; /* Jasnoszary kolor tła dla disabled */
-    cursor: not-allowed;
-  }
-
-  .bg-white {
-    background-color: #ffffff; /* Biały kolor tła dla aktywnego */
-  }
-</style>
+<style scoped></style>

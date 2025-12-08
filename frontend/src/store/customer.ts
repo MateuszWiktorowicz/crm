@@ -86,15 +86,18 @@ const useCustomerStore = defineStore('customer', {
     },
     async saveCustomer(customer: Customer) {
       try {
+        let response;
         if (customer.id) {
-          await axiosClient.put(`/api/klienci/${this.customer.id}`, customer);
+          response = await axiosClient.put(`/api/klienci/${this.customer.id}`, customer);
         } else {
-          await axiosClient.post('/api/klienci', customer);
+          response = await axiosClient.post('/api/klienci', customer);
         }
         await this.fetchCustomers(this.pagination?.current_page ?? 1, this.currentFilters);
         this.errors = {};
+        return response;
       } catch (error: any) {
         this.errors = error.response?.data?.errors ?? {};
+        throw error;
       }
     },
     async deleteCustomer(customerId: number) {

@@ -4,11 +4,14 @@
   import CustomerModal from './CustomerModal.vue';
   import { useUserStore } from '../../store/user';
   import Button from '@/components/Button.vue';
+  import SkeletonLoader from '@/components/SkeletonLoader.vue';
   import { useConfirmationDialog } from '@/composables/useConfirmationDialog';
+  import { useToast } from '@/composables/useToast';
   import { Customer, CustomerFilters } from '@/types/types';
 
   const customerStore = useCustomerStore();
   const userStore = useUserStore();
+  const { success, error } = useToast();
 
   const isModalOpen = ref(false);
 
@@ -51,7 +54,12 @@
 
     const confirmed = await showConfirmationDialog('Czy na pewno chcesz usunąć klienta?');
     if (confirmed) {
-      await customerStore.deleteCustomer(id);
+      try {
+        await customerStore.deleteCustomer(id);
+        success('Klient został usunięty');
+      } catch (err) {
+        error('Błąd podczas usuwania klienta');
+      }
     }
   };
 
@@ -196,7 +204,14 @@
               <th class="border border-gray-300 p-3 text-center">Akcje</th>
             </tr>
           </thead>
-          <tbody v-if="customerStore.customers.length > 0" class="text-gray-600 text-xs">
+          <tbody v-if="customerStore.isLoading" class="text-gray-600 text-xs">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-300">
+              <td class="border border-gray-300 p-3" colspan="8">
+                <SkeletonLoader type="table-row" :columns="8" />
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else-if="customerStore.customers.length > 0" class="text-gray-600 text-xs">
             <tr v-for="customer in customerStore.customers" :key="customer.code">
               <td class="border border-gray-300 p-3">{{ customer.code }}</td>
               <td class="border border-gray-300 p-3">{{ customer.name }}</td>
@@ -210,17 +225,36 @@
                 </div>
               </td>
               <td class="border border-gray-300 p-3 text-center">
-                <Button @click="handleEdit(customer)" size="small" variant="warning">
-                  Edytuj
-                </Button>
-                <Button
-                  @click="handleDelete(customer.id)"
-                  size="small"
-                  variant="danger"
-                  class="mt-2"
-                >
-                  Usuń
-                </Button>
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    @click="handleEdit(customer)"
+                    class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                    title="Edytuj"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    @click="handleDelete(customer.id)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Usuń"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>

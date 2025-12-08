@@ -100,4 +100,41 @@ export const OfferService = {
     const response = await axiosClient.get('/api/offers/dashboard/stats', { params });
     return response.data;
   },
+
+  async getEmployeeMarkers(): Promise<string[]> {
+    const response = await axiosClient.get('/api/offers/dashboard/markers');
+    return response.data.markers;
+  },
+
+  async getPopularTools(params?: {
+    customer_id?: number;
+    employee_marker?: string;
+    period?: 'week' | 'month' | 'year' | 'custom';
+    start_date?: string;
+    end_date?: string;
+  }): Promise<{
+    popularFiles: Array<{
+      id: number;
+      code: string;
+      name: string;
+      totalQuantity: number;
+      usageCount: number;
+    }>;
+    popularCombinations: Array<{
+      toolType: string;
+      flutes: number | null;
+      diameter: number | null;
+      totalQuantity: number;
+      usageCount: number;
+    }>;
+    popularCoatings: Array<{
+      code: string;
+      name: string;
+      totalQuantity: number;
+      usageCount: number;
+    }>;
+  }> {
+    const response = await axiosClient.get('/api/offers/dashboard/popular-tools', { params });
+    return response.data;
+  },
 };

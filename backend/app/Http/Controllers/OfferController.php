@@ -375,7 +375,7 @@ if (!$offer->offer_number) {
         }
         
         // Filtrowanie po okresie
-        $period = $request->input('period', 'month'); // week, month, year, custom
+        $period = $request->input('period', 'all'); // week, month, year, custom, all
         $startDate = null;
         $endDate = null;
         
@@ -392,6 +392,7 @@ if (!$offer->offer_number) {
             $startDate = \Illuminate\Support\Carbon::parse($request->start_date)->startOfDay();
             $endDate = \Illuminate\Support\Carbon::parse($request->end_date)->endOfDay();
         }
+        // Dla 'all' nie ustawiamy dat - pokazujemy wszystkie dane
         
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -481,6 +482,173 @@ if (!$offer->offer_number) {
             'period' => $period,
             'startDate' => $startDate?->toDateString(),
             'endDate' => $endDate?->toDateString(),
+        ]);
+    }
+
+    public function getEmployeeMarkers(Request $request)
+    {
+        $user = $request->user();
+        
+        // Buduj query
+        $query = Offer::query();
+        
+        // Filtrowanie po uprawnieniach użytkownika
+        if (!$user->hasRole('admin') && !$user->hasRole('regeneration')) {
+            $query->where('created_by', $user->id);
+        }
+        
+        // Pobierz unikalne znaczniki handlowców z klientów, którzy mają oferty
+        $markers = $query->join('customers', 'offers.customer_id', '=', 'customers.id')
+            ->whereNotNull('customers.saler_marker')
+            ->where('customers.saler_marker', '!=', '')
+            ->distinct()
+            ->pluck('customers.saler_marker')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        return response()->json([
+            'markers' => $markers
+        ]);
+    }
+
+    public function getPopularTools(Request $request)
+    {
+        $user = $request->user();
+        
+        // Pobierz status "Zamówienie" (zaakceptowane)
+        $statusZamowienie = Status::where('name', 'Zamówienie')->first();
+        
+        // Buduj query z filtrowaniem (podobnie jak w dashboard)
+        $query = Offer::query();
+        
+        // Filtrowanie tylko zaakceptowanych ofert
+        if ($statusZamowienie) {
+            $query->where('status_id', $statusZamowienie->id);
+        }
+        
+        // Filtrowanie po uprawnieniach użytkownika
+        if (!$user->hasRole('admin') && !$user->hasRole('regeneration')) {
+            $query->where('created_by', $user->id);
+        }
+        
+        // Filtrowanie po kliencie
+        if ($request->has('customer_id') && $request->customer_id) {
+            $query->where('customer_id', $request->customer_id);
+        }
+        
+        // Filtrowanie po handlowcu (po znaczniku z klienta)
+        if ($request->has('employee_marker') && $request->employee_marker) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('saler_marker', $request->employee_marker);
+            });
+        }
+        
+        // Filtrowanie po okresie
+        $period = $request->input('period', 'all');
+        $startDate = null;
+        $endDate = null;
+        
+        if ($period === 'week') {
+            $startDate = now()->startOfWeek();
+            $endDate = now()->endOfWeek();
+        } elseif ($period === 'month') {
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
+        } elseif ($period === 'year') {
+            $startDate = now()->startOfYear();
+            $endDate = now()->endOfYear();
+        } elseif ($period === 'custom' && $request->has('start_date') && $request->has('end_date')) {
+            $startDate = \Illuminate\Support\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Illuminate\Support\Carbon::parse($request->end_date)->endOfDay();
+        }
+        // Dla 'all' nie ustawiamy dat - pokazujemy wszystkie dane
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        $offerIds = $query->pluck('id');
+        
+        // Najpopularniejsze kartoteki (file_id)
+        $popularFiles = \App\Models\OfferDetail::whereIn('offer_id', $offerIds)
+            ->whereNotNull('file_id')
+            ->join('tools', 'offer_details.file_id', '=', 'tools.id')
+            ->selectRaw('offer_details.file_id, tools.code, tools.name, SUM(offer_details.quantity) as total_quantity, COUNT(*) as usage_count')
+            ->groupBy('offer_details.file_id', 'tools.code', 'tools.name')
+            ->orderByDesc('total_quantity')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->file_id,
+                    'code' => $item->code ?? '',
+                    'name' => $item->name ?? '',
+                    'totalQuantity' => $item->total_quantity,
+                    'usageCount' => $item->usage_count,
+                ];
+            });
+        
+        // Najpopularniejsze kombinacje: tool_type + flutes + diameter (BEZ pokrycia)
+        $popularCombinations = \App\Models\OfferDetail::whereIn('offer_id', $offerIds)
+            ->whereNotNull('tool_type_id')
+            ->with(['toolType', 'toolGeometry'])
+            ->get()
+            ->groupBy(function ($detail) {
+                $type = $detail->toolType?->tool_type_name ?? 'N/A';
+                $flutes = $detail->toolGeometry?->flutes_number ?? 'N/A';
+                $diameter = $detail->toolGeometry?->diameter ?? 'N/A';
+                return "{$type}|{$flutes}|{$diameter}";
+            })
+            ->map(function ($group, $key) {
+                $parts = explode('|', $key);
+                $totalQuantity = $group->sum('quantity');
+                $usageCount = $group->count();
+                
+                return [
+                    'toolType' => $parts[0],
+                    'flutes' => $parts[1] !== 'N/A' ? (int)$parts[1] : null,
+                    'diameter' => $parts[2] !== 'N/A' ? (float)$parts[2] : null,
+                    'totalQuantity' => $totalQuantity,
+                    'usageCount' => $usageCount,
+                ];
+            })
+            ->sortByDesc('totalQuantity')
+            ->take(10)
+            ->values();
+        
+        // Najpopularniejsze pokrycia
+        $popularCoatings = \App\Models\OfferDetail::whereIn('offer_id', $offerIds)
+            ->whereNotNull('coating_price_id')
+            ->with(['coatingPrice.coatingType'])
+            ->get()
+            ->groupBy(function ($detail) {
+                $coating = $detail->coatingPrice?->coatingType?->mastermet_code ?? 'Brak';
+                return $coating;
+            })
+            ->map(function ($group, $coatingCode) {
+                $totalQuantity = $group->sum('quantity');
+                $usageCount = $group->count();
+                
+                // Pobierz nazwę pokrycia z pierwszego elementu
+                $firstDetail = $group->first();
+                $coatingName = $firstDetail->coatingPrice?->coatingType?->mastermet_name ?? $coatingCode;
+                
+                return [
+                    'code' => $coatingCode,
+                    'name' => $coatingName,
+                    'totalQuantity' => $totalQuantity,
+                    'usageCount' => $usageCount,
+                ];
+            })
+            ->sortByDesc('totalQuantity')
+            ->take(10)
+            ->values();
+        
+        return response()->json([
+            'popularFiles' => $popularFiles,
+            'popularCombinations' => $popularCombinations,
+            'popularCoatings' => $popularCoatings,
         ]);
     }
 }

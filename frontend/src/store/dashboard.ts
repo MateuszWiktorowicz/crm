@@ -24,14 +24,40 @@ interface DashboardStats {
 interface DashboardFilters {
   customerId: number | null;
   employeeMarker: string | null;
-  period: 'week' | 'month' | 'year' | 'custom';
+  period: 'week' | 'month' | 'year' | 'custom' | 'all';
   startDate: string;
   endDate: string;
+}
+
+interface PopularFile {
+  id: number;
+  code: string;
+  name: string;
+  totalQuantity: number;
+  usageCount: number;
+}
+
+interface PopularCombination {
+  toolType: string;
+  flutes: number | null;
+  diameter: number | null;
+  totalQuantity: number;
+  usageCount: number;
+}
+
+interface PopularCoating {
+  code: string;
+  name: string;
+  totalQuantity: number;
+  usageCount: number;
 }
 
 interface DashboardState {
   isLoading: boolean;
   stats: DashboardStats | null;
+  popularFiles: PopularFile[];
+  popularCombinations: PopularCombination[];
+  popularCoatings: PopularCoating[];
   filters: DashboardFilters;
   errors: string[];
 }
@@ -40,13 +66,16 @@ export const useDashboardStore = defineStore('dashboard', {
   state: (): DashboardState => ({
     isLoading: false,
     stats: null,
-    filters: {
-      customerId: null,
-      employeeMarker: null,
-      period: 'month',
-      startDate: '',
-      endDate: '',
-    },
+    popularFiles: [],
+    popularCombinations: [],
+    popularCoatings: [],
+      filters: {
+        customerId: null,
+        employeeMarker: null,
+        period: 'all',
+        startDate: '',
+        endDate: '',
+      },
     errors: [],
   }),
 
@@ -79,6 +108,12 @@ export const useDashboardStore = defineStore('dashboard', {
 
         const data = await OfferService.getDashboardStats(params);
         this.stats = data;
+        
+        // Pobierz najpopularniejsze narzędzia z tymi samymi filtrami
+        const popularTools = await OfferService.getPopularTools(params);
+        this.popularFiles = popularTools.popularFiles;
+        this.popularCombinations = popularTools.popularCombinations;
+        this.popularCoatings = popularTools.popularCoatings;
       } catch (error: any) {
         this.errors = [error?.response?.data?.error || 'Wystąpił błąd podczas pobierania statystyk.'];
         console.error('Błąd pobierania statystyk:', error);
