@@ -3,7 +3,13 @@ import useSettingsStore from './settings';
 import { OfferService } from '@/services/OfferService';
 import { Offer, OfferDetail, OfferFilters, Status } from '@/types/types';
 import axiosClient from '@/axios';
-import dayjs from 'dayjs';
+
+interface PaginationMeta {
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+}
 
 interface OfferState {
   isLoading: boolean;
@@ -13,8 +19,8 @@ interface OfferState {
   isInitialEditPhase: boolean;
   offers: Offer[];
   offer: Offer;
-  filteredOffers: Offer[];
-  filters: OfferFilters;
+  pagination: PaginationMeta | null;
+  currentFilters: Partial<OfferFilters>;
   statuses: Status[];
   errors: Record<string, any>;
 }
@@ -26,6 +32,8 @@ export const useOfferStore = defineStore('offer', {
     isEditing: false,
     isInitialEditPhase: false,
     offers: [],
+    pagination: null,
+    currentFilters: {},
     offer: {
       id: null,
       globalDiscount: 0,
@@ -75,14 +83,6 @@ export const useOfferStore = defineStore('offer', {
         },
       ],
     },
-    filteredOffers: [],
-    filters: {
-      offerNumber: '',
-      customerName: '',
-      employeeName: '',
-      statusName: '',
-      createdAt: '',
-    },
     statuses: [],
     errors: {},
   }),
@@ -94,9 +94,10 @@ Początek nowej logiki
     async destroyOffer(id: number) {
       try {
         await OfferService.destroy(id);
-        await this.fetchOffers();
+        await this.fetchOffers(this.pagination?.current_page ?? 1, this.currentFilters);
+        this.errors = {};
       } catch (error: any) {
-        this.errors = [error?.response?.data?.error || 'Wystąpił nieznany błąd.'];
+        this.errors = { general: [error?.response?.data?.error || 'Wystąpił nieznany błąd.'] };
       }
     },
 
@@ -104,15 +105,23 @@ Początek nowej logiki
 Koniec nowej logiki
 */
 
-    async fetchOffers() {
+    async fetchOffers(page: number = 1, filters?: Partial<OfferFilters>) {
+      this.isLoading = true;
       try {
-        const { offers, statuses } = await OfferService.fetchAll();
+        if (filters) {
+          this.currentFilters = filters;
+        }
+        const response = await OfferService.fetchOffers(page, this.currentFilters);
 
-        this.offers = offers;
-        this.filteredOffers = offers;
-        this.statuses = statuses;
-        console.log(this.offers);
-      } catch (error: any) {}
+        this.offers = response.data;
+        this.pagination = response.meta;
+        this.statuses = response.statuses;
+      } catch (error: any) {
+        this.errors = error?.response?.data?.errors || {};
+        console.error('Błąd pobierania ofert:', error);
+      } finally {
+        this.isLoading = false;
+      }
     },
     async saveOffer() {
       this.isLoading = true;
@@ -127,7 +136,7 @@ Koniec nowej logiki
         const [response] = await Promise.all([OfferService.save(this.offer), delay]);
 
         this.editOffer(response.offer);
-        this.fetchOffers();
+        await this.fetchOffers(this.pagination?.current_page ?? 1, this.currentFilters);
       } catch (error: any) {
         if (error.response && error?.response?.data.errors) {
           this.errors = error.response.data.errors;
@@ -318,75 +327,6 @@ Koniec nowej logiki
       });
 
       this.offer.totalPrice = totalNetPrice;
-    },
-    setFilter(column: keyof OfferFilters, value: string) {
-      this.filters[column] = value;
-      this.filterOffers();
-    },
-    filterOffers() {
-      if (!Array.isArray(this.offers)) return;
-
-      this.filteredOffers = this.offers.filter((offer) => {
-        // Filtr po numerze oferty (prostym polu)
-        if (this.filters.offerNumber) {
-          const offerNumber = (offer.offerNumber ?? '').toString().toLowerCase();
-          const filter = this.filters.offerNumber.toLowerCase();
-          if (!offerNumber.includes(filter)) {
-            return false;
-          }
-        }
-
-        // Filtr po nazwie klienta (zagnieżdżone pole customer.name)
-        if (this.filters.customerName) {
-          if (
-            !offer.customer ||
-            !offer.customer.name.toLowerCase().includes(this.filters.customerName.toLowerCase())
-          ) {
-            return false;
-          }
-        }
-
-        // Filtr po nazwie pracownika (createdBy.name)
-        if (this.filters.employeeName) {
-          if (
-            !offer.createdBy ||
-            !offer.createdBy.name.toLowerCase().includes(this.filters.employeeName.toLowerCase())
-          ) {
-            return false;
-          }
-        }
-
-        // Filtr po statusie (status.name)
-        if (this.filters.statusName) {
-          if (
-            !offer.status ||
-            !offer.status.name.toLowerCase().includes(this.filters.statusName.toLowerCase())
-          ) {
-            return false;
-          }
-        }
-
-        if (this.filters.createdAt) {
-          const createdAtFull = offer.createdAt ?? '';
-
-          if (!createdAtFull) return false;
-
-          const parsedDate = dayjs(createdAtFull);
-          if (!parsedDate.isValid()) return false;
-
-          // Format daty taki sam jak w tabeli
-          const formattedDate = parsedDate.format('DD/MM/YYYY'); // np. "11/06/2025"
-
-          // Normalizujemy oba ciągi: usuwamy spacje, zamieniamy na lowercase
-          const normalizedFilter = this.filters.createdAt.trim().toLowerCase();
-          const normalizedDate = formattedDate.toLowerCase();
-          if (!normalizedDate.includes(normalizedFilter)) {
-            return false;
-          }
-        }
-
-        return true;
-      });
     },
 
     formatDescriptions() {

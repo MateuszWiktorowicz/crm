@@ -1,16 +1,42 @@
 // services/offerService.ts
 import axiosClient from '@/axios';
-import { Offer, OfferResponse, OfferFilters, OfferDetail, PdfInfo, Status } from '@/types/types';
+import { Offer, OfferResponse, OfferFilters, OfferDetail, PdfInfo, Status, PaginatedOfferResponse } from '@/types/types';
 type SaveOfferResponse = { offer: Offer };
 
 export const OfferService = {
-  async fetchAll(): Promise<OfferResponse> {
-    const response = await axiosClient.get('/api/offers');
-    const offers: Offer[] = response.data.offers;
+  async fetchOffers(
+    page: number = 1,
+    filters?: Partial<OfferFilters>
+  ): Promise<PaginatedOfferResponse> {
+    const params: any = {
+      page,
+      per_page: 10,
+    };
+
+    if (filters) {
+      if (filters.offerNumber) {
+        params.offer_number = filters.offerNumber;
+      }
+      if (filters.customerName) {
+        params.customer_name = filters.customerName;
+      }
+      if (filters.employeeName) {
+        params.employee_name = filters.employeeName;
+      }
+      if (filters.statusName) {
+        params.status_name = filters.statusName;
+      }
+      if (filters.createdAt) {
+        params.created_at = filters.createdAt;
+      }
+    }
+
+    const response = await axiosClient.get('/api/offers', { params });
 
     return {
-      offers,
-      statuses: response.data.statuses as Status[],
+      data: response.data.data,
+      meta: response.data.meta,
+      statuses: response.data.statuses,
     };
   },
 

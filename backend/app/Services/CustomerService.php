@@ -23,17 +23,60 @@ class CustomerService
     {
         $user = $request->user();
 
+        // Buduj query
+        $query = Customer::query();
+
+        // Filtrowanie po uprawnieniach użytkownika
         if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
-
-            return Customer::orderBy('name', 'asc')->get();
+            // Admin i regeneration widzą wszystkich klientów
         } elseif ($user->hasRole('saler')) {
-
-            return Customer::where('saler_marker', $user->marker)
-                ->orderBy('name', 'asc')
-                ->get();
+            $query->where('saler_marker', $user->marker);
+        } else {
+            return response()->json(['message' => 'Brak dostępu.'], 403);
         }
 
-        return response()->json(['message' => 'Brak dostępu.'], 403);
+        // Filtrowanie przez query params
+        if ($request->has('code') && $request->code) {
+            $query->where('code', 'LIKE', '%' . $request->code . '%');
+        }
+
+        if ($request->has('name') && $request->name) {
+            $query->where('name', 'LIKE', '%' . $request->name . '%');
+        }
+
+        if ($request->has('nip') && $request->nip) {
+            $query->where('nip', 'LIKE', '%' . $request->nip . '%');
+        }
+
+        if ($request->has('city') && $request->city) {
+            $query->where('city', 'LIKE', '%' . $request->city . '%');
+        }
+
+        if ($request->has('address') && $request->address) {
+            $query->where('address', 'LIKE', '%' . $request->address . '%');
+        }
+
+        if ($request->has('saler_marker') && $request->saler_marker) {
+            $query->where('saler_marker', 'LIKE', '%' . $request->saler_marker . '%');
+        }
+
+        if ($request->has('description') && $request->description) {
+            $query->where('description', 'LIKE', '%' . $request->description . '%');
+        }
+
+        // Sortowanie i paginacja
+        $perPage = $request->input('per_page', 10);
+        $customers = $query->orderBy('name', 'asc')->paginate($perPage);
+
+        return response()->json([
+            'data' => $customers->items(),
+            'meta' => [
+                'current_page' => $customers->currentPage(),
+                'per_page' => $customers->perPage(),
+                'total' => $customers->total(),
+                'last_page' => $customers->lastPage(),
+            ],
+        ]);
     }
 
     public function store(CustomerRequest $request)

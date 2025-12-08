@@ -3,14 +3,9 @@
   import useCustomerStore from '../../store/customer';
   import CustomerModal from './CustomerModal.vue';
   import { useUserStore } from '../../store/user';
-  import FilterInput from '../../components/FilterInput.vue';
   import Button from '@/components/Button.vue';
   import { useConfirmationDialog } from '@/composables/useConfirmationDialog';
-  import { Customer } from '@/types/types';
-
-  /*
-Początek nowej logiki
-*/
+  import { Customer, CustomerFilters } from '@/types/types';
 
   const customerStore = useCustomerStore();
   const userStore = useUserStore();
@@ -18,6 +13,38 @@ Początek nowej logiki
   const isModalOpen = ref(false);
 
   const { showConfirmationDialog, dialogRef, ConfirmationDialog } = useConfirmationDialog();
+
+  // Lokalne filtry w komponencie
+  const localFilters = ref<Partial<CustomerFilters>>({
+    code: '',
+    name: '',
+    nip: '',
+    city: '',
+    address: '',
+    salerMarker: '',
+    description: '',
+  });
+
+  // Debounce timer dla filtrów
+  let filterTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  const handleFilterChange = (column: keyof CustomerFilters, value: string) => {
+    localFilters.value[column] = value;
+
+    // Debounce - czekamy 500ms po ostatniej zmianie
+    if (filterTimeout) {
+      clearTimeout(filterTimeout);
+    }
+
+    filterTimeout = setTimeout(() => {
+      // Reset do strony 1 przy zmianie filtrów
+      customerStore.fetchCustomers(1, localFilters.value);
+    }, 500);
+  };
+
+  const handlePageChange = (page: number) => {
+    customerStore.fetchCustomers(page, localFilters.value);
+  };
 
   const handleDelete = async (id: number | null) => {
     if (id === null) return;
@@ -42,12 +69,8 @@ Początek nowej logiki
     isModalOpen.value = false;
   };
 
-  /*
-Koniec nowej logiki
-*/
-
   onMounted(() => {
-    customerStore.fetchCustomers();
+    customerStore.fetchCustomers(1);
   });
 
   // const selectFile = () => {
@@ -107,39 +130,74 @@ Koniec nowej logiki
             <tr class="bg-gray-100 text-gray-700 uppercase text-xs leading-normal rounded-t-lg">
               <th class="border border-gray-300 p-3 text-center w-[100px]">
                 Kod
-                <FilterInput :store="customerStore" column="code" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.code"
+                  @input="handleFilterChange('code', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th
                 class="border border-gray-300 p-3 text-center w-[300px] break-words whitespace-normal"
               >
                 Nazwa
-                <FilterInput :store="customerStore" column="name" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.name"
+                  @input="handleFilterChange('name', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center">
                 NIP
-                <FilterInput :store="customerStore" column="nip" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.nip"
+                  @input="handleFilterChange('nip', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center">
                 Miasto
-                <FilterInput :store="customerStore" column="city" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.city"
+                  @input="handleFilterChange('city', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center">
                 Adres
-                <FilterInput :store="customerStore" column="address" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.address"
+                  @input="handleFilterChange('address', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center">
                 Znacznik
-                <FilterInput :store="customerStore" column="salerMarker" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.salerMarker"
+                  @input="handleFilterChange('salerMarker', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center w-[300px]">
                 Uwagi
-                <FilterInput :store="customerStore" column="description" placeholder="Filtruj" />
+                <input
+                  :value="localFilters.description"
+                  @input="handleFilterChange('description', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-center">Akcje</th>
             </tr>
           </thead>
-          <tbody v-if="customerStore.filteredCustomers.length > 0" class="text-gray-600 text-xs">
-            <tr v-for="customer in customerStore.filteredCustomers" :key="customer.code">
+          <tbody v-if="customerStore.customers.length > 0" class="text-gray-600 text-xs">
+            <tr v-for="customer in customerStore.customers" :key="customer.code">
               <td class="border border-gray-300 p-3">{{ customer.code }}</td>
               <td class="border border-gray-300 p-3">{{ customer.name }}</td>
               <td class="border border-gray-300 p-3">{{ customer.nip }}</td>
@@ -174,6 +232,32 @@ Koniec nowej logiki
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Paginacja -->
+      <div v-if="customerStore.pagination" class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Strona {{ customerStore.pagination.current_page }} z {{ customerStore.pagination.last_page }}
+          ({{ customerStore.pagination.total }} klientów)
+        </div>
+        <div class="flex gap-2">
+          <Button
+            @click="handlePageChange(customerStore.pagination!.current_page - 1)"
+            :disabled="customerStore.pagination.current_page === 1 || customerStore.isLoading"
+            variant="secondary"
+            size="small"
+          >
+            Poprzednia
+          </Button>
+          <Button
+            @click="handlePageChange(customerStore.pagination!.current_page + 1)"
+            :disabled="customerStore.pagination.current_page === customerStore.pagination.last_page || customerStore.isLoading"
+            variant="secondary"
+            size="small"
+          >
+            Następna
+          </Button>
+        </div>
       </div>
     </div>
     <CustomerModal :isModalOpen="isModalOpen" :closeModal="closeModal" />

@@ -3,18 +3,43 @@
   import Header from '../../components/Header.vue';
   import { useOfferStore } from '@/store/offer';
   import OfferModal from './OfferModal/OfferModal.vue';
-  import FilterInput from '../../components/FilterInput.vue';
   import Button from '@/components/Button.vue';
   import { useConfirmationDialog } from '@/composables/useConfirmationDialog';
-  import { Offer } from '@/types/types';
+  import { Offer, OfferFilters } from '@/types/types';
   import { formatDate } from '@/utils/formatDate';
-
-  /*
-Początek nowej logiki
-*/
 
   const { showConfirmationDialog, dialogRef, ConfirmationDialog } = useConfirmationDialog();
   const offerStore: ReturnType<typeof useOfferStore> = useOfferStore();
+
+  // Lokalne filtry w komponencie
+  const localFilters = ref<Partial<OfferFilters>>({
+    offerNumber: '',
+    customerName: '',
+    employeeName: '',
+    statusName: '',
+    createdAt: '',
+  });
+
+  // Debounce timer dla filtrów
+  let filterTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  const handleFilterChange = (column: keyof OfferFilters, value: string) => {
+    localFilters.value[column] = value;
+
+    // Debounce - czekamy 500ms po ostatniej zmianie
+    if (filterTimeout) {
+      clearTimeout(filterTimeout);
+    }
+
+    filterTimeout = setTimeout(() => {
+      // Reset do strony 1 przy zmianie filtrów
+      offerStore.fetchOffers(1, localFilters.value);
+    }, 500);
+  };
+
+  const handlePageChange = (page: number) => {
+    offerStore.fetchOffers(page, localFilters.value);
+  };
 
   const handleDelete = async (id: number | null) => {
     if (!id) return;
@@ -46,12 +71,14 @@ Początek nowej logiki
     openModal();
   };
 
-  /*
-Koniec nowej logiki
-*/
+  // Oblicz numer Lp na podstawie strony
+  const getRowNumber = (index: number) => {
+    if (!offerStore.pagination) return index + 1;
+    return (offerStore.pagination.current_page - 1) * offerStore.pagination.per_page + index + 1;
+  };
 
   onMounted(() => {
-    offerStore.fetchOffers();
+    offerStore.fetchOffers(1);
   });
 </script>
 
@@ -59,11 +86,14 @@ Koniec nowej logiki
   <ConfirmationDialog ref="dialogRef" />
   <div>
     <Header title="Oferty" />
-    <div v-if="offerStore.errors.length > 0" class="mb-4">
+    <div v-if="Object.keys(offerStore.errors).length > 0" class="mb-4">
       <ul class="bg-red-100 text-red-800 border border-red-400 p-4 rounded">
-        <li v-for="(error, index) in offerStore.errors" :key="index">
-          {{ error }}
-        </li>
+        <template v-for="(error, key) in offerStore.errors" :key="key">
+          <li v-if="Array.isArray(error)">
+            <span v-for="(err, idx) in error" :key="idx">{{ err }}</span>
+          </li>
+          <li v-else>{{ error }}</li>
+        </template>
       </ul>
     </div>
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -77,44 +107,57 @@ Koniec nowej logiki
               <th class="border border-gray-300 p-3 text-left">Lp</th>
               <th class="border border-gray-300 p-3 text-left">
                 Nr Oferty
-                <FilterInput
-                  :store="offerStore"
-                  column="offerNumber"
+                <input
+                  :value="localFilters.offerNumber"
+                  @input="handleFilterChange('offerNumber', ($event.target as HTMLInputElement).value)"
                   placeholder="Filtruj numer oferty"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
                 />
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Klient
-                <FilterInput
-                  :store="offerStore"
-                  column="customerName"
+                <input
+                  :value="localFilters.customerName"
+                  @input="handleFilterChange('customerName', ($event.target as HTMLInputElement).value)"
                   placeholder="Filtruj klientów"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
                 />
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Pracownik
-                <FilterInput
-                  :store="offerStore"
-                  column="employeeName"
+                <input
+                  :value="localFilters.employeeName"
+                  @input="handleFilterChange('employeeName', ($event.target as HTMLInputElement).value)"
                   placeholder="Filtruj pracownika"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
                 />
               </th>
               <th class="border border-gray-300 p-3 text-left">
                 Status
-                <FilterInput :store="offerStore" column="statusName" placeholder="Filtruj status" />
+                <input
+                  :value="localFilters.statusName"
+                  @input="handleFilterChange('statusName', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj status"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-left">Cena całkowita netto</th>
               <th class="border border-gray-300 p-3 text-left">Cena całkowita brutto</th>
               <th class="border border-gray-300 p-3 text-left">
                 Data stworzenia
-                <FilterInput :store="offerStore" column="createdAt" placeholder="Filtruj datę" />
+                <input
+                  :value="localFilters.createdAt"
+                  @input="handleFilterChange('createdAt', ($event.target as HTMLInputElement).value)"
+                  placeholder="Filtruj datę"
+                  class="p-2 text-xs border border-gray-300 rounded w-full mt-1"
+                />
               </th>
               <th class="border border-gray-300 p-3 text-left min-w-[150px]">Actions</th>
             </tr>
           </thead>
-          <tbody v-if="offerStore.filteredOffers.length > 0" class="text-gray-600 text-sm">
+          <tbody v-if="offerStore.offers.length > 0" class="text-gray-600 text-sm">
             <tr
-              v-for="(offer, index) in offerStore.filteredOffers as Offer[]"
+              v-for="(offer, index) in offerStore.offers as Offer[]"
               :key="offer.id ?? undefined"
               :class="[
                 'border-b border-gray-300 transition text-gray-700',
@@ -127,7 +170,7 @@ Koniec nowej logiki
                 },
               ]"
             >
-              <td class="border border-gray-300 p-3">{{ index + 1 }}</td>
+              <td class="border border-gray-300 p-3">{{ getRowNumber(index) }}</td>
               <td class="border border-gray-300 p-3">{{ offer.offerNumber }}</td>
               <td class="border border-gray-300 p-3">{{ offer.customer?.name ?? '-' }}</td>
               <td class="border border-gray-300 p-3">{{ offer.createdBy?.name ?? '-' }}</td>
@@ -155,6 +198,32 @@ Koniec nowej logiki
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Paginacja -->
+      <div v-if="offerStore.pagination" class="mt-4 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Strona {{ offerStore.pagination.current_page }} z {{ offerStore.pagination.last_page }}
+          ({{ offerStore.pagination.total }} ofert)
+        </div>
+        <div class="flex gap-2">
+          <Button
+            @click="handlePageChange(offerStore.pagination!.current_page - 1)"
+            :disabled="offerStore.pagination.current_page === 1 || offerStore.isLoading"
+            variant="secondary"
+            size="small"
+          >
+            Poprzednia
+          </Button>
+          <Button
+            @click="handlePageChange(offerStore.pagination!.current_page + 1)"
+            :disabled="offerStore.pagination.current_page === offerStore.pagination.last_page || offerStore.isLoading"
+            variant="secondary"
+            size="small"
+          >
+            Następna
+          </Button>
+        </div>
       </div>
     </div>
     <OfferModal :isModalOpen="isModalOpen" :closeModal="closeModal" />

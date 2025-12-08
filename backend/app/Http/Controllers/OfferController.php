@@ -38,8 +38,8 @@ class OfferController extends Controller
     {
         $user = $request->user();  
 
-        if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
-        $offers = Offer::with([
+        // Buduj query z eager loading
+        $query = Offer::with([
             'customer',
             'offerDetails.coatingPrice.coatingType',
             'offerDetails.toolType',
@@ -49,34 +49,61 @@ class OfferController extends Controller
             'createdBy',
             'changedBy',
             'pdfInfo'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
-        } else {
-            $offers = Offer::with([
-            'customer',
-            'offerDetails.coatingPrice.coatingType',
-            'offerDetails.toolType',
-            'offerDetails.toolGeometry',
-            'offerDetails.tool',
-            'status',
-            'createdBy',
-            'changedBy',
-            'pdfInfo'
-            ])
-             ->where('created_by', $user->id)
-             ->orderBy('created_at', 'desc')
-            ->get();
+        ]);
+
+        // Filtrowanie po uprawnieniach użytkownika
+        if (!$user->hasRole('admin') && !$user->hasRole('regeneration')) {
+            $query->where('created_by', $user->id);
         }
 
+        // Filtrowanie po numerze oferty
+        if ($request->has('offer_number') && $request->offer_number) {
+            $query->where('offer_number', 'LIKE', '%' . $request->offer_number . '%');
+        }
 
-            $statuses = Status::all();
+        // Filtrowanie po nazwie klienta
+        if ($request->has('customer_name') && $request->customer_name) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->customer_name . '%');
+            });
+        }
 
-    return response()->json([
-        'offers' => $offers,
-        'statuses' => $statuses
-    ]);
-}
+        // Filtrowanie po nazwie pracownika
+        if ($request->has('employee_name') && $request->employee_name) {
+            $query->whereHas('createdBy', function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->employee_name . '%');
+            });
+        }
+
+        // Filtrowanie po statusie
+        if ($request->has('status_name') && $request->status_name) {
+            $query->whereHas('status', function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->status_name . '%');
+            });
+        }
+
+        // Filtrowanie po dacie utworzenia
+        if ($request->has('created_at') && $request->created_at) {
+            $query->whereDate('created_at', 'LIKE', '%' . $request->created_at . '%');
+        }
+
+        // Sortowanie i paginacja
+        $perPage = $request->input('per_page', 10);
+        $offers = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        $statuses = Status::all();
+
+        return response()->json([
+            'data' => $offers->items(),
+            'meta' => [
+                'current_page' => $offers->currentPage(),
+                'per_page' => $offers->perPage(),
+                'total' => $offers->total(),
+                'last_page' => $offers->lastPage(),
+            ],
+            'statuses' => $statuses
+        ]);
+    }
 
     public function store(OfferRequest $request)
     {

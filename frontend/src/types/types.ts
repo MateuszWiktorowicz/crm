@@ -69,6 +69,16 @@ export interface Customer {
   description: string;
 }
 
+export interface CustomerFilters {
+  code: string;
+  name: string;
+  nip: string;
+  city: string;
+  address: string;
+  salerMarker: string;
+  description: string;
+}
+
 export interface OfferDetail {
   id: number | null;
   offerId: number | null;
@@ -113,7 +123,38 @@ export interface OfferFilters {
   createdAt: string;
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+}
+
 export interface OfferResponse {
   offers: Offer[];
   statuses: Status[];
+}
+
+export interface PaginatedOfferResponse {
+  data: Offer[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+  statuses: Status[];
+}
+
+export interface PaginatedCustomerResponse {
+  data: Customer[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
 }
