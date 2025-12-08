@@ -37,6 +37,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/offers/{id}', [OfferController::class, 'show']);
     Route::get('/offers', [OfferController::class, 'index']);
+    Route::get('/offers/dashboard/stats', [OfferController::class, 'dashboard']);
     Route::post('/offers', [OfferController::class, 'store']);
     Route::put('/offers/{offer}', [OfferController::class, 'edit']);
     Route::delete('/offers/{offer}', [OfferController::class, 'destroy']);

@@ -277,6 +277,7 @@
     </td>
     <!-- Akcja -->
     <td class="border border-gray-300 px-3">
+      <Button @click="offerStore.cloneToolRow(index)" variant="info" class="mb-2"> Klonuj </Button>
       <Button @click="offerStore.removeToolRow(index)" variant="danger"> Usuń </Button>
     </td>
   </tr>

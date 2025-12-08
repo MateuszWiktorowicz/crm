@@ -229,6 +229,17 @@ Koniec nowej logiki
     removeToolRow(index: number) {
       this.offer.offerDetails.splice(index, 1);
     },
+    cloneToolRow(index: number) {
+      const originalDetail = this.offer.offerDetails[index];
+      const clonedDetail = JSON.parse(JSON.stringify(originalDetail));
+      
+      // Resetuj ID-y, żeby była to nowa pozycja
+      clonedDetail.id = null;
+      clonedDetail.offerId = null;
+      
+      // Wstaw sklonowaną pozycję zaraz po oryginalnej
+      this.offer.offerDetails.splice(index + 1, 0, clonedDetail);
+    },
     editOffer(offer: Offer) {
       this.isEditing = true;
       this.isInitialEditPhase = true;

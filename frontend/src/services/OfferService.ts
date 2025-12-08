@@ -63,4 +63,15 @@ export const OfferService = {
 
     return response.data;
   },
+
+  async getDashboardStats(params?: {
+    customer_id?: number;
+    employee_marker?: string;
+    period?: 'week' | 'month' | 'year' | 'custom';
+    start_date?: string;
+    end_date?: string;
+  }): Promise<any> {
+    const response = await axiosClient.get('/api/offers/dashboard/stats', { params });
+    return response.data;
+  },
 };

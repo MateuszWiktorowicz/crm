@@ -316,4 +316,144 @@ if (!$offer->offer_number) {
         'offer' => $offer,
     ]);
 }
+
+    public function dashboard(Request $request)
+    {
+        $user = $request->user();
+        
+        // Pobierz statusy
+        $statusRobocza = Status::where('name', 'Robocza')->first();
+        $statusWyslana = Status::where('name', 'Wysłana')->first();
+        $statusZamowienie = Status::where('name', 'Zamówienie')->first();
+        $statusOdrzucona = Status::where('name', 'Odrzucona')->first();
+        
+        // Buduj query z filtrowaniem
+        $query = Offer::with(['status', 'customer', 'createdBy']);
+        
+        // Filtrowanie po uprawnieniach użytkownika
+        if (!$user->hasRole('admin') && !$user->hasRole('regeneration')) {
+            $query->where('created_by', $user->id);
+        }
+        
+        // Filtrowanie po kliencie
+        if ($request->has('customer_id') && $request->customer_id) {
+            $query->where('customer_id', $request->customer_id);
+        }
+        
+        // Filtrowanie po handlowcu (po znaczniku z klienta)
+        if ($request->has('employee_marker') && $request->employee_marker) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('saler_marker', $request->employee_marker);
+            });
+        }
+        
+        // Filtrowanie po okresie
+        $period = $request->input('period', 'month'); // week, month, year, custom
+        $startDate = null;
+        $endDate = null;
+        
+        if ($period === 'week') {
+            $startDate = now()->startOfWeek();
+            $endDate = now()->endOfWeek();
+        } elseif ($period === 'month') {
+            $startDate = now()->startOfMonth();
+            $endDate = now()->endOfMonth();
+        } elseif ($period === 'year') {
+            $startDate = now()->startOfYear();
+            $endDate = now()->endOfYear();
+        } elseif ($period === 'custom' && $request->has('start_date') && $request->has('end_date')) {
+            $startDate = \Illuminate\Support\Carbon::parse($request->start_date)->startOfDay();
+            $endDate = \Illuminate\Support\Carbon::parse($request->end_date)->endOfDay();
+        }
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        $offers = $query->get();
+        
+        // Oblicz statystyki
+        $stats = [
+            'inPreparation' => $offers->where('status_id', $statusRobocza?->id)->count(),
+            'sent' => $offers->where('status_id', $statusWyslana?->id)->count(),
+            'accepted' => $offers->where('status_id', $statusZamowienie?->id)->count(),
+            'rejected' => $offers->where('status_id', $statusOdrzucona?->id)->count(),
+        ];
+        
+        // Wartość wygranych vs. przegranych
+        $wonValue = $offers->where('status_id', $statusZamowienie?->id)->sum('total_price');
+        // Przegrane to tylko oferty odrzucone (nie wysłane!)
+        $lostValue = $offers->where('status_id', $statusOdrzucona?->id)->sum('total_price');
+        
+        // Wartość ofert w okresie
+        $totalValue = $offers->sum('total_price');
+        
+        // Wartość w zależności od wybranego okresu - to jest wartość dla wybranego okresu
+        $periodValue = $totalValue;
+        
+        // Funkcja pomocnicza do zastosowania filtrów do query
+        $applyFilters = function ($baseQuery) use ($user, $request) {
+            // Filtrowanie po uprawnieniach użytkownika
+            if (!$user->hasRole('admin') && !$user->hasRole('regeneration')) {
+                $baseQuery->where('created_by', $user->id);
+            }
+            
+            // Filtrowanie po kliencie
+            if ($request->has('customer_id') && $request->customer_id) {
+                $baseQuery->where('customer_id', $request->customer_id);
+            }
+            
+            // Filtrowanie po handlowcu (po znaczniku z klienta)
+            if ($request->has('employee_marker') && $request->employee_marker) {
+                $baseQuery->whereHas('customer', function ($q) use ($request) {
+                    $q->where('saler_marker', $request->employee_marker);
+                });
+            }
+            
+            return $baseQuery;
+        };
+        
+        // Wartość miesięczna, kwartalna, roczna (z zastosowanymi filtrami)
+        $monthlyQuery = $applyFilters(Offer::query())
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year);
+        
+        $quarterlyQuery = $applyFilters(Offer::query())
+            ->whereBetween('created_at', [
+                now()->startOfQuarter(),
+                now()->endOfQuarter()
+            ]);
+        
+        $yearlyQuery = $applyFilters(Offer::query())
+            ->whereYear('created_at', now()->year);
+        
+        $monthlyValue = $monthlyQuery->sum('total_price');
+        $quarterlyValue = $quarterlyQuery->sum('total_price');
+        $yearlyValue = $yearlyQuery->sum('total_price');
+        
+        // Skuteczność ofert (%) - tylko zaakceptowane + odrzucone (bez wysłanych)
+        $totalDecided = $offers->whereIn('status_id', [
+            $statusZamowienie?->id,
+            $statusOdrzucona?->id
+        ])->count();
+        
+        $successRate = $totalDecided > 0 
+            ? ($stats['accepted'] / $totalDecided) * 100 
+            : 0;
+        
+        return response()->json([
+            'stats' => $stats,
+            'wonValue' => round($wonValue, 2),
+            'lostValue' => round($lostValue, 2),
+            'totalValue' => round($totalValue, 2),
+            'periodValue' => round($periodValue, 2),
+            'monthlyValue' => round($monthlyValue, 2),
+            'quarterlyValue' => round($quarterlyValue, 2),
+            'yearlyValue' => round($yearlyValue, 2),
+            'successRate' => round($successRate, 2),
+            'period' => $period,
+            'startDate' => $startDate?->toDateString(),
+            'endDate' => $endDate?->toDateString(),
+        ]);
+    }
 }
