@@ -8,12 +8,13 @@
     MenuItem,
     MenuItems,
   } from '@headlessui/vue';
-  import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+  import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
   import axiosClient from '../axios.js';
   import router from '../router.js';
   import { computed, onMounted } from 'vue';
   import { useUserStore } from '../store/user';
   import ApplicationLogo from '../components/ApplicationLogo.vue';
+  import NotificationBell from '../components/NotificationBell.vue';
 
   const userStore = useUserStore();
 
@@ -59,6 +60,8 @@
           </div>
           <div class="hidden md:block">
             <div class="ml-4 flex items-center md:ml-6">
+              <!-- Notifications -->
+              <NotificationBell />
               <!-- Profile dropdown -->
               <Menu as="div" class="relative ml-3">
                 <div>

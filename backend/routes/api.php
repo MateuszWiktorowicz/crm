@@ -8,7 +8,8 @@ use App\Http\Controllers\{
     UserController, 
     ToolController,
     OfferController,
-    SettingsController
+    SettingsController,
+    NotificationController
 };
 use App\Http\Controllers\Import\CustomerImportController;
 
@@ -50,5 +51,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::post('/settings', [SettingsController::class, 'store']);
     Route::put('/settings/{setting}', [SettingsController::class, 'update']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
 });
