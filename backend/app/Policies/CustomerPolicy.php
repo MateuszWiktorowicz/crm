@@ -13,15 +13,16 @@ class CustomerPolicy
      */
     public function create(User $user, array $data): bool
     {
-    if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
-        return true;
-    }
+        if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
+            return true;
+        }
 
-    if ($user->hasRole('saler') && isset($data['saler_marker']) && $data['saler_marker'] === $user->marker) {
-        return true;
-    }
+        // Użytkownik z markerem może tworzyć klientów z tym markerem
+        if ($user->marker && isset($data['saler_marker']) && $data['saler_marker'] === $user->marker) {
+            return true;
+        }
 
-    return false;
+        return false;
     }
 
     /**

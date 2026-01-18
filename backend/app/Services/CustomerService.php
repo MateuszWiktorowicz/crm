@@ -29,8 +29,14 @@ class CustomerService
         // Filtrowanie po uprawnieniach użytkownika
         if ($user->hasRole('admin') || $user->hasRole('regeneration')) {
             // Admin i regeneration widzą wszystkich klientów
-        } elseif ($user->hasRole('saler')) {
-            $query->where('saler_marker', $user->marker);
+        } elseif ($user->hasRole('saler') || $user->marker) {
+            // Handlowcy (z rolą saler) lub użytkownicy z markerem widzą tylko swoich klientów
+            if ($user->marker) {
+                $query->where('saler_marker', $user->marker);
+            } else {
+                // Jeśli ma rolę saler ale nie ma markera, nie widzi żadnych klientów
+                $query->whereRaw('1 = 0'); // Pusty wynik
+            }
         } else {
             return response()->json(['message' => 'Brak dostępu.'], 403);
         }
