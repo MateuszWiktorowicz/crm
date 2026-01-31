@@ -3,13 +3,15 @@ services:
     image: mariadb:11
     container_name: crm_mastermet_db
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: crm_mastermet
-      MYSQL_USER: crm_user
-      MYSQL_PASSWORD: crm_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-crm_mastermet}
+      MYSQL_USER: ${MYSQL_USER:-crm_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-crm_password}
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./docker/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -25,12 +27,14 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: crm_mastermet_phpmyadmin
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       PMA_HOST: mariadb
       PMA_PORT: 3306
-      PMA_USER: crm_user
-      PMA_PASSWORD: crm_password
-      MYSQL_ROOT_PASSWORD: root_password
+      PMA_USER: ${MYSQL_USER:-crm_user}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-crm_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
     ports:
       - "127.0.0.1:8081:80"
     depends_on:
@@ -49,15 +53,17 @@ services:
       - "8000:80"
     volumes:
       - .:/var/www/html
+    env_file:
+      - .env
     environment:
       - APP_ENV=${APP_ENV:-local}
       - APP_DEBUG=${APP_DEBUG:-true}
       - DB_CONNECTION=mysql
       - DB_HOST=mariadb
       - DB_PORT=3306
-      - DB_DATABASE=crm_mastermet
-      - DB_USERNAME=crm_user
-      - DB_PASSWORD=crm_password
+      - DB_DATABASE=${MYSQL_DATABASE:-crm_mastermet}
+      - DB_USERNAME=${MYSQL_USER:-crm_user}
+      - DB_PASSWORD=${MYSQL_PASSWORD:-crm_password}
     depends_on:
       mariadb:
         condition: service_healthy
