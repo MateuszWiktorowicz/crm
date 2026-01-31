@@ -1,13 +1,24 @@
 #!/bin/bash
 
 # Skrypt do konfiguracji cron dla automatycznych backupów
-# Użycie: ./setup-cron.sh [godzina] [minuta] [sciezka_do_klucza_ssh] [user@host:/sciezka/na/pulpit]
+# Użycie: ./setup-cron.sh [godzina] [minuta]
+# Lub uruchom bez argumentów, aby użyć trybu interaktywnego
 
-# Domyślne wartości
-HOUR=${1:-2}
-MINUTE=${2:-0}
-SSH_KEY=${3:-""}
-REMOTE_PATH=${4:-""}
+# Tryb interaktywny jeśli nie podano argumentów
+if [ $# -eq 0 ]; then
+    echo "=== Konfiguracja automatycznego backupu ==="
+    echo ""
+    
+    read -p "Podaj godzinę backupu (0-23, domyślnie 2): " HOUR
+    HOUR=${HOUR:-2}
+    
+    read -p "Podaj minutę backupu (0-59, domyślnie 0): " MINUTE
+    MINUTE=${MINUTE:-0}
+else
+    # Tryb z argumentami
+    HOUR=${1:-2}
+    MINUTE=${2:-0}
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_SCRIPT="${SCRIPT_DIR}/backup.sh"
@@ -19,11 +30,7 @@ if [ ! -f "$BACKUP_SCRIPT" ]; then
 fi
 
 # Utwórz komendę cron
-if [ -n "$SSH_KEY" ] && [ -n "$REMOTE_PATH" ]; then
-    CRON_CMD="$MINUTE $HOUR * * * $BACKUP_SCRIPT \"$SSH_KEY\" \"$REMOTE_PATH\" >> /var/log/crm_backup.log 2>&1"
-else
-    CRON_CMD="$MINUTE $HOUR * * * $BACKUP_SCRIPT >> /var/log/crm_backup.log 2>&1"
-fi
+CRON_CMD="$MINUTE $HOUR * * * $BACKUP_SCRIPT >> /var/log/crm_backup.log 2>&1"
 
 # Sprawdź czy już istnieje wpis w cron
 CRON_EXISTS=$(crontab -l 2>/dev/null | grep -c "$BACKUP_SCRIPT")

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Skrypt do tworzenia backupu bazy danych i wysyłania na pulpit
-# Użycie: ./backup.sh [sciezka_do_klucza_ssh] [user@host:/sciezka/na/pulpit]
+# Skrypt do tworzenia backupu bazy danych
+# Użycie: ./backup.sh
 
 # Konfiguracja
 BACKUP_DIR="/tmp/crm_backups"
@@ -33,27 +33,6 @@ if [ $? -eq 0 ]; then
     # Sprawdź rozmiar pliku
     FILE_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
     echo "Rozmiar backupu: $FILE_SIZE"
-    
-    # Jeśli podano parametry SSH, wyślij na pulpit
-    if [ $# -ge 2 ]; then
-        SSH_KEY="$1"
-        REMOTE_PATH="$2"
-        
-        echo "Wysyłanie backupu na pulpit..."
-        
-        if [ -f "$SSH_KEY" ]; then
-            scp -i "$SSH_KEY" "$BACKUP_FILE" "$REMOTE_PATH"
-        else
-            scp "$BACKUP_FILE" "$REMOTE_PATH"
-        fi
-        
-        if [ $? -eq 0 ]; then
-            echo "Backup wysłany pomyślnie!"
-        else
-            echo "Błąd podczas wysyłania backupu!"
-            exit 1
-        fi
-    fi
     
     # Usuń stare backupy (starsze niż 7 dni)
     echo "Usuwanie starych backupów (starszych niż 7 dni)..."
