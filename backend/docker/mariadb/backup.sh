@@ -15,18 +15,31 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${SCRIPT_DIR}/../../.env"
 
 if [ -f "$ENV_FILE" ]; then
-    # Pobierz hasło, usuwając cudzysłowy i białe znaki
-    ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD "$ENV_FILE" | cut -d '=' -f2 | tr -d ' "' | tr -d "'")
-    # Jeśli puste, użyj domyślnego
+    # Pobierz wartości z .env - użyj source lub eval aby poprawnie obsłużyć znaki specjalne
+    # Usuń komentarze i puste linie, potem source
+    ROOT_PASSWORD=$(grep "^MYSQL_ROOT_PASSWORD=" "$ENV_FILE" | cut -d '=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    USER_PASSWORD=$(grep "^MYSQL_PASSWORD=" "$ENV_FILE" | cut -d '=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    DB_USER=$(grep "^MYSQL_USER=" "$ENV_FILE" | cut -d '=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    
+    # Jeśli puste, użyj domyślnych
     if [ -z "$ROOT_PASSWORD" ]; then
         ROOT_PASSWORD="root_password"
     fi
+    if [ -z "$USER_PASSWORD" ]; then
+        USER_PASSWORD="crm_password"
+    fi
+    if [ -z "$DB_USER" ]; then
+        DB_USER="crm_user"
+    fi
 else
     ROOT_PASSWORD="root_password"
+    USER_PASSWORD="crm_password"
+    DB_USER="crm_user"
 fi
 
-# Debug - pokaż jakie hasło jest używane (bez wyświetlania hasła)
-echo "Używanie hasła z: $([ -f "$ENV_FILE" ] && echo ".env" || echo "domyślne")"
+# Debug - pokaż jakie dane są używane (bez wyświetlania haseł)
+echo "Używanie danych z: $([ -f "$ENV_FILE" ] && echo ".env" || echo "domyślne")"
+echo "Użytkownik: $DB_USER"
 
 # Utwórz katalog backupu jeśli nie istnieje
 mkdir -p "$BACKUP_DIR"
@@ -44,13 +57,14 @@ fi
 
 # Utwórz backup - najpierw spróbuj z użytkownikiem crm_user, potem root
 echo "Próba backupu z użytkownikiem $DB_USER..."
-docker exec "$CONTAINER_NAME" mariadb-dump -u"$DB_USER" -p"$USER_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
+# Użyj --password= zamiast -p aby uniknąć problemów ze znakami specjalnymi
+docker exec "$CONTAINER_NAME" mariadb-dump -u"$DB_USER" --password="$USER_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
 BACKUP_EXIT_CODE=${PIPESTATUS[0]}
 
 # Jeśli nie udało się z crm_user, spróbuj z root
 if [ $BACKUP_EXIT_CODE -ne 0 ]; then
     echo "Backup z użytkownikiem $DB_USER nie powiódł się, próba z root..."
-    docker exec "$CONTAINER_NAME" mariadb-dump -uroot -p"$ROOT_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
+    docker exec "$CONTAINER_NAME" mariadb-dump -uroot --password="$ROOT_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
     BACKUP_EXIT_CODE=${PIPESTATUS[0]}
 fi
 
@@ -70,9 +84,9 @@ else
     echo "Błąd podczas tworzenia backupu!"
     echo "Sprawdź czy hasła są poprawne w pliku .env"
     echo "Możesz przetestować połączenie:"
-    echo "docker exec $CONTAINER_NAME mariadb -u$DB_USER -p'$USER_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
+    echo "docker exec $CONTAINER_NAME mariadb -u$DB_USER --password='$USER_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
     echo "lub"
-    echo "docker exec $CONTAINER_NAME mariadb -uroot -p'$ROOT_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
+    echo "docker exec $CONTAINER_NAME mariadb -uroot --password='$ROOT_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
     
     # Usuń pusty plik backupu
     rm -f "$BACKUP_FILE"
