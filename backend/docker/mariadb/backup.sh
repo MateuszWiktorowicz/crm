@@ -15,19 +15,38 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${SCRIPT_DIR}/../../.env"
 
 if [ -f "$ENV_FILE" ]; then
-    ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD "$ENV_FILE" | cut -d '=' -f2)
+    # Pobierz hasło, usuwając cudzysłowy i białe znaki
+    ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD "$ENV_FILE" | cut -d '=' -f2 | tr -d ' "' | tr -d "'")
+    # Jeśli puste, użyj domyślnego
+    if [ -z "$ROOT_PASSWORD" ]; then
+        ROOT_PASSWORD="root_password"
+    fi
 else
     ROOT_PASSWORD="root_password"
 fi
+
+# Debug - pokaż jakie hasło jest używane (bez wyświetlania hasła)
+echo "Używanie hasła z: $([ -f "$ENV_FILE" ] && echo ".env" || echo "domyślne")"
 
 # Utwórz katalog backupu jeśli nie istnieje
 mkdir -p "$BACKUP_DIR"
 
 # Utwórz backup
 echo "Tworzenie backupu bazy danych..."
-docker exec "$CONTAINER_NAME" mariadb-dump -uroot -p"$ROOT_PASSWORD" "$DB_NAME" | gzip > "$BACKUP_FILE"
+echo "Kontener: $CONTAINER_NAME"
+echo "Baza: $DB_NAME"
 
-if [ $? -eq 0 ]; then
+# Sprawdź czy kontener działa
+if ! docker ps | grep -q "$CONTAINER_NAME"; then
+    echo "Błąd: Kontener $CONTAINER_NAME nie jest uruchomiony!"
+    exit 1
+fi
+
+# Utwórz backup
+docker exec "$CONTAINER_NAME" mariadb-dump -uroot -p"$ROOT_PASSWORD" "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
+BACKUP_EXIT_CODE=${PIPESTATUS[0]}
+
+if [ $BACKUP_EXIT_CODE -eq 0 ]; then
     echo "Backup utworzony: $BACKUP_FILE"
     
     # Sprawdź rozmiar pliku
@@ -41,5 +60,11 @@ if [ $? -eq 0 ]; then
     echo "Backup zakończony pomyślnie!"
 else
     echo "Błąd podczas tworzenia backupu!"
+    echo "Sprawdź czy hasło root jest poprawne w pliku .env"
+    echo "Możesz przetestować połączenie:"
+    echo "docker exec $CONTAINER_NAME mariadb -uroot -p'$ROOT_PASSWORD' -e 'SELECT 1;'"
+    
+    # Usuń pusty plik backupu
+    rm -f "$BACKUP_FILE"
     exit 1
 fi
