@@ -42,9 +42,17 @@ if ! docker ps | grep -q "$CONTAINER_NAME"; then
     exit 1
 fi
 
-# Utwórz backup
-docker exec "$CONTAINER_NAME" mariadb-dump -uroot -p"$ROOT_PASSWORD" "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
+# Utwórz backup - najpierw spróbuj z użytkownikiem crm_user, potem root
+echo "Próba backupu z użytkownikiem $DB_USER..."
+docker exec "$CONTAINER_NAME" mariadb-dump -u"$DB_USER" -p"$USER_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
 BACKUP_EXIT_CODE=${PIPESTATUS[0]}
+
+# Jeśli nie udało się z crm_user, spróbuj z root
+if [ $BACKUP_EXIT_CODE -ne 0 ]; then
+    echo "Backup z użytkownikiem $DB_USER nie powiódł się, próba z root..."
+    docker exec "$CONTAINER_NAME" mariadb-dump -uroot -p"$ROOT_PASSWORD" -h127.0.0.1 "$DB_NAME" 2>&1 | gzip > "$BACKUP_FILE"
+    BACKUP_EXIT_CODE=${PIPESTATUS[0]}
+fi
 
 if [ $BACKUP_EXIT_CODE -eq 0 ]; then
     echo "Backup utworzony: $BACKUP_FILE"
@@ -60,9 +68,11 @@ if [ $BACKUP_EXIT_CODE -eq 0 ]; then
     echo "Backup zakończony pomyślnie!"
 else
     echo "Błąd podczas tworzenia backupu!"
-    echo "Sprawdź czy hasło root jest poprawne w pliku .env"
+    echo "Sprawdź czy hasła są poprawne w pliku .env"
     echo "Możesz przetestować połączenie:"
-    echo "docker exec $CONTAINER_NAME mariadb -uroot -p'$ROOT_PASSWORD' -e 'SELECT 1;'"
+    echo "docker exec $CONTAINER_NAME mariadb -u$DB_USER -p'$USER_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
+    echo "lub"
+    echo "docker exec $CONTAINER_NAME mariadb -uroot -p'$ROOT_PASSWORD' -h127.0.0.1 -e 'SELECT 1;'"
     
     # Usuń pusty plik backupu
     rm -f "$BACKUP_FILE"
