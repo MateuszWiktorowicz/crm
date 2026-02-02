@@ -131,8 +131,10 @@ class OfferController extends Controller
                     'quantity' => $detail['quantity'],
                     'discount' => $detail['discount'],
                     'tool_net_price' => $detail['tool_net_price'],
+                    'is_tool_price_manual' => $detail['is_tool_price_manual'] ?? false,
                     'coating_price_id' => $detail['coating_price_id'] === 0 ? null : $detail['coating_price_id'], // Jeśli coating_price_id jest 0, ustaw na null
                     'coating_net_price' => $detail['coating_net_price'],
+                    'is_coating_price_manual' => $detail['is_coating_price_manual'] ?? false,
                     'radius' => $detail['radius'],
                     'regrinding_option' => $detail['regrinding_option'],
                     'description' => $detail['description'],
@@ -194,8 +196,10 @@ class OfferController extends Controller
                     'quantity' => $detail['quantity'],
                 'discount' => $detail['discount'] ?? 0,
                     'tool_net_price' => $detail['tool_net_price'],
+                    'is_tool_price_manual' => $detail['is_tool_price_manual'] ?? false,
                     'coating_price_id' => $detail['coating_price_id'] === null ? null : $detail['coating_price_id'], // Jeśli coating_price_id jest 0, ustaw na null
                     'coating_net_price' => $detail['coating_net_price'],
+                    'is_coating_price_manual' => $detail['is_coating_price_manual'] ?? false,
                     'radius' => $detail['radius'],
                     'regrinding_option' => $detail['regrinding_option'],
                     'description' => $detail['description'],

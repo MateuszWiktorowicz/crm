@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', '')),
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 'localhost,127.0.0.1,localhost:5173,127.0.0.1:5173,crm-api.mateuszwiktorowicz.pl')),
 
 
     /*

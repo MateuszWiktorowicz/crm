@@ -43,7 +43,9 @@
     return (
       detail.toolType?.toolTypeName !== undefined &&
       detail.toolType?.toolTypeName !== 'Niestandardowe' &&
-      detail.toolType?.toolTypeName !== 'Kartoteka'
+      detail.toolType?.toolTypeName !== 'Kartoteka' &&
+      detail.toolType?.toolTypeName !== 'Złom' &&
+      detail.toolType?.toolTypeName !== 'Zwrot'
     );
   };
 
@@ -55,7 +57,6 @@
     if (newCoating) {
       detail.coatingPrice = newCoating;
       detail.coatingNetPrice = newCoating.price;
-      detail.isCoatingPriceManual = false; // jeśli potrzebujesz
       console.log('[coating updated]', newCoating);
     } else {
       // Opcjonalnie: jeśli "Brak pokrycia"
@@ -243,6 +244,7 @@
         type="number"
         step="0.01"
         v-model="detail.coatingNetPrice"
+        @input="detail.isCoatingPriceManual = true"
         class="w-full p-2 border rounded text-[11px]"
       />
     </td>

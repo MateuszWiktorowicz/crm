@@ -14,7 +14,9 @@ export function useOfferLogic() {
     return (
       detail.toolType?.toolTypeName !== undefined &&
       detail.toolType?.toolTypeName !== 'Niestandardowe' &&
-      detail.toolType?.toolTypeName !== 'Kartoteka'
+      detail.toolType?.toolTypeName !== 'Kartoteka' &&
+      detail.toolType?.toolTypeName !== 'Złom' &&
+      detail.toolType?.toolTypeName !== 'Zwrot'
     );
   };
 
@@ -92,8 +94,18 @@ export function useOfferLogic() {
           );
 
           if (detail.toolGeometry !== newGeometry) {
+            // Zapamiętaj czy cena była ręczna przed zmianą geometrii
+            const wasPriceManual = detail.isToolPriceManual;
             detail.toolGeometry = newGeometry;
-            detail.isToolPriceManual = false;
+            // Jeśli detail ma ID (jest zapisany w bazie), nie resetuj flagi
+            // (flaga powinna być już ustawiona z bazy)
+            // Jeśli nie ma ID (nowa pozycja), resetuj flagę tylko jeśli nie była ręczna
+            if (!detail.id) {
+              if (!wasPriceManual) {
+                detail.isToolPriceManual = false;
+              }
+            }
+            // Jeśli ma ID, zachowaj flagę jak jest (z bazy)
           }
         }
 
@@ -142,6 +154,23 @@ export function useOfferLogic() {
         if (!oldVal || newVal.diameter !== oldVal.diameter || newVal.code !== oldVal.code) {
           const detail = offerStore.offer.offerDetails[index];
 
+          // Jeśli średnica jest null, ustaw pokrycie na null
+          if (detail.diameter === null || detail.diameter === undefined) {
+            detail.coatingPrice = {
+              id: 0,
+              diameter: 0,
+              price: 0,
+              coatingType: {
+                id: 0,
+                mastermetCode: 'none',
+              },
+            };
+            if (!detail.isCoatingPriceManual) {
+              detail.coatingNetPrice = 0;
+            }
+            return;
+          }
+
           const newCoating = coatingStore.findCoatingByDiameterAndCode(
             detail.diameter ?? null,
             detail.coatingPrice?.coatingType?.mastermetCode ?? null,
@@ -149,10 +178,21 @@ export function useOfferLogic() {
           );
 
           if (newCoating) {
-            detail.coatingPrice = newCoating;
+            // Aktualizuj obiekt coatingPrice tylko jeśli cena nie jest ręczna
+            // lub jeśli znalezione pokrycie ma inny ID (zmieniło się pokrycie)
+            if (!detail.isCoatingPriceManual || detail.coatingPrice?.id !== newCoating.id) {
+              detail.coatingPrice = newCoating;
+            }
+            // Aktualizuj cenę tylko jeśli nie jest ręcznie ustawiona
+            if (!detail.isCoatingPriceManual) {
+              detail.coatingNetPrice = newCoating.price ?? 0;
+            }
+          } else {
+            // Jeśli nie znaleziono pokrycia, ustaw cenę na 0 (chyba że jest ręczna)
+            if (!detail.isCoatingPriceManual) {
+              detail.coatingNetPrice = 0;
+            }
           }
-
-          detail.coatingNetPrice = detail.coatingPrice?.price ?? 0;
         }
       });
     },
@@ -179,7 +219,10 @@ export function useOfferLogic() {
     (details) => {
       details.forEach((detail: OfferDetail) => {
         if (detail.tool) {
-          detail.toolNetPrice = detail.tool.price ?? 0;
+          // Aktualizuj cenę tylko jeśli nie jest ręcznie ustawiona
+          if (!detail.isToolPriceManual) {
+            detail.toolNetPrice = detail.tool.price ?? 0;
+          }
           detail.symbol = detail.tool.code ?? '';
         }
       });

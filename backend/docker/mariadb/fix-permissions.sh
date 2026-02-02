@@ -1,7 +1,7 @@
 #!/bin/bash
 # Skrypt do naprawy uprawnień użytkownika w istniejącej bazie danych MariaDB
 
-docker exec -i crm_mastermet_db mysql -uroot -proot_password <<EOF
+docker exec -i crm_mastermet_db mariadb -uroot -proot_password <<EOF
 -- Usuń istniejącego użytkownika (jeśli istnieje tylko dla localhost)
 DROP USER IF EXISTS 'crm_user'@'localhost';
 DROP USER IF EXISTS 'crm_user'@'%';

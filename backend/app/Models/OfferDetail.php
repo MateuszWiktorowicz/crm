@@ -15,8 +15,10 @@ class OfferDetail extends Model
         'quantity',
         'discount',
         'tool_net_price',
+        'is_tool_price_manual',
         'coating_price_id',
         'coating_net_price',
+        'is_coating_price_manual',
         'radius',
         'regrinding_option',
         'description',
@@ -29,6 +31,8 @@ class OfferDetail extends Model
         'coating_net_price' => 'float',
         'discount' => 'float',
         'quantity' => 'integer',
+        'is_tool_price_manual' => 'boolean',
+        'is_coating_price_manual' => 'boolean',
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'file_id', 'coating_price_id', 'tool_type_id', 'tool_geometry_id'];
@@ -66,7 +70,9 @@ class OfferDetail extends Model
             'quantity' => $this->quantity,
             'discount' => $this->discount,
             'toolNetPrice' => $this->tool_net_price,
+            'isToolPriceManual' => $this->is_tool_price_manual ?? false,
             'coatingNetPrice' => $this->coating_net_price,
+            'isCoatingPriceManual' => $this->is_coating_price_manual ?? false,
             'radius' => $this->radius,
             'regrindingOption' => $this->regrinding_option,
             'description' => $this->description,

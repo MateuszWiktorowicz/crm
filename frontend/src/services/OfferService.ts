@@ -53,9 +53,11 @@ export const OfferService = {
         quantity: detail.quantity,
         discount: detail.discount,
         tool_net_price: detail.toolNetPrice,
+        is_tool_price_manual: detail.isToolPriceManual ?? false,
         coating_price_id:
           !detail.coatingPrice || detail.coatingPrice.id === 0 ? null : detail.coatingPrice.id,
         coating_net_price: detail.coatingNetPrice,
+        is_coating_price_manual: detail.isCoatingPriceManual ?? false,
         radius: detail.radius,
         regrinding_option: detail.regrindingOption,
         description: detail.description,

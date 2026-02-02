@@ -43,6 +43,8 @@ class OfferRequest extends FormRequest
             'offer_details.*.description' => 'nullable|string',
             'offer_details.*.fileId' => 'nullable',
             'offer_details.*.symbol' => 'nullable',
+            'offer_details.*.is_tool_price_manual' => 'nullable|boolean',
+            'offer_details.*.is_coating_price_manual' => 'nullable|boolean',
             'pdf_info.deliveryTime' => 'nullable|string',
             'pdf_info.offerValidity' => 'nullable|string',
             'pdf_info.paymentTerms' => 'nullable|string',

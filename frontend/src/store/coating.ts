@@ -68,7 +68,7 @@ const useCoatingStore = defineStore('coating', {
   getters: {
     findCoatingByDiameterAndCode: (state) => {
       return (diameter: number | null, code: string, toolType: string) => {
-        if (toolType === "Niestandardowe" || toolType === "Kartoteka") diameter = 20;
+        if (toolType === "Niestandardowe" || toolType === "Kartoteka" || toolType === "Złom" || toolType === "Zwrot") diameter = 20;
         if (diameter === null || code === 'none') {
           return null;
         }

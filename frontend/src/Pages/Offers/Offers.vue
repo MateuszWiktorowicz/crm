@@ -200,6 +200,7 @@
               <td class="border border-gray-300 p-3">
                 <div class="flex items-center gap-2">
                   <button
+                    type="button"
                     @click="handleEdit(offer)"
                     class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                     title="Edytuj"
@@ -214,6 +215,7 @@
                     </svg>
                   </button>
                   <button
+                    type="button"
                     @click="handleClone(offer)"
                     class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Klonuj"
