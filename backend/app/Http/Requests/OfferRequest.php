@@ -37,7 +37,7 @@ class OfferRequest extends FormRequest
             'offer_details.*.tool_net_price' => 'required|numeric|min:0',
             'offer_details.*.coating_net_price' => 'nullable|numeric|min:0',
             'offer_details.*.quantity' => 'required|integer|min:1',
-            'offer_details.*.discount' => 'nullable|numeric|min:0|max:100',
+            'offer_details.*.discount' => 'nullable|numeric|min:-100|max:100',
             'offer_details.*.radius' => 'numeric',
             'offer_details.*.regrinding_option' => 'nullable|string',
             'offer_details.*.description' => 'nullable|string',

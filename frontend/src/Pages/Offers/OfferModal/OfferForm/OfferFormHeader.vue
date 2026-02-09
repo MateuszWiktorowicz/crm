@@ -44,9 +44,10 @@
 
   const handleGlobalDiscountChange = (e: Event) => {
     const input = e.target as HTMLInputElement;
+    if (input.value === '' || input.value === '-') return;
     const value = parseFloat(input.value);
 
-    if (isNaN(value) || value < 0) {
+    if (isNaN(value)) {
       offer.value.globalDiscount = 0;
     }
   };
@@ -111,7 +112,8 @@
           type="number"
           v-model="offer.globalDiscount"
           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-          min="0"
+          min="-100"
+          max="100"
           step="0.1"
           @input="handleGlobalDiscountChange"
           placeholder="0.0"

@@ -13,6 +13,8 @@ export function useDiscountWatcher() {
         newDiscounts.forEach((discount, index) => {
           if (discount > 10) {
             offerStore.offer.offerDetails[index].discount = 10;
+          } else if (discount < -10) {
+            offerStore.offer.offerDetails[index].discount = -10;
           }
         });
       }
@@ -23,8 +25,12 @@ export function useDiscountWatcher() {
   watch(
     () => offerStore.offer.globalDiscount,
     (newGlobalDiscount) => {
-      if (!userStore.isCreator() && newGlobalDiscount > 10) {
-        offerStore.offer.globalDiscount = 10;
+      if (!userStore.isCreator()) {
+        if (newGlobalDiscount > 10) {
+          offerStore.offer.globalDiscount = 10;
+        } else if (newGlobalDiscount < -10) {
+          offerStore.offer.globalDiscount = -10;
+        }
       }
     }
   );
