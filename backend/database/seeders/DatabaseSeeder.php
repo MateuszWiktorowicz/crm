@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             ToolSeeder::class,
             CustomToolSeeder::class,
             CoatingsTypeSeeder::class,
-            CoatingsPricesSeeder::class
+            CoatingsPricesSeeder::class,
+            KatalogToolSeeder::class,
         ]);
     }
 }

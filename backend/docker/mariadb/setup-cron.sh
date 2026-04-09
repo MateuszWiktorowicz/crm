@@ -29,8 +29,11 @@ if [ ! -f "$BACKUP_SCRIPT" ]; then
     exit 1
 fi
 
-# Utwórz komendę cron
-CRON_CMD="$MINUTE $HOUR * * * $BACKUP_SCRIPT >> /var/log/crm_backup.log 2>&1"
+# Utwórz komendę cron z pełną ścieżką do bash i zmiennymi środowiskowymi
+# Cron używa minimalnego PATH, więc musimy użyć pełnych ścieżek
+# Używamy ~/crm_backup.log zamiast /var/log/ bo użytkownik ubuntu może nie mieć uprawnień
+LOG_FILE="$HOME/crm_backup.log"
+CRON_CMD="$MINUTE $HOUR * * * /bin/bash $BACKUP_SCRIPT >> $LOG_FILE 2>&1"
 
 # Sprawdź czy już istnieje wpis w cron
 CRON_EXISTS=$(crontab -l 2>/dev/null | grep -c "$BACKUP_SCRIPT")

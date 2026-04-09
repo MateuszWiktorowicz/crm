@@ -13,7 +13,7 @@ class ToolController extends Controller
 public function index()
 {
     $toolTypes = ToolType::orderBy('tool_type_name', 'asc')->get();
-    $files = Tool::All();
+    $files = Tool::with('coatingType')->get();
     $tools = ToolGeometry::with('toolType')
         ->orderBy('flutes_number', 'asc')
         ->get();

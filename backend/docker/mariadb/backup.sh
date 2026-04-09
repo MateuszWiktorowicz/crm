@@ -3,6 +3,9 @@
 # Skrypt do tworzenia backupu bazy danych
 # Użycie: ./backup.sh
 
+# Ustaw PATH dla cron (cron ma minimalny PATH)
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # Konfiguracja
 BACKUP_DIR="/tmp/crm_backups"
 CONTAINER_NAME="crm_mastermet_db"
