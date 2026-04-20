@@ -102,6 +102,9 @@ class KatalogToolSeeder extends Seeder
             ['code' => 'MC08.59.90°',       'name' => 'MC08.59.90°',       'price' => null, 'diameter' => 8,  'coating_type_id' => 1,      'face_grinding_price' => 43.08, 'full_grinding_price' => null],
             ['code' => 'MC10.60.90°',       'name' => 'MC10.60.90°',       'price' => null, 'diameter' => 10, 'coating_type_id' => 1,      'face_grinding_price' => 42.62, 'full_grinding_price' => null],
             ['code' => 'MC12.66.90°',       'name' => 'MC12.66.90°',       'price' => null, 'diameter' => 12, 'coating_type_id' => 1,      'face_grinding_price' => 51.18, 'full_grinding_price' => null],
+            // Fixed-price kartoteka items
+            ['code' => 'opakowanie',        'name' => 'opakowanie',        'price' => 2.00, 'diameter' => null, 'coating_type_id' => null,  'face_grinding_price' => null,  'full_grinding_price' => null],
+            ['code' => 'szlifowanie-obnizenia', 'name' => 'szlifowanie obniżenia', 'price' => 0.00, 'diameter' => null, 'coating_type_id' => null, 'face_grinding_price' => null, 'full_grinding_price' => null],
         ];
 
         foreach ($tools as $tool) {
