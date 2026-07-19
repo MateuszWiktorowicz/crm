@@ -255,11 +255,16 @@ class CustomToolSeeder extends Seeder
         //Frez promieniowy Z7
         ['flutes_number' => 7, 'diameter' => 10, 'face_grinding_time' => 22, 'periphery_grinding_time_2d_tool' => 16, 'id_tool_type' => 2],
         ['flutes_number' => 7, 'diameter' => 12, 'face_grinding_time' => 23, 'periphery_grinding_time_2d_tool' => 17, 'id_tool_type' => 2],
+        ['flutes_number' => 7, 'diameter' => 16, 'face_grinding_time' => 24, 'periphery_grinding_time_2d_tool' => 22, 'id_tool_type' => 2],
+        ['flutes_number' => 7, 'diameter' => 20, 'face_grinding_time' => 26, 'periphery_grinding_time_2d_tool' => 24, 'id_tool_type' => 2],
         //Frez promieniowy Z8
         ['flutes_number' => 8, 'diameter' => 20, 'face_grinding_time' => 30, 'periphery_grinding_time_2d_tool' => 27, 'id_tool_type' => 2],
         //Frez promieniowy Z9
         ['flutes_number' => 9, 'diameter' => 8, 'face_grinding_time' => 24, 'periphery_grinding_time_2d_tool' => 17, 'id_tool_type' => 2],
         ['flutes_number' => 9, 'diameter' => 10, 'face_grinding_time' => 25, 'periphery_grinding_time_2d_tool' => 20, 'id_tool_type' => 2],
+        ['flutes_number' => 9, 'diameter' => 12, 'face_grinding_time' => 27, 'periphery_grinding_time_2d_tool' => 26, 'id_tool_type' => 2],
+        ['flutes_number' => 9, 'diameter' => 16, 'face_grinding_time' => 28, 'periphery_grinding_time_2d_tool' => 26, 'id_tool_type' => 2],
+        ['flutes_number' => 9, 'diameter' => 20, 'face_grinding_time' => 30, 'periphery_grinding_time_2d_tool' => 28, 'id_tool_type' => 2],
         //
          ['flutes_number' => 2, 'diameter' => 4, 'face_grinding_time' => 6, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 8],
             ['flutes_number' => 2, 'diameter' => 5, 'face_grinding_time' => 6, 'periphery_grinding_time_2d_tool' => 2, 'id_tool_type' => 8],
@@ -329,6 +334,11 @@ class CustomToolSeeder extends Seeder
         ['flutes_number' => 9, 'diameter' => 16, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 15, 'id_tool_type' => 8],
         ['flutes_number' => 9, 'diameter' => 18, 'face_grinding_time' => 15, 'periphery_grinding_time_2d_tool' => 16, 'id_tool_type' => 8],
         ['flutes_number' => 9, 'diameter' => 20, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => 16, 'id_tool_type' => 8],
+        //Groty Z2
+        ['flutes_number' => 2, 'diameter' => 12, 'face_grinding_time' => 10, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 11],
+        ['flutes_number' => 2, 'diameter' => 16, 'face_grinding_time' => 12, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 11],
+        ['flutes_number' => 2, 'diameter' => 20, 'face_grinding_time' => 14, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 11],
+        ['flutes_number' => 2, 'diameter' => 22, 'face_grinding_time' => 16, 'periphery_grinding_time_2d_tool' => null, 'id_tool_type' => 11],
     ];
 
         foreach ($data as $product) {

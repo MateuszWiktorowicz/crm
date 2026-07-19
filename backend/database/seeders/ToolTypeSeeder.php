@@ -24,7 +24,8 @@ class ToolTypeSeeder extends Seeder
             'Kartoteka',
             'Frez Zgrubny',
             'Złom',
-            'Zwrot'
+            'Zwrot',
+            'Groty',
         ];
 
         foreach ($toolTypes as $toolType) {
